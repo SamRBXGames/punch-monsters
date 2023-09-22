@@ -1,0 +1,33 @@
+{
+  "name": "punch-monsters",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/Shared",
+      "Assets": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "Modules": {
+          "$path": "src/Shared/Modules",
+          "$ignoreUnknownInstances": true
+        }
+      },
+      "Packages": {
+        "$path": "Packages",
+        "$ignoreUnknownInstances": true
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/Server"
+    },
+    "StarterPlayerScripts": {
+      "$className": "StarterPlayerScripts",
+      "$path": "src/Client",
+      "$ignoreUnknownInstances": true
+    }
+  }
+}

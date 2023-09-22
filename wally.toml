@@ -1,0 +1,14 @@
+[package]
+name = "sam-rbx/punch-monsters"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+authors = ["Runic", "perikov"]
+realm = "shared"
+
+[dependencies]
+Knit = "sleitnick/knit@1.4.7"
+Component = "r-unic/componentize@0.2.1"
+Array = "r-unic/array@0.2.1"
+Signal = "sleitnick/signal@1.2.0"
+Input = "sleitnick/input@2.1.0"
+Janitor = "howmanysmall/janitor@1.15.6"
