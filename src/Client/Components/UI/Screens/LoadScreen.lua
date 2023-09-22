@@ -1,8 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local Tween = game:GetService("TweenService")
 
 local Client = script:FindFirstAncestorOfClass("LocalScript")
 local Packages = ReplicatedStorage.Packages
@@ -10,24 +8,23 @@ local Functions = Client.Functions
 
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 local Tweens = require(Functions.Tweens)
 local Constants = require(Functions.Constants)
 
 local player = Players.LocalPlayer
 
-local LoadScreen = Component.new({
-	Tag = script.Name,
-	Ancestors = {player.PlayerGui}
-})
+local LoadScreen: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		ClassName = "ScreenGui",
+		Ancestors = { player.PlayerGui }
+	};
+}
 
-function LoadScreen:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
+function LoadScreen:Initialize(): nil
 	self._preloader = Knit.GetController("PreloadController")
-	
 	self._finished = false
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
+	self._imageOffset = 0
 	
 	local playerGui = self.Instance:FindFirstAncestorOfClass("PlayerGui")
 	self._mainUI = playerGui.MainUi
@@ -38,6 +35,13 @@ function LoadScreen:Start(): nil
 	self._gloves = background.Gloves
 	self._transition = self.Instance.Transition
 	self:Activate()
+end
+
+function LoadScreen:Update(): nil
+	self._imageOffset %= 800
+	self._imageOffset += 1	
+	local increment = if self._imageOffset < 400 then 1 else -1 
+	self._gloves.Position += UDim2.fromOffset(increment, -increment)
 end
 
 function LoadScreen:Activate(): nil
@@ -51,15 +55,6 @@ function LoadScreen:Activate(): nil
 		self._bar.Skip.Visible = true
 	end)
 
-	local pos = 0
-	self._janitor:Add(RunService.RenderStepped:Connect(function()
-		pos %= 800
-		pos += 1	
-		local increment = if pos < 400 then 1 else -1 
-		self._gloves.Position += UDim2.fromOffset(increment, -increment)
-	end))
-
-
 	self._janitor:Add(self._bar.Skip.MouseButton1Click:Connect(function()
 		self._preloader.FinishedLoading:Fire()
 	end))
@@ -69,16 +64,16 @@ function LoadScreen:Activate(): nil
 	end))
 
 	self._preloader.FinishedLoading:Wait()
-	local fadeIn = game:GetService('TweenService'):Create(
+	local fadeIn = Tween:Create(
 		self._transition,
 		TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In),
 		{BackgroundTransparency = 0}
 	)
+
 	fadeIn:Play()
 	fadeIn.Completed:Wait()
-	
 	self._background.Visible = false
-	local fadeOut = game:GetService('TweenService'):Create(
+	local fadeOut = Tween:Create(
 		self._transition,
 		TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0.5),
 		{BackgroundTransparency = 1}
@@ -95,7 +90,6 @@ end
 
 function LoadScreen:UpdateProgressBar(progress: number): nil
 	self._bar.Title.Text = `Loading\n{math.round(progress * 100)}%`
-
 	self._bar.Progress:TweenSize(
 		UDim2.fromScale(math.max(progress, 0.05), 1),
 		Enum.EasingDirection.In,
@@ -120,8 +114,4 @@ function LoadScreen:AnimateBar(): nil
 	end
 end
 
-function LoadScreen:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return LoadScreen
+return Component.new(LoadScreen)

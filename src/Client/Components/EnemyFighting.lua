@@ -1,16 +1,16 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 
 local CameraShaker = require(ReplicatedStorage.Assets.Modules.CameraShaker)
-local Packages = ReplicatedStorage.Packages
-local EnemyTemplate = require(ReplicatedStorage.Templates.EnemiesTemplate)
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
+local EnemyTemplate = require(ReplicatedStorage.Templates.EnemiesTemplate)
+
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -25,22 +25,18 @@ cameraShaker:Start()
 
 local PUNCH_COOLDOWN = 0.25
 
-local EnemyFighting = Component.new({
-	Tag = script.Name,
-	Ancestors = {workspace.Map1.Enemies}
-})
+local EnemyFighting: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		Ancestors = { workspace.Map1.Enemies }
+	};
+}
 
-function EnemyFighting:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
-
+function EnemyFighting:Initialize(): nil
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")	
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
-	
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
-	self._fighting = false
 	
 	self._proxyPart = self.Instance:WaitForChild("ProxyPart")
 	self._proximityPrompt = Instance.new("ProximityPrompt")
@@ -48,6 +44,7 @@ function EnemyFighting:Start(): nil
 	self._proximityPrompt.ObjectText = "Fight"
 	self._proximityPrompt.Parent = self._proxyPart
 	
+	self._fighting = false
 	self._healthToDamageRatio = 5
 	self._strengthToHealthRatio = 20
 	
@@ -196,8 +193,4 @@ function EnemyFighting:Kill()
 	self:Exit()
 end
 
-function EnemyFighting:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return EnemyFighting
+return Component.new(EnemyFighting)

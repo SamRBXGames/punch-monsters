@@ -1,51 +1,32 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
 local Packages = ReplicatedStorage.Packages
-local Functions = Client.Functions
-local CodeTemplate = require(ReplicatedStorage.Templates.CodeTemplate)
-
-local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
-local Array = require(Packages.Array)
-local Tweens = require(Functions.Tweens)
-local Constants = require(Functions.Constants)
-local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
 local player = Players.LocalPlayer
 
-local Viewport = Component.new({
-	Tag = script.Name,
-	Ancestors = {player.PlayerGui}
-})
+local Viewport: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		ClassName = "ViewportFrame",
+		Ancestors = { player.PlayerGui }
+	};
+}
 
-function Viewport:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
-
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
+function Viewport:Initialize(): nil
+	self._camera = Instance.new("Camera")
+	self.Attributes.DefaultFOV = self.Attributes.FOV or 55
 	
-	local camera = Instance.new("Camera")
-	self.Instance:SetAttribute("DefaultFOV", self.Instance:GetAttribute("FOV") or 55)
-	
-	camera.CFrame = workspace:WaitForChild("ViewportCamera").CFrame
-	camera.FieldOfView = self.Instance:GetAttribute("DefaultFOV")
-	camera.Parent = self.Instance
-	self._janitor:Add(camera)
-	self._janitor:Add(self.Instance:GetAttributeChangedSignal("FOV"):Connect(function()
-		camera.FieldOfView = self.Instance:GetAttribute("FOV") or 55
-	end))
-	
-	self._camera = camera
-	self.Instance.CurrentCamera = camera
+	self._janitor:Add(self._camera)
+	self._camera.CFrame = workspace:WaitForChild("ViewportCamera").CFrame
+	self._camera.FieldOfView = self.Attributes.DefaultFOV
+	self._camera.Parent = self.Instance
+	self.Instance.CurrentCamera = self._camera
 end
 
-function Viewport:Destroy(): nil
-	self._janitor:Destroy()
+function Viewport:AttributeChanged_FOV(): nil
+	self._camera.FieldOfView = self.Attributes.FOV or 55
 end
 
 return Viewport

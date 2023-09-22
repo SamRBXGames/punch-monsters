@@ -1,14 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 
-local Packages = ReplicatedStorage.Packages
 local SitupBenchTemplate = require(ReplicatedStorage.Templates.SitupBenchTemplate)
 
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -17,21 +14,18 @@ local defaultCameraMinZoom = player.CameraMinZoomDistance
 
 local SITUP_COOLDOWN = 0.5
 
-local SitupBench = Component.new({
-	Tag = script.Name,
-	Ancestors = {workspace.Map1.SitupBenches, workspace.Map2.SitupBenches, workspace.Map3.SitupBenches}
-})
+local SitupBench: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		Ancestors = { workspace.Map1.SitupBenches, workspace.Map2.SitupBenches, workspace.Map3.SitupBenches }
+	};
+}
 
-function SitupBench:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
-	
+function SitupBench:Initialize(): nil	
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
-	
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
 	
 	self._proximityPrompt = Instance.new("ProximityPrompt")
 	self._proximityPrompt.HoldDuration = 1
@@ -97,8 +91,4 @@ function SitupBench:Situp(): nil
 	self._data:IncrementValue("AbsStrength", self._benchTemplate.Hit * absMultiplier)
 end
 
-function SitupBench:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return SitupBench
+return Component.new(SitupBench)

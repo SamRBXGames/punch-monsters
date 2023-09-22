@@ -1,35 +1,30 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local Packages = ReplicatedStorage.Packages
-local Functions = Client.Functions
+local trim = require(ReplicatedStorage.Assets.Modules.trim)
+
 local CodeTemplate = require(ReplicatedStorage.Templates.CodeTemplate)
 
-local trim = require(ReplicatedStorage.Assets.Modules.trim)
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
-local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
+local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
 
 local SUCCESS_STATUS_COLOR = Color3.fromRGB(55, 255, 55)
 local ERROR_STATUS_COLOR = Color3.fromRGB(255, 45, 45)
 
-local CodesScreen = Component.new({
-	Tag = script.Name,
-	Ancestors = {player.PlayerGui}
-})
+local CodesScreen: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		ClassName = "ScreenGui",
+		Ancestors = { player.PlayerGui }
+	};
+}
 
-function CodesScreen:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
+function CodesScreen:Initialize(): nil
 	self._data = Knit.GetService("DataService")
-	
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
 	
 	local background = self.Instance.Background
 	self._close = background.Close
@@ -79,8 +74,4 @@ function CodesScreen:PushStatus(message: string, err: boolean?): nil
 	end)
 end
 
-function CodesScreen:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return CodesScreen
+return Component.new(CodesScreen)

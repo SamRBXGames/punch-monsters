@@ -1,37 +1,33 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
-local CollectionService = game:GetService("CollectionService")
-local TweenService = game:GetService("TweenService")
+local Tween = game:GetService("TweenService")
 
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
 local Packages = ReplicatedStorage.Packages
 local Assets = ReplicatedStorage.Assets
-local CodeTemplate = require(ReplicatedStorage.Templates.CodeTemplate)
 
 local Knit = require(Packages.Knit)
-local Component = require(Packages.Component)
 local Janitor = require(Packages.Janitor)
-local Array = require(Packages.Array)
+local Component = require(Packages.Component)
+local Viewport = Component.Get("Viewport")
 
 local player = Players.LocalPlayer
 
 type Pet = typeof(PetsTemplate.Dog)
-local InventoryScreen = Component.new({
-	Tag = script.Name,
-	Ancestors = {player.PlayerGui}
-})
+local InventoryScreen: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		ClassName = "ScreenGui",
+		Ancestors = { player.PlayerGui }
+	};
+}
 
-function InventoryScreen:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
+function InventoryScreen:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._pets = Knit.GetService("PetService")
 	self._ui = Knit.GetController("UIController")
 	
-	self._janitor =  Janitor.new()
 	self._updateJanitor = Janitor.new()
-	self._janitor:Add(self.Instance)
 	
 	local background: ImageLabel = self.Instance.Background
 	self._background = background
@@ -39,7 +35,7 @@ function InventoryScreen:Start(): nil
 	self._petStats = background.Stats
 	self._petStats.Visible = false
 	
-	self._janitor:Add(self._data.DataUpdated:Connect(function(key, value)
+	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
 		if key ~= "Pets" then return end
 		self:UpdatePetCards()
 	end))
@@ -54,12 +50,13 @@ function InventoryScreen:ToggleSelectionFrame(on: boolean): nil
 		self._petStats.Visible = true
 	end
 	
-	TweenService:Create(self._background, info, {
+	Tween:Create(self._background, info, {
 		Position = backgroundPosition
 	}):Play()
-	local t = TweenService:Create(self._petStats, info, {
+	local t = Tween:Create(self._petStats, info, {
 		Position = statsPosition
 	})
+
 	t.Completed:Once(function()
 		self._petStats.Visible = on
 	end)
@@ -127,7 +124,7 @@ function InventoryScreen:UpdatePetCards(): nil
 			card.StrengthMultiplier.Text = `{pet.StrengthMultiplier}x`
 			card.Parent = self._container
 			
-			CollectionService:AddTag(viewport, "Viewport")
+			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, Assets.Pets[pet.Name])
 			self._updateJanitor:Add(card)
 			self._updateJanitor:Add(card.MouseButton1Click:Connect(function()
@@ -137,8 +134,4 @@ function InventoryScreen:UpdatePetCards(): nil
 	end
 end
 
-function InventoryScreen:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return InventoryScreen
+return Component.new(InventoryScreen)

@@ -1,20 +1,18 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local Packages = ReplicatedStorage.Packages
-local Functions = Client.Functions
 local EggTemplate = require(ReplicatedStorage.Templates.EggTemplate)
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
 
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
-local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
+local Component = require(Packages.Component)
+local Viewport = Component.Get("Viewport")
 
 local UserInterface = ReplicatedStorage.Assets.UserInterface
 local player = Players.LocalPlayer
@@ -23,19 +21,17 @@ local characterRoot = character:WaitForChild("HumanoidRootPart")
 
 local MAX_STAND_DISTANCE = 8
 
-local HatchingStand = Component.new({
-	Tag = script.Name,
-	Ancestors = {workspace.Map1.Eggs} --workspace.Map2.Eggs, workspace.Map3.Eggs
-})
+local HatchingStand: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		Ancestors = { workspace.Map1.Eggs } --workspace.Map2.Eggs, workspace.Map3.Eggs
+	};
+}
 
-function HatchingStand:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
+function HatchingStand:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
-	
-	self._janitor = Janitor.new()
-	self._janitor:Add(self.Instance)
 	self._hatching = false
 	
 	local eggUi = player.PlayerGui.EggUi
@@ -96,7 +92,7 @@ function HatchingStand:Hatch()
 	if self._hatching then return end
 	self._hatching = true
 	
-	local pet = self:ReturnPet(self._eggTemplate)
+	local pet = self:ReturnPet()
 	if not pet then
 		self._hatching = false
 		return warn("No pet returned from HatchingStand")
@@ -114,11 +110,13 @@ function HatchingStand:Hatch()
 	self._eggViewport:SetAttribute("ModelRotation", 0)
 	self._ui:AddModelToViewport(self._eggViewport, self._egg, { replaceModel = true })
 	self._ui:SetScreen("EggUi", true)
+
 	task.delay(2.5, function()
 		self._eggViewport:SetAttribute("FitModel", true)
 		self._eggViewport:SetAttribute("FOV", 15)
 		self._eggViewport:SetAttribute("ModelRotation", -120)
 		self._ui:AddModelToViewport(self._eggViewport, petModel, { replaceModel = true })
+
 		task.wait(2.5)
 		self._ui:SetScreen("MainUi", false)
 	end)
@@ -152,14 +150,14 @@ function HatchingStand:Auto(): nil
 	-- do stuff
 end
 
-function getDistanceFromPlayer(stand: Model): number
+local function getDistanceFromPlayer(stand: Model): number
 	local primaryPart = stand.Egg.PrimaryPart
-	if not primaryPart then error(`No primary part in egg "{stand.Egg:GetFullName()}"`) end 
+	if not primaryPart then error(`No primary part in egg "{stand.Egg:GetFullName()}"`) end
 	return (primaryPart.Position - characterRoot.Position).Magnitude
 end
 
 function HatchingStand:IsClosest(): boolean
-	local closestStand= Array.new(CollectionService:GetTagged(self.Tag) )
+	local closestStand= Array.new(CollectionService:GetTagged(self.Name))
 		:Filter(function(stand)
 			local distance = getDistanceFromPlayer(stand)
 			return distance <= MAX_STAND_DISTANCE
@@ -176,9 +174,9 @@ end
 
 function HatchingStand:AddPetCards(): nil
 	self._chancesUI = UserInterface.Hatching.HatchingUi:Clone()
-	local container: Frame = self._chancesUI.Background.PetChances
 	self._chancesUI.Enabled = true
 	
+	local container: Frame = self._chancesUI.Background.PetChances
 	task.spawn(function()
 		local pets = Array.new()
 		for pet, chance in self._eggTemplate.Chances do
@@ -200,7 +198,7 @@ function HatchingStand:AddPetCards(): nil
 			petCard.Chance.Text = `{pet.Chance}%`
 			petCard.Parent = container
 
-			CollectionService:AddTag(viewport,"Viewport")
+			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, petModel)
 			self._janitor:Add(petCard)
 		end
@@ -211,8 +209,4 @@ function HatchingStand:AddPetCards(): nil
 	self._chancesUI.Enabled = true
 end
 
-function HatchingStand:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return HatchingStand
+return Component.new(HatchingStand)

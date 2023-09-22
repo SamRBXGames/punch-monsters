@@ -1,17 +1,17 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local StarterPlayer = game:GetService("StarterPlayer")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 
 local CameraShaker = require(ReplicatedStorage.Assets.Modules.CameraShaker)
-local Array = require(ReplicatedStorage.Packages.Array)
-local Packages = ReplicatedStorage.Packages
+
 local PunchBagsTemplate = require(ReplicatedStorage.Templates.PunchBagsTemplate)
 
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
+local Array = require(Packages.Array)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -26,15 +26,15 @@ cameraShaker:Start()
 local MAX_BAG_DISTANCE = 6
 local PUNCH_COOLDOWN = 0.35
 
-local PunchingBag = Component.new({
-	Tag = script.Name,
-	Ancestors = {workspace.Map1.PunchingBags, workspace.Map2.PunchingBags, workspace.Map3.PunchingBags}
-})
+local PunchingBag: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		Ancestors = { workspace.Map1.PunchingBags, workspace.Map2.PunchingBags, workspace.Map3.PunchingBags }
+	};
+}
 
-function PunchingBag:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
-	
-	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")	
+function PunchingBag:Initialize(): nil	
+	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 end
@@ -45,7 +45,7 @@ local function getDistanceFromPlayer(bag: Model): number
 end
 
 function PunchingBag:IsClosest(): boolean
-	local closestBag = Array.new(CollectionService:GetTagged(self.Tag) )
+	local closestBag = Array.new(CollectionService:GetTagged(self.Tag))
 		:Filter(function(bag)
 			local distance = getDistanceFromPlayer(bag)
 			return distance <= MAX_BAG_DISTANCE
@@ -56,7 +56,7 @@ function PunchingBag:IsClosest(): boolean
 			return distanceA < distanceB
 		end)
 		:First()
-	
+
 	return closestBag == self.Instance
 end
 
@@ -82,7 +82,7 @@ function PunchingBag:Punch(): nil
 		return self._gamepass:PromptPurchase("VIP")
 	end
 	
-	task.spawn(function()	
+	task.spawn(function()
 		cameraShaker:Shake(CameraShaker.Presets.Rock)
 		local vfx = PunchBagsTemplate[mapName].VFX:Clone()
 		vfx.Parent = self.Instance:FindFirstChild("Cylinder")
@@ -93,4 +93,4 @@ function PunchingBag:Punch(): nil
 	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * punchMultiplier)
 end
 
-return PunchingBag
+return Component.new(PunchingBag)

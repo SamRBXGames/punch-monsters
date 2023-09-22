@@ -1,29 +1,25 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Slider = require(ReplicatedStorage.Packages.Slider)
 local Packages = ReplicatedStorage.Packages
-
 local Knit = require(Packages.Knit)
+local Slider = require(Packages.Slider)
 local Component = require(Packages.Component)
-local Janitor = require(Packages.Janitor)
 
 local player = Players.LocalPlayer
 
-local OFF_BACKGROUND = "rbxassetid://14509095890"
-local ON_BACKGROUND = "rbxassetid://14509094060"
-local OFF_TEXT = "rbxassetid://14509100683"
-local ON_TEXT = "rbxassetid://14509109517"
+local SettingsSlider: Component.Def = {
+	Name = script.Name;
+	Guards = {
+		Ancestors = { player.PlayerGui }
+	};
+}
 
-local SettingsSlider = Component.new({
-	Tag = script.Name,
-	Ancestors = {player.PlayerGui}
-})
-
-function SettingsSlider:Start(): nil
-	Knit.GetController("ComponentController"):Register(self)
+function SettingsSlider:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._settingName = self.Instance.Parent.Name
+
+	local initialized = false
 	local slider = Slider.new(self.Instance, {
 		MoveType = "Tween",
 		MoveInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad),
@@ -35,11 +31,7 @@ function SettingsSlider:Start(): nil
 		}
 	})
 	
-	self._janitor =  Janitor.new()
-	self._janitor:Add(self.Instance)
 	self._janitor:Add(slider)
-	
-	local initialized = false
 	self._janitor:Add(slider.Changed:Connect(function(value)
 		if not initialized then return end
 		self._data:SetSetting(self._settingName, value)
@@ -54,8 +46,4 @@ function SettingsSlider:Start(): nil
 	slider:Track()
 end
 
-function SettingsSlider:Destroy(): nil
-	self._janitor:Destroy()
-end
-
-return SettingsSlider
+return Component.new(SettingsSlider)

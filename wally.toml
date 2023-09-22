@@ -7,7 +7,7 @@ realm = "shared"
 
 [dependencies]
 Knit = "sleitnick/knit@1.4.7"
-Component = "r-unic/componentize@0.2.1"
+Component = "r-unic/componentize@0.2.2"
 Array = "r-unic/array@0.2.1"
 Signal = "sleitnick/signal@1.2.0"
 Input = "sleitnick/input@2.1.0"
