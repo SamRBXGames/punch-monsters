@@ -87,7 +87,7 @@ function InventoryScreen:SelectPet(pet: Pet): nil
 		self._petStats.Rarity.Text = pet.Rarity
 		self._petStats.Strength.Text = `{pet.StrengthMultiplier}x`
 		
-		local petModel = ReplicatedStorage.Assets.Pets:FindFirstChild(pet.Name)
+		local petModel = Assets.Pets:FindFirstChild(pet.Name)
 		if not petModel then
 			return warn(`Could not find pet model "{pet.Name}"`)
 		end

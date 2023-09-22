@@ -7,9 +7,9 @@ local Packages = ReplicatedStorage.Packages
 local Functions = Client.Functions
 
 local Knit = require(Packages.Knit)
+local Array = require(Packages.Array)
 local Component = require(Packages.Component)
 local Tweens = require(Functions.Tweens)
-local Constants = require(Functions.Constants)
 
 local player = Players.LocalPlayer
 
@@ -20,6 +20,7 @@ local LoadScreen: Component.Def = {
 		Ancestors = { player.PlayerGui }
 	};
 }
+
 
 function LoadScreen:Initialize(): nil
 	self._preloader = Knit.GetController("PreloadController")
@@ -99,18 +100,17 @@ function LoadScreen:UpdateProgressBar(progress: number): nil
 end
 
 function LoadScreen:AnimateBar(): nil
-	local tweens = {}
-	table.insert(tweens, {
-		Tweens.moveFromPosition(self._bar, self._bar.Position - UDim2.fromScale(0, 1), Constants.lowerUp),
-		true
-	})
+	local tweens = Array.new()
+	tweens:Push(
+		Tweens.moveFromPosition(self._bar,
+			self._bar.Position - UDim2.fromScale(0, 1),
+			TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+		)
+	)
 
-	for _, tweenTable in tweens do
-		local Tween: Tween = tweenTable[1]
-		Tween:Play()
-		if tweenTable[2] then
-			Tween.Completed:Wait()
-		end
+	for tween in tweens:Values() do
+		tween:Play()
+		tween.Completed:Wait()
 	end
 end
 

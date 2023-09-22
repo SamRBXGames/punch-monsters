@@ -4,7 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 
-local CameraShaker = require(ReplicatedStorage.Assets.Modules.CameraShaker)
+local Client = script:FindFirstAncestorOfClass("LocalScript")
+local CameraShaker = require(Client.Modules.CameraShaker)
 
 local PunchBagsTemplate = require(ReplicatedStorage.Templates.PunchBagsTemplate)
 

@@ -1,9 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+local Client = script:FindFirstAncestorOfClass("LocalScript")
+local Slider = require(Client.Modules.Slider)
+
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
-local Slider = require(Packages.Slider)
 local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
