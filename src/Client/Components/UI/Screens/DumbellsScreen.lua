@@ -63,7 +63,6 @@ function DumbellsScreen:Initialize(): nil
 				template.IsVIP = cardNumber == 15
 
 				if Dumbell.Equipped and Dumbell.EquippedDumbellTemplate ~= template then return end
-
 				if Dumbell.Equipped then
 					Dumbell:Unequip()
 				else

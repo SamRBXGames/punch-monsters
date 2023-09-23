@@ -88,18 +88,18 @@ function SitupBench:Exit(): nil
 end
 
 function SitupBench:Situp(): nil
-	if not self.Instance:GetAttribute("InUse") then return end
-	if self.Instance:GetAttribute("SitupDebounce") then return end
+	if not self.Attributes.InUse then return end
+	if self.Attributes.SitupDebounce then return end
 
-	 self.Instance:SetAttribute("SitupDebounce", true)
+	 self.Attributes.SitupDebounce = true
 	task.delay(SITUP_COOLDOWN, function()
-		self.Instance:SetAttribute("SitupDebounce", false)
+		self.Attributes.SitupDebounce = false
 	end)
 
-	local vip = self._gamepass:DoesPlayerOwn("VIP")
+	local hasVIP = self._gamepass:DoesPlayerOwn("VIP")
 	local hasStrengthBoost = self._gamepass:DoesPlayerOwn("2x Strength")
 	local absMultiplier = (if hasStrengthBoost then 2 else 1) * self._pets:GetTotalMultiplier()
-	if self._benchTemplate.Vip and not vip then
+	if self._benchTemplate.Vip and not hasVIP then
 		return self._gamepass:PromptPurchase("VIP")
 	end
 	
