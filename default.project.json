@@ -21,13 +21,20 @@
     },
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "$ignoreUnknownInstances": true,
-      "$path": "src/Server"
+      "Server": {
+        "$path": "src/Server",
+        "$ignoreUnknownInstances": true
+      }
     },
-    "StarterPlayerScripts": {
-      "$className": "StarterPlayerScripts",
-      "$path": "src/Client",
-      "$ignoreUnknownInstances": true
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/Client",
+          "$ignoreUnknownInstances": true
+        }
+      }
     }
   }
 }
