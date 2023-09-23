@@ -15,6 +15,7 @@ local UIController = Knit.CreateController {
 }
 
 function UIController:KnitStart(): nil
+	self._blur = Knit.GetController("BlurController")
 	Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
 	return
 end
@@ -31,18 +32,23 @@ function UIController:KnitInit(): nil
 	return
 end
 
-function UIController:SetScreen(name: string, blur: boolean?): nil
+function UIController:SetScreen(name: string, blur: boolean?): ScreenGui?
 	if blur ~= nil then
-		Tween:Create(game.Lighting:WaitForChild("Blur"), TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
-			Size = if blur then 24 else 0,
-		}):Play()
+		self._blur:Toggle(blur)
 	end
+
+	local setScreen: ScreenGui
 	for _, screen in player:WaitForChild("PlayerGui"):GetChildren() do
 		task.spawn(function()
-			screen.Enabled = screen.Name == name
+			local on = screen.Name == name
+			screen.Enabled = on
+			if on then
+				setScreen = screen
+			end
 		end)
 	end
-	return
+	
+	return setScreen
 end
 
 --local PlayerModule = player.PlayerScripts:WaitForChild("PlayerModule")

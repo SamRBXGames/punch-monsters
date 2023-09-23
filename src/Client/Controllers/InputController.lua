@@ -34,6 +34,9 @@ local InputTypeMap = {
 		forEachComponent("PunchingBag", "Punch")
 		forEachComponent("SitupBench", "Situp")
 		forEachComponent("EnemyFighting", "Attack")
+
+		local Dumbell = Knit.GetController("DumbellController")
+		Dumbell:Lift()
 	end
 }
 

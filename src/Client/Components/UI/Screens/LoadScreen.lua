@@ -23,7 +23,6 @@ local LoadScreen: Component.Def = {
 	};
 }
 
-
 function LoadScreen:Initialize(): nil
 	self._preloader = Knit.GetController("PreloadController")
 	self._finished = false
@@ -37,7 +36,11 @@ function LoadScreen:Initialize(): nil
 	self._bar = background.LoadingBar
 	self._gloves = background.Gloves
 	self._transition = self.Instance.Transition
-	self:Activate()
+	
+	task.spawn(function()
+		self:Activate()
+	end)
+
 	return
 end
 
