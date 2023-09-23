@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Packages = ReplicatedStorage.Packages
@@ -10,14 +12,16 @@ local RemoteDispatcher = Knit.CreateService {
 }
 
 local listenerModules: { ModuleScript } = script:GetChildren()
-for _, listenerModule in listenerModules do
-	local callback = require(listenerModule)
-	RemoteDispatcher[listenerModule.Name] = function(_, player: Player, ...)
-		callback(player, ...)
-	end
-	RemoteDispatcher.Client[listenerModule.Name] = function(self, player: Player, ...)
-		RemoteDispatcher[listenerModule.Name](self, player, ...)
-	end
+for _, listenerModule in pairs(listenerModules) do
+	task.spawn(function()
+		local callback = require(listenerModule) :: any
+		RemoteDispatcher[listenerModule.Name] = function(_, player: Player, ...)
+			callback(player, ...)
+		end
+		RemoteDispatcher.Client[listenerModule.Name] = function(self, player: Player, ...)
+			RemoteDispatcher[listenerModule.Name](self, player, ...)
+		end
+	end)
 end
 
 return RemoteDispatcher

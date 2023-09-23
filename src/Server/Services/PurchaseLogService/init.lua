@@ -45,6 +45,7 @@ function PurchaseLogService:Log(player: Player, productID: number, isGamepass: b
 			}
 		}
 	}))
+	return
 end
 
 return PurchaseLogService

@@ -1,6 +1,5 @@
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
-
+--!native
+--!strict
 local PROFILE_TEMPLATE = {	
 	leaderstats = {
 		Strength = 0,

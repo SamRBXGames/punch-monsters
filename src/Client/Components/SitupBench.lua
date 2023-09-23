@@ -17,7 +17,17 @@ local SITUP_COOLDOWN = 0.5
 local SitupBench: Component.Def = {
 	Name = script.Name;
 	Guards = {
-		Ancestors = { workspace.Map1.SitupBenches, workspace.Map2.SitupBenches, workspace.Map3.SitupBenches }
+		Ancestors = { workspace.Map1.SitupBenches, workspace.Map2.SitupBenches, workspace.Map3.SitupBenches },
+		ClassName = "Model",
+		Children = {
+			Cube = { ClassName = "MeshPart" },
+			TP = {
+				ClassName = "Part",
+				Transparency = 1,
+				Anchored = true,
+				CanCollide = false
+			}
+		}
 	};
 }
 
@@ -55,6 +65,7 @@ function SitupBench:Toggle(on: boolean): nil
 	self._proximityPrompt.Enabled = not on
 	self._exitBench.Visible = on
 	characterRoot.Anchored = on
+	return
 end
 
 function SitupBench:Enter(): nil
@@ -66,11 +77,13 @@ function SitupBench:Enter(): nil
 	self:Toggle(true)
 	characterRoot.CFrame = self.Instance.TP.CFrame
 	player.CameraMinZoomDistance = 4
+	return
 end
 
 function SitupBench:Exit(): nil
 	self:Toggle(false) 
 	player.CameraMinZoomDistance = defaultCameraMinZoom
+	return
 end
 
 function SitupBench:Situp(): nil
@@ -91,6 +104,7 @@ function SitupBench:Situp(): nil
 	end
 	
 	self._data:IncrementValue("AbsStrength", self._benchTemplate.Hit * absMultiplier)
+	return
 end
 
 return Component.new(SitupBench)

@@ -80,7 +80,7 @@ function TransactionService:KnitStart()
 				
 				task.spawn(function()
 					local player = Players:GetPlayerByUserId(receipt.PlayerId)
-					local devProductIDs= Array.new(getPageContents(MarketplaceService:GetDeveloperProductsAsync()))
+					local devProductIDs = Array.new("table", getPageContents(MarketplaceService:GetDeveloperProductsAsync()):ToTable())
 						:Map(function(product)
 							return product.ProductId
 						end)

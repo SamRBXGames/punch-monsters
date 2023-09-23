@@ -1,9 +1,11 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Array = require(ReplicatedStorage.Packages.Array)
 
 local validFormat = {8, 4, 4, 4, 12} -- XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 local uuidLength = 38
-local function IsValidID(id: string?): nil
+local function IsValidID(id: string?): boolean
 	if not id then return false end
 
 	local firstChar = id:sub(1, 1)
@@ -27,6 +29,7 @@ local function VerifyID(player: Player, id: string?): nil
 	if valid then return end
 
 	player:Kick("Exploiting | Fired signal with an invalid UUID")
+	return
 end
 
 return VerifyID

@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
@@ -20,8 +22,17 @@ local CodesScreen: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
+		Ancestors = { player.PlayerGui },
 		ClassName = "ScreenGui",
-		Ancestors = { player.PlayerGui }
+		Children = {
+			Background = {
+				ClassName = "ImageLabel",
+				Children = {
+					Close = { ClassName = "ImageButton" },
+					Redeem = { ClassName = "ImageButton" }
+				}
+			}
+		}
 	};
 }
 
@@ -37,6 +48,7 @@ function CodesScreen:Initialize(): nil
 	self._janitor:Add(self._redeem.MouseButton1Click:Connect(function()
 		self:Redeem()
 	end))
+	return
 end
 
 function CodesScreen:Redeem(): nil
@@ -57,14 +69,15 @@ function CodesScreen:Redeem(): nil
 		end)
 	end
 	
-	self:PushStatus("Successfully redeemed code!")
+	(self :: any):PushStatus("Successfully redeemed code!")
 	redeemedCodes:Push(code)
 	self._data:SetValue("RedeemedCodes", redeemedCodes:ToTable())
+	return
 end
 
 function CodesScreen:PushStatus(message: string, err: boolean?): nil
-	if self.Instance:GetAttribute("StatusDebounce") then return end
-	self.Instance:SetAttribute("StatusDebounce", true)
+	if self.Attributes.StatusDebounce then return end
+	self.Attributes.StatusDebounce = true
 	
 	self._status.Visible = true
 	self._status.Text = message
@@ -72,8 +85,9 @@ function CodesScreen:PushStatus(message: string, err: boolean?): nil
 	
 	task.delay(1,  function()
 		self._status.Visible = false
-		self.Instance:SetAttribute("StatusDebounce", false)
+		self.Attributes.StatusDebounce = false
 	end)
+	return
 end
 
 return Component.new(CodesScreen)

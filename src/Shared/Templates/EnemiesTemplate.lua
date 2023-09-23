@@ -1,3 +1,5 @@
+--!native
+--!strict
 local module = {
 	-- Map1
 	

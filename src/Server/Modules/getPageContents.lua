@@ -1,7 +1,9 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Array = require(ReplicatedStorage.Packages.Array)
 
-return function(pageManager: Pages): typeof(Array)
+return function(pageManager: Pages): typeof(Array.new())
 	local contents = Array.new()
 	while not pageManager.IsFinished do
 		local page = pageManager:GetCurrentPage()

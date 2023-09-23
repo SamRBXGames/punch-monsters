@@ -1,9 +1,10 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local Slider = require(Client.Modules.Slider)
+local Slider = require(script.Parent.Parent.Parent.Modules.Slider)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
@@ -15,7 +16,8 @@ local SettingsSlider: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		Ancestors = { player.PlayerGui }
+		Ancestors = { player.PlayerGui },
+		ClassName = "ImageButton"
 	};
 }
 
@@ -24,7 +26,7 @@ function SettingsSlider:Initialize(): nil
 	self._settingName = self.Instance.Parent.Name
 
 	local initialized = false
-	local slider = Slider.new(self.Instance, {
+	local slider = Slider.new(self.Instance :: any, {
 		MoveType = "Tween",
 		MoveInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad),
 		AllowBackgroundClick = true,
@@ -49,6 +51,7 @@ function SettingsSlider:Initialize(): nil
 	end)
 	
 	slider:Track()
+	return
 end
 
 return Component.new(SettingsSlider)

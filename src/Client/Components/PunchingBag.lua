@@ -4,8 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local CameraShaker = require(Client.Modules.CameraShaker)
+local CameraShaker = require(script.Parent.Parent.Modules.CameraShaker)
 
 local PunchBagsTemplate = require(ReplicatedStorage.Templates.PunchBagsTemplate)
 
@@ -30,7 +29,11 @@ local PUNCH_COOLDOWN = 0.35
 local PunchingBag: Component.Def = {
 	Name = script.Name;
 	Guards = {
-		Ancestors = { workspace.Map1.PunchingBags, workspace.Map2.PunchingBags, workspace.Map3.PunchingBags }
+		Ancestors = { workspace.Map1.PunchingBags, workspace.Map2.PunchingBags, workspace.Map3.PunchingBags },
+		ClassName = "Model",
+		Children = {
+			Cylinder = { ClassName = "MeshPart" }
+		}
 	};
 }
 
@@ -41,8 +44,7 @@ function PunchingBag:Initialize(): nil
 	return
 end
 
-local function getDistanceFromPlayer(bag: Model): number
-	if not bag:FindFirstChild("Cylinder") then error(`{bag:GetFullName()}.Cylinder does not exist.`) end
+local function getDistanceFromPlayer(bag: Model & { Cylinder: MeshPart }): number
 	return (bag.Cylinder.Position - characterRoot.Position).Magnitude
 end
 
@@ -71,7 +73,7 @@ function PunchingBag:Punch(): nil
 	local punchStrength = self._data:GetTotalStrength("Punch")
 	if punchStrength < bagTemplate.PunchRequirement then return end
 	
-	if self.Instance:GetAttribute("PunchDebounce") then return end
+	if self.Attributes.PunchDebounce then return end
 	self._remoteDispatcher:SetAttribute(self.Instance, "PunchDebounce", true)
 	task.delay(PUNCH_COOLDOWN, function()
 		self._remoteDispatcher:SetAttribute(self.Instance, "PunchDebounce", false)
@@ -87,12 +89,13 @@ function PunchingBag:Punch(): nil
 	task.spawn(function()
 		cameraShaker:Shake(CameraShaker.Presets.Rock)
 		local vfx = PunchBagsTemplate[mapName].VFX:Clone()
-		vfx.Parent = self.Instance:FindFirstChild("Cylinder")
+		vfx.Parent = self.Instance.Cylinder
 		game.Debris:AddItem(vfx, 0.5)
 		game.SoundService.PunchSound:Play()
 	end)
 
 	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * punchMultiplier)
+	return
 end
 
 return Component.new(PunchingBag)

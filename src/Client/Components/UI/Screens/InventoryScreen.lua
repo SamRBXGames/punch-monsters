@@ -13,13 +13,22 @@ local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
 
-type Pet = typeof(PetsTemplate.Dog)
+type Pet = typeof(PetsTemplate.Dog) & { Name: string }
 local InventoryScreen: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
 		ClassName = "ScreenGui",
-		Ancestors = { player.PlayerGui }
+		Ancestors = { player.PlayerGui },
+		Children = {
+			Background = {
+				ClassName = "ImageLabel",
+				Children = {
+					Pets = { ClassName = "ScrollingFrame" },
+					Stats = { ClassName = "ImageLabel" }
+				}
+			}
+		}
 	};
 }
 
@@ -28,18 +37,18 @@ function InventoryScreen:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
 	self._ui = Knit.GetController("UIController")
 	
-	self._updateJanitor = Janitor.new()
-	
-	local background: ImageLabel = self.Instance.Background
+	local background: ImageLabel & { Pets: ScrollingFrame; Stats: ImageLabel } = self.Instance.Background
 	self._background = background
 	self._container = background.Pets
 	self._petStats = background.Stats
 	self._petStats.Visible = false
 	
+	self._updateJanitor = Janitor.new()
 	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
 		if key ~= "Pets" then return end
 		self:UpdatePetCards()
 	end))
+	return
 end
 
 function InventoryScreen:ToggleSelectionFrame(on: boolean): nil
@@ -62,14 +71,18 @@ function InventoryScreen:ToggleSelectionFrame(on: boolean): nil
 		self._petStats.Visible = on
 	end)
 	t:Play()
+	return
 end
 
 local lastPetSelected
 local selectionJanitor = Janitor.new()
-local function toggleButton(button: ImageButton, on: boolean): nil
-	button.Image = button:GetAttribute(if on then "OnImage" else "OffImage")
-	button.Title.UIGradient.Color = button:GetAttribute(if on then "OnColor" else "OffColor")
-	button.Title.Text = if on then "Equip" else "Unequip"
+local function toggleButton(button: ImageButton & { Title: TextLabel & { UIGradient: UIGradient } }, on: boolean): nil
+	task.spawn(function()
+		button.Image = button:GetAttribute(if on then "OnImage" else "OffImage")
+		button.Title.UIGradient.Color = button:GetAttribute(if on then "OnColor" else "OffColor")
+		button.Title.Text = if on then "Equip" else "Unequip"
+	end)
+	return
 end
 
 function InventoryScreen:SelectPet(pet: Pet): nil
@@ -83,7 +96,7 @@ function InventoryScreen:SelectPet(pet: Pet): nil
 	local isEquipped = self._pets:IsEquipped(pet)
 	toggleButton(self._petStats.Equip, not isEquipped)
 	
-	task.spawn(function()
+	task.spawn(function(): nil
 		self._petStats.PetName.Text = pet.Name
 		self._petStats.Rarity.Text = pet.Rarity
 		self._petStats.Strength.Text = `{pet.StrengthMultiplier}x`
@@ -94,7 +107,7 @@ function InventoryScreen:SelectPet(pet: Pet): nil
 		end
 		
 		self._ui:AddModelToViewport(self._petStats.Viewport, petModel, { replaceModel = true })
-		self:ToggleSelectionFrame(true)
+		return self:ToggleSelectionFrame(true)
 	end)
 	
 	selectionJanitor:Add(self._petStats.Equip.MouseButton1Click:Connect(function()
@@ -110,6 +123,7 @@ function InventoryScreen:SelectPet(pet: Pet): nil
 	selectionJanitor:Add(self._petStats.Lock.MouseButton1Click:Connect(function()
 
 	end))
+	return
 end
 
 function InventoryScreen:UpdatePetCards(): nil
@@ -117,23 +131,22 @@ function InventoryScreen:UpdatePetCards(): nil
 	self._updateJanitor:Cleanup()
 	
 	local pets: { [string]: Pet } = self._data:GetValue("OwnedPets")
-	
 	for _, pet in pets do
 		task.spawn(function()
-			local card: ImageButton = Assets.UserInterface.Inventory.PetCard:Clone()
-			local viewport: ViewportFrame = card.Viewport
+			local card: ImageButton & { Viewport: ViewportFrame; StrengthMultiplier: TextLabel } = Assets.UserInterface.Inventory.PetCard:Clone()
 			card.StrengthMultiplier.Text = `{pet.StrengthMultiplier}x`
 			card.Parent = self._container
 			
 			local Viewport = Component.Get("Viewport")
-			Viewport:Add(viewport)
-			self._ui:AddModelToViewport(viewport, Assets.Pets[pet.Name])
+			Viewport:Add(card.Viewport)
+			self._ui:AddModelToViewport(card.Viewport, Assets.Pets[pet.Name])
 			self._updateJanitor:Add(card)
 			self._updateJanitor:Add(card.MouseButton1Click:Connect(function()
 				self:SelectPet(pet)
 			end))
 		end)
 	end
+	return
 end
 
 return Component.new(InventoryScreen)

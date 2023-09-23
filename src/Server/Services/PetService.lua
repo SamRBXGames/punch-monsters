@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -71,6 +73,7 @@ function PetService:Add(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 		pets.OwnedPets = ownedPets
 		self._data:SetValue(player, "Pets", pets)
 	end)
+	return
 end
 
 function PetService:GetPetSpace(player: Player): number
@@ -100,6 +103,7 @@ function PetService:Equip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 		pets.Equipped = equippedPets
 		self._data:SetValue(player, "Pets", pets)
 	end)
+	return
 end
 
 function PetService:Unequip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
@@ -113,6 +117,7 @@ function PetService:Unequip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 		pets.Equipped = equippedPets:ToTable()
 		self._data:SetValue(player, "Pets", pets)
 	end)
+	return
 end
 
 function PetService:IsEquipped(player: Player, pet: typeof(PetsTemplate.Dog)): boolean
@@ -135,15 +140,16 @@ function PetService:GetTotalMultiplier(player: Player): number
 		:Map(function(pet)
 			return pet.StrengthMultiplier
 		end)
-		:Reduce(function(total, mult)
+		:Reduce(function(total: number, mult: number)
 			return total + mult
 		end, 1)
 end
 
-function PetService:GetPetOrder(player: Player): number
+function PetService:GetPetOrder(player: Player): number?
 	AssertPlayer(player)
 	
-	local petFolder: Folder = player.Character:WaitForChild("Pets")
+	local character = player.Character or player.CharacterAdded:Wait()
+	local petFolder = character:WaitForChild("Pets") :: Folder
 	if #petFolder:GetChildren() == 0 then
 		return 1
 	end
@@ -160,6 +166,7 @@ function PetService:GetPetOrder(player: Player): number
 			return availableSlot
 		end
 	end
+	return
 end
 
 function PetService:StartFollowing(player: Player, pet: Model): nil
@@ -168,14 +175,16 @@ function PetService:StartFollowing(player: Player, pet: Model): nil
 		local janitor = Janitor.new()
 		janitor:LinkToInstance(pet, true)
 
-		local petFolder = player.Character:FindFirstChild("Pets")
+		local character = player.Character or player.CharacterAdded:Wait()
+		local petFolder = character:FindFirstChild("Pets") :: Folder?
 		if not petFolder then
-			petFolder = Instance.new("Folder", player.Character)
-			petFolder.Name = "Pets"
+			petFolder = Instance.new("Folder", player.Character);
+			(petFolder :: any).Name = "Pets"
 		end
 
-		pet:PivotTo(player.Character.PrimaryPart.CFrame)
-		local characterAttachment = Instance.new("Attachment", player.Character.PrimaryPart)
+		local primaryPart = character.PrimaryPart :: Part
+		pet:PivotTo(primaryPart.CFrame)
+		local characterAttachment = Instance.new("Attachment", primaryPart)
 		local petAttachment = Instance.new("Attachment", pet.PrimaryPart)
 		janitor:Add(characterAttachment)
 		janitor:Add(petAttachment)
@@ -216,12 +225,14 @@ function PetService:StartFollowing(player: Player, pet: Model): nil
 		end
 		
 		pet.Parent = petFolder
+		if not pet.PrimaryPart then return end
 		pet.PrimaryPart:SetNetworkOwner(player)
 	end)
+	return
 end
 
-local petJanitors = {}
-function PetService:UpdateFollowingPets(player: Player, pets: { typeof(PetsTemplate.Dog) }): number
+local petJanitors: { [number]: typeof(Janitor.new()) } = {}
+function PetService:UpdateFollowingPets(player: Player, pets: { typeof(PetsTemplate.Dog) & { Name: string } }): nil
 	AssertPlayer(player)
 	
 	local petsJanitor = petJanitors[player.UserId]
@@ -232,7 +243,7 @@ function PetService:UpdateFollowingPets(player: Player, pets: { typeof(PetsTempl
 	petsJanitor:Cleanup()
 
 	for _, pet in pets do
-		task.spawn(function()
+		task.spawn(function(): nil
 			local petModelTemplate = ReplicatedStorage.Assets.Pets:FindFirstChild(pet.Name)
 			if not petModelTemplate then
 				return warn(`Could not find pet model "{pet.Name}"`)
@@ -240,9 +251,10 @@ function PetService:UpdateFollowingPets(player: Player, pets: { typeof(PetsTempl
 
 			local petModel = petModelTemplate:Clone()
 			petsJanitor:Add(petModel)
-			self:StartFollowing(player, petModel, pet.ID)
+			return self:StartFollowing(player, petModel)
 		end)
 	end
+	return
 end
 
 function PetService.Client:Add(player, pet)

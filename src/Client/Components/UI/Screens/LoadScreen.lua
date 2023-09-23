@@ -1,16 +1,16 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Tween = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local Packages = ReplicatedStorage.Packages
-local Functions = Client.Functions
+local Tweens = require(script.Parent.Parent.Parent.Parent.Modules.Tweens)
 
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Array = require(Packages.Array)
 local Component = require(Packages.Component)
-local Tweens = require(Functions.Tweens)
 
 local player = Players.LocalPlayer
 
@@ -18,8 +18,8 @@ local LoadScreen: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		ClassName = "ScreenGui",
-		Ancestors = { player.PlayerGui }
+		Ancestors = { player.PlayerGui },
+		ClassName = "ScreenGui"
 	};
 }
 
@@ -38,13 +38,15 @@ function LoadScreen:Initialize(): nil
 	self._gloves = background.Gloves
 	self._transition = self.Instance.Transition
 	self:Activate()
+	return
 end
 
 function LoadScreen:Update(): nil
-	self._imageOffset %= 800
-	self._imageOffset += 1	
+	(self :: any)._imageOffset %= 800
+	(self :: any)._imageOffset += 1	
 	local increment = if self._imageOffset < 400 then 1 else -1 
-	self._gloves.Position += UDim2.fromOffset(increment, -increment)
+	(self :: any)._gloves.Position += UDim2.fromOffset(increment, -increment)
+	return
 end
 
 function LoadScreen:Activate(): nil
@@ -63,7 +65,8 @@ function LoadScreen:Activate(): nil
 	end))
 
 	self._janitor:Add(self._preloader.ContentLoaded:Connect(function()
-		self:UpdateProgressBar(self._preloader:GetLoaded() / self._preloader:GetRemaining())
+		local loaded: number = self._preloader:GetLoaded()
+		self:UpdateProgressBar(loaded / self._preloader:GetRemaining())
 	end))
 
 	self._preloader.FinishedLoading:Wait()
@@ -89,6 +92,7 @@ function LoadScreen:Activate(): nil
 	fadeOut:Play()
 	fadeOut.Completed:Wait()
 	self:Destroy()
+	return
 end
 
 function LoadScreen:UpdateProgressBar(progress: number): nil
@@ -99,13 +103,15 @@ function LoadScreen:UpdateProgressBar(progress: number): nil
 		Enum.EasingStyle.Linear,
 		0.35, true
 	)
+	return
 end
 
 function LoadScreen:AnimateBar(): nil
 	local tweens = Array.new("Instance")
+	local barPosition: UDim2 = self._bar.Position
 	tweens:Push(
 		Tweens.moveFromPosition(self._bar,
-			self._bar.Position - UDim2.fromScale(0, 1),
+			barPosition - UDim2.fromScale(0, 1),
 			TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
 		)
 	)
@@ -114,6 +120,7 @@ function LoadScreen:AnimateBar(): nil
 		tween:Play()
 		tween.Completed:Wait()
 	end
+	return
 end
 
 return Component.new(LoadScreen)

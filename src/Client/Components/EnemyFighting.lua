@@ -3,8 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Client = script:FindFirstAncestorOfClass("LocalScript")
-local CameraShaker = require(Client.Modules.CameraShaker)
+local CameraShaker = require(script.Parent.Parent.Modules.CameraShaker)
 
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
@@ -30,7 +29,19 @@ local PUNCH_COOLDOWN = 0.25
 local EnemyFighting: Component.Def = {
 	Name = script.Name;
 	Guards = {
-		Ancestors = { workspace.Map1.Enemies }
+		Ancestors = { workspace.Map1.Enemies },
+		ClassName = "Model",
+		Children = {
+			Head = { ClassName = "Part" },
+			HumanoidRootPart = { ClassName = "Part" },
+			Humanoid = { ClassName = "Humanoid" },
+			ProxyPart = {
+				ClassName = "Part",
+				Transparency = 1,
+				Anchored = true,
+				CanCollide = false
+			}
+		}
 	};
 }
 
@@ -80,12 +91,13 @@ end
 function EnemyFighting:Enter(): nil
 	if self.Instance:GetAttribute("InUse") then return end
 	
-	local playerStrength = self._data:GetValue("Strength")
+	local playerStrength: number = self._data:GetValue("Strength")
 	self._playerMaxHealth = playerStrength * self._healthToDamageRatio
 	self._playerHealth = self._playerMaxHealth
 	self._playerDamage = playerStrength
 	
-	characterRoot.CFrame = self._proxyPart.CFrame + Vector3.new(0, 2.5 * humanoid.BodyHeightScale.Value, 0)
+	local proxyCFrame: CFrame = self._proxyPart.CFrame;
+	characterRoot.CFrame = proxyCFrame + Vector3.new(0, 2.5 * humanoid.BodyHeightScale.Value, 0)
 	self:Toggle(true)
 	
 	task.spawn(function()
@@ -116,8 +128,8 @@ end
 function EnemyFighting:StartFight(): nil
 	self._fighting = true
 	task.spawn(function()
-		repeat task.wait(0.25)
-			self._playerHealth -= self._enemyDamage
+		repeat task.wait(0.25);
+			(self :: any)._playerHealth -= self._enemyDamage
 			self:UpdateBar()
 		until (self._playerHealth <= 0) or (self._enemyHealth <= 0)
 		if self._playerHealth <= 0 then
@@ -144,8 +156,8 @@ function EnemyFighting:Exit(): nil
 end
 
 function EnemyFighting:UpdateBar(): nil
-	local PlayerHPSize = math.clamp(self._playerHealth / self._playerMaxHealth, 0, 1)
-	local EnemyHPSize = math.clamp(self._enemyHealth / self._enemyMaxHealth, 0, 1)
+	local PlayerHPSize = math.clamp((self :: any)._playerHealth / self._playerMaxHealth, 0, 1)
+	local EnemyHPSize = math.clamp((self :: any)._enemyHealth / self._enemyMaxHealth, 0, 1)
 	
 	self._fightUi.Me.HP.Bar:TweenSize(
 		UDim2.fromScale(PlayerHPSize, 1),
@@ -173,9 +185,8 @@ function EnemyFighting:Attack(): nil
 		self.Attributes.PunchDebounce = false
 	end)
 	
-	cameraShaker:Shake(CameraShaker.Presets.Rock)
-	
-	self._enemyHealth -= self._playerDamage
+	cameraShaker:Shake(CameraShaker.Presets.Rock);
+	(self :: any)._enemyHealth -= self._playerDamage
 	self:UpdateBar()
 	if self._enemyHealth <= 0 then
 		self:Kill()
@@ -188,7 +199,7 @@ function EnemyFighting:AddWin(): nil
 	local hasWinsBoost = self._gamepass:DoesPlayerOwn("2x Wins")
 	local multiplier = if hasWinsBoost then 2 else 1
 
-	self._data:IncrementValue("Wins", self._enemyTemplate.Wins * multiplier)
+	self._data:IncrementValue("Wins", (self :: any)._enemyTemplate.Wins * multiplier)
 	return
 end
 

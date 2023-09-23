@@ -19,12 +19,17 @@ local ShopCategoryButton: Component.Def = {
 
 function ShopCategoryButton:Initialize(): nil
 	self._scroller = self.Instance.Parent:FindFirstChildOfClass("ScrollingFrame")
-	self._titleLabel = self._scroller:FindFirstChild(self.Instance.Name .. "Title")
+
+	local titleName: string = self.Instance.Name
+	self._titleLabel = self._scroller:FindFirstChild(titleName .. "Title")
+	return
 end
 
 function ShopCategoryButton:Event_MouseButton1Click(): nil
-	local yPosition = self._titleLabel.Position.Y.Scale * self._scroller.AbsoluteCanvasSize.Y
+	local titleScaleY: number = self._titleLabel.Position.Y.Scale
+	local yPosition = titleScaleY * self._scroller.AbsoluteCanvasSize.Y
 	self._scroller.CanvasPosition = Vector2.new(0, yPosition)
+	return
 end
 
 return Component.new(ShopCategoryButton)

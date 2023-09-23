@@ -1,16 +1,19 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
-local HttpService = game:GetService("HttpService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local HttpService = game:GetService("HttpService")
+
+local AssertPlayer = require(ServerScriptService.Server.Modules.AssertPlayer)
+local trim = require(ReplicatedStorage.Assets.Modules.trim)
 
 local Packages = ReplicatedStorage.Packages
-
-local trim = require(ReplicatedStorage.Assets.Modules.trim)
-local AssertPlayer = require(ServerScriptService.Server.Modules.AssertPlayer)
 local Knit = require(Packages.Knit)
 local Array = require(Packages.Array)
 
-local NAME_TO_ID_CACHE = {}
+local NAME_TO_ID_CACHE: { [string]: number } = {}
+
 local GamepassService = Knit.CreateService {
 	Name = "GamepassService"
 }
@@ -18,7 +21,7 @@ local GamepassService = Knit.CreateService {
 local apiEndpoint = `https://games.roproxy.com/v1/games/{game.GameId}/game-passes?limit=25`
 local PASS_CACHE
 
-local function getAllPasses(): { any }
+local function getAllPasses(): { { name: string, id: number } }
 	if PASS_CACHE then
 		return PASS_CACHE
 	end
@@ -33,7 +36,6 @@ local function getAllPasses(): { any }
 	return PASS_CACHE
 end
 
-local NAME_TO_ID_CACHE = {}
 local function getPassIDByName(name: string): number?
 	if NAME_TO_ID_CACHE[name] then
 		return NAME_TO_ID_CACHE[name]
@@ -61,6 +63,7 @@ function GamepassService:PromptPurchase(player: Player, passName: string): nil
 	local id = getPassIDByName(passName)
 	assert(id, `Failed to find gamepass ID for {passName}`)
 	MarketplaceService:PromptGamePassPurchase(player, id)
+	return
 end
 
 function GamepassService.Client:DoesPlayerOwn(player: Player, passName: string): boolean

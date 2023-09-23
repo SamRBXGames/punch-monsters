@@ -1,7 +1,7 @@
-local Abbreviator = require(game:GetService('ReplicatedStorage').Assets.Modules.Abbreviate)
-
+--!native
+--!strict
 local module = {
-	['Map1'] = {
+	Map1 = {
 		SitupBench1 = {
 			AbsRequirement = 0,
 			Hit = 1,
@@ -29,7 +29,7 @@ local module = {
 			Vip = true,
 		}
 	},
-	['Map2'] = {
+	Map2 = {
 		SitupBench1 = {
 			AbsRequirement = 0,
 			Hit = 10,
@@ -57,7 +57,7 @@ local module = {
 			Vip = true,
 		}
 	},
-	['Map3'] = {
+	Map3 = {
 		SitupBench1 = {
 			AbsRequirement = 0,
 			Hit = 75,

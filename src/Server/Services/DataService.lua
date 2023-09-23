@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -46,37 +48,44 @@ local function GetProfile(player: Player)
 	return profile
 end
 
-local function CreateLeaderstats(player: Player)
+local function CreateLeaderstats(player: Player): nil
 	AssertPlayer(player)
-	local leaderstats = Instance.new("Folder")
-	leaderstats.Name = "leaderstats"
-
-	for name, value in PROFILE_TEMPLATE.leaderstats do
-		local stat = Instance.new("StringValue")
-		stat.Name = name
-		stat.Value = value
-		stat.Parent = leaderstats
-	end
-
-	leaderstats.Parent = player
+	task.spawn(function()
+		local leaderstats = Instance.new("Folder")
+		leaderstats.Name = "leaderstats"
+	
+		for name, value in pairs(PROFILE_TEMPLATE.leaderstats) do
+			local stat = Instance.new("StringValue")
+			stat.Name = name
+			stat.Value = value
+			stat.Parent = leaderstats
+		end
+	
+		leaderstats.Parent = player
+	end)
+	return
 end
 
-local function CreatePetsFolder(player: Player)
+local function CreatePetsFolder(player: Player): nil
 	AssertPlayer(player)
 	local PetFolder = Instance.new("Folder")
 	PetFolder.Name = "PetFolder"
 	PetFolder.Parent = player
+	return
 end
 
-local function UpdateLeaderstats(player: Player)
+local function UpdateLeaderstats(player: Player): nil
 	AssertPlayer(player)
-	local Data = GetProfile(player).Data
-	local leaderstats = player:WaitForChild("leaderstats")
-
-	Data.leaderstats.Strength = Data.PunchStrength + Data.BicepsStrength + Data.AbsStrength
-	leaderstats.Strength.Value = abbreviate(Data.leaderstats.Strength)
-	leaderstats.Eggs.Value = abbreviate(Data.leaderstats.Eggs)
-	leaderstats.Rebirths.Value = abbreviate(Data.leaderstats.Eggs)
+	task.spawn(function()
+		local Data = GetProfile(player).Data
+		local leaderstats = player:WaitForChild("leaderstats")
+	
+		Data.leaderstats.Strength = Data.PunchStrength + Data.BicepsStrength + Data.AbsStrength;
+		(leaderstats :: any).Strength.Value = abbreviate(Data.leaderstats.Strength);
+		(leaderstats :: any).Eggs.Value = abbreviate(Data.leaderstats.Eggs);
+		(leaderstats :: any).Rebirths.Value = abbreviate(Data.leaderstats.Eggs)
+	end)
+	return
 end
 
 function DataService:KnitStart()
@@ -84,13 +93,13 @@ function DataService:KnitStart()
 	
 	for _, player in Players:GetPlayers() do
 		task.spawn(function()
-			DataService:OnPlayerAdded(player)
+			self:OnPlayerAdded(player)
 		end)
 	end
 		
 	Players.PlayerAdded:Connect(function(player)
 		task.wait(3)
-		DataService:OnPlayerAdded(player)
+		self:OnPlayerAdded(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local profile = Profiles[player]
@@ -99,7 +108,7 @@ function DataService:KnitStart()
 	end)
 end
 
-function DataService:OnPlayerAdded(player: Player)
+function DataService:OnPlayerAdded(player: Player): nil
 	local profile = ProfileStore:LoadProfileAsync("Player_" .. player.UserId)
 	if not profile then
 		return player:Kick()
@@ -117,9 +126,9 @@ function DataService:OnPlayerAdded(player: Player)
 		CreateLeaderstats(player)
 		CreatePetsFolder(player)
 		UpdateLeaderstats(player)
-		self:InitializeClientUpdate(player)
+		return self:InitializeClientUpdate(player)
 	else
-		profile:Release()
+		return profile:Release()
 	end
 end
 
@@ -138,11 +147,13 @@ function DataService:InitializeClientUpdate(player: Player): nil
 		self:DataUpdate(player, "RedeemedCodes", profile.Data.RedeemedCodes)
 		self:DataUpdate(player, "Settings", profile.Data.Settings)
 	end)
+	return
 end
 
 function DataService:DataUpdate<T>(player: Player, key: string, value: T): nil
 	self.Client.DataUpdated:Fire(player, key, value)
 	self.DataUpdated:Fire(player, key, value)
+	return
 end
 
 --// General Functions
@@ -183,12 +194,14 @@ function DataService:SetValue<T>(player: Player, name: string, value: T): nil
 		task.spawn(UpdateLeaderstats, player)
 		self:DataUpdate(player, name, value)
 	end)
+	return
 end
 
 function DataService:IncrementValue(player: Player, name: string, amount: number): nil
 	AssertPlayer(player)
 	local value = self:GetValue(player, name)
 	self:SetValue(player, name, value + amount)
+	return
 end
 
 function DataService:GetValue(player: Player, name: string): any
@@ -202,6 +215,7 @@ function DataService:SetSetting<T>(player: Player, settingName: string, value: T
 	local Settings = self:GetValue(player, "Settings")
 	Settings[settingName] = value
 	self:SetValue(player, "Settings", Settings)
+	return
 end
 
 function DataService:GetSetting(player: Player, settingName: string): any

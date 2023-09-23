@@ -1,3 +1,5 @@
+--!native
+--!strict
 local Abbreviations = {
 	["K"] = 4,
 	["M"] = 7,
@@ -18,7 +20,7 @@ return function(n: number)
 	local text = ("%.f"):format(math.floor(n))
 	local chosenAbbreviation
 	
-	for abbreviation, digit in Abbreviations do
+	for abbreviation, digit in pairs(Abbreviations) do
 		if #text >= digit and #text < (digit + 3) then
 			chosenAbbreviation = abbreviation
 			break

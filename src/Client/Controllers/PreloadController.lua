@@ -1,3 +1,5 @@
+--!native
+--!strict
 local CollectionService = game:GetService("CollectionService")
 local ContentProvider = game:GetService("ContentProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,7 +16,7 @@ local PreloadController = Knit.CreateController {
 	FinishedLoading = Signal.new();
 }
 
-function PreloadController:KnitInit()
+function PreloadController:KnitInit(): nil
 	task.spawn(function()
 		for _, asset in toPreload do
 			local id
@@ -36,6 +38,7 @@ function PreloadController:KnitInit()
 		
 		self.FinishedLoading:Fire()
 	end)
+	return
 end
 
 function PreloadController:GetLoaded(): number

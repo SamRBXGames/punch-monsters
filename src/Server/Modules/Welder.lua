@@ -1,7 +1,9 @@
+--!native
+--!strict
 local Weld = {}
 
-function Weld.WeldConstraint(BasePart, WeldParts)
-	for Number, Object in pairs(WeldParts) do
+function Weld.WeldConstraint(BasePart, WeldParts): nil
+	for _, Object in pairs(WeldParts) do
 		if Object:IsA("BasePart") then
 			if Object == BasePart then
 			else
@@ -12,10 +14,11 @@ function Weld.WeldConstraint(BasePart, WeldParts)
 			end
 		end
 	end
+	return
 end
 
-function Weld.Weld(BasePart, WeldParts)
-	for Number, Object in pairs(WeldParts) do
+function Weld.Weld(BasePart, WeldParts): nil
+	for _, Object in pairs(WeldParts) do
 		if Object:IsA("BasePart") then
 			if Object == BasePart then
 				continue
@@ -23,12 +26,13 @@ function Weld.Weld(BasePart, WeldParts)
 			
 			local Weld = Instance.new("Weld")
 			Weld.Part0 = Object
-			Weld.C0 = Weld.Part0.CFrame:Inverse()
+			Weld.C0 = (Weld.Part0 :: Part).CFrame:Inverse()
 			Weld.Part1 = BasePart
-			Weld.C1 = Weld.Part1.CFrame:Inverse()
+			Weld.C1 = (Weld.Part1 :: Part).CFrame:Inverse()
 			Weld.Parent = Object
 		end
 	end
+	return
 end
 
 return Weld

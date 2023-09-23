@@ -1,11 +1,11 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
-local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
+local Tween = game:GetService("TweenService")
 
 local Packages = ReplicatedStorage.Packages
-
 local Knit = require(Packages.Knit)
 
 local player = Players.LocalPlayer
@@ -14,7 +14,12 @@ local UIController = Knit.CreateController {
 	Name = "UIController";
 }
 
-function UIController:KnitInit()
+function UIController:KnitStart(): nil
+	Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
+	return
+end
+
+function UIController:KnitInit(): nil
 	task.spawn(function()
 		repeat 
 			local success = pcall(function() 
@@ -23,11 +28,12 @@ function UIController:KnitInit()
 			task.wait(1)
 		until success
 	end)
+	return
 end
 
 function UIController:SetScreen(name: string, blur: boolean?): nil
 	if blur ~= nil then
-		TweenService:Create(game.Lighting:WaitForChild("Blur"), TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
+		Tween:Create(game.Lighting:WaitForChild("Blur"), TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
 			Size = if blur then 24 else 0,
 		}):Play()
 	end
@@ -36,6 +42,7 @@ function UIController:SetScreen(name: string, blur: boolean?): nil
 			screen.Enabled = screen.Name == name
 		end)
 	end
+	return
 end
 
 --local PlayerModule = player.PlayerScripts:WaitForChild("PlayerModule")
@@ -45,6 +52,7 @@ end
 function UIController:SetShiftLock(on: boolean): nil
 	--MouseLockController:OnMouseLockToggled()
 	--CameraController:SetIsMouseLocked(on)
+	return
 end
 
 function UIController:AddModelToViewport(viewport: ViewportFrame, modelTemplate: Model, options: { replaceModel: boolean? }?): nil
@@ -57,14 +65,14 @@ function UIController:AddModelToViewport(viewport: ViewportFrame, modelTemplate:
 	
 	task.spawn(function()
 		if replaceModel and viewport:FindFirstChild("model") then
-			viewport:FindFirstChild("model"):Destroy()
+			(viewport :: any).model:Destroy()
 		end
 		
 		local model: Model = modelTemplate:Clone()
 		model.Name = "model"
 		model.Parent = viewport
 		
-		local camera = viewport:WaitForChild("Camera")
+		local camera = viewport:WaitForChild("Camera") :: Camera
 		local modelCFrame = CFrame.lookAt(Vector3.zero, camera.CFrame.Position)
 		local fitModel = viewport:GetAttribute("FitModel")
 		if fitModel then
@@ -80,6 +88,8 @@ function UIController:AddModelToViewport(viewport: ViewportFrame, modelTemplate:
 
 		model:PivotTo(modelCFrame)
 	end)
+
+	return
 end
 
 return UIController

@@ -1,3 +1,5 @@
+--!native
+--!strict
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -13,15 +15,18 @@ local InputController = Knit.CreateController {
 }
 
 local function forEachComponent(componentName: string, actionName: string): nil
-	local componentManager = Component.Get(componentName)
-	local components = componentManager._ownedComponents:Filter(function(component)
-		return component.Name == componentName
-	end)
+	task.spawn(function()
+		local componentManager = Component.Get(componentName)
+		local components = componentManager.OwnedComponents:Filter(function(component)
+			return component.Name == componentName
+		end)
 
-	for component in components:Values() do
-		local action = component[actionName]
-		task.spawn(action, component)
-	end
+		for component in components:Values() do
+			local action = component[actionName]
+			task.spawn(action, component)
+		end
+	end)
+	return
 end
 
 local InputTypeMap = {
@@ -55,14 +60,14 @@ end
 
 function InputController:ExecuteAction(input: InputObject, type: "UserInputType" | "KeyCode")
 	local actionMap = if type == "KeyCode" then KeyboardInputMap else InputTypeMap
-	for inputType in actionMap do
-		if not Enum[type][inputType] then
+	for inputType in pairs(actionMap) do
+		if not (Enum :: any)[type][inputType] then
 			warn(`Listening for input on invalid {if type == "KeyCode" then "keycode" else "input type"}: {inputType}`)
 		end
 	end
 	
-	local actionName = input[type].Name
-	local action = actionMap[actionName]
+	local actionName: string = (input :: any)[type].Name
+	local action: () -> () = (actionMap :: any)[actionName]
 	if not action then return end
 	task.spawn(action)
 end

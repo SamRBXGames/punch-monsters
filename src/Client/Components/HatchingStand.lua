@@ -25,7 +25,16 @@ local HatchingStand: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		Ancestors = { workspace.Map1.Eggs } --workspace.Map2.Eggs, workspace.Map3.Eggs
+		Ancestors = { workspace.Map1.Eggs }, --workspace.Map2.Eggs, workspace.Map3.Eggs
+		ClassName = "Model",
+		Children = {
+			Egg = {
+				ClassName = "Model",
+				PrimaryPart = function(primary)
+					return primary ~= nil
+				end
+			}
+		}
 	};
 }
 
@@ -110,15 +119,15 @@ function HatchingStand:Hatch(): nil
 	
 	self._pets:Add(pet)
 	self._eggViewport:SetAttribute("FitModel", false)
-	self._eggViewport:SetAttribute("FOV", nil)
-	self._eggViewport:SetAttribute("ModelRotation", 0)
+	self._eggViewport:SetAttribute("FOV", nil :: any)
+	self._eggViewport:SetAttribute("ModelRotation", 0 :: any)
 	self._ui:AddModelToViewport(self._eggViewport, self._egg, { replaceModel = true })
 	self._ui:SetScreen("EggUi", true)
 
 	task.delay(2.5, function()
 		self._eggViewport:SetAttribute("FitModel", true)
-		self._eggViewport:SetAttribute("FOV", 15)
-		self._eggViewport:SetAttribute("ModelRotation", -120)
+		self._eggViewport:SetAttribute("FOV", 15 :: any)
+		self._eggViewport:SetAttribute("ModelRotation", -120 :: any)
 		self._ui:AddModelToViewport(self._eggViewport, petModel, { replaceModel = true })
 
 		task.wait(2.5)
@@ -150,7 +159,6 @@ function HatchingStand:BuyThree(): nil
 		end)
 	end
 	return
-
 end
 
 function HatchingStand:Auto(): nil
@@ -159,10 +167,9 @@ function HatchingStand:Auto(): nil
 	return
 end
 
-local function getDistanceFromPlayer(stand: Model): number
+local function getDistanceFromPlayer(stand: Model & { Egg: Model }): number
 	local primaryPart = stand.Egg.PrimaryPart
-	if not primaryPart then error(`No primary part in egg "{stand.Egg:GetFullName()}"`) end
-	return (primaryPart.Position - characterRoot.Position).Magnitude
+	return if primaryPart then (primaryPart.Position - characterRoot.Position).Magnitude else 1000
 end
 
 function HatchingStand:IsClosest(): boolean
@@ -188,22 +195,28 @@ function HatchingStand:AddPetCards(): nil
 	local container: Frame = self._chancesUI.Background.PetChances
 	task.spawn(function()
 		local pets = Array.new("table")
-		for pet, chance in self._eggTemplate.Chances do
+		type ChanceTable = {
+			Name: string;
+			Chance: number;
+		}
+
+		local chances: { [string]: number } = self._eggTemplate.Chances
+		for pet, chance in pairs(chances) do
 			pets:Push({
 				Name = pet, 
 				Chance = chance
 			})
 		end
 		
-		pets:SortMutable(function(a, b)
+		pets:SortMutable(function(a: ChanceTable, b: ChanceTable)
 			return a.Chance > b.Chance
 		end)
 		
 		for pet in pets:Values() do
 			self._chancesUI.Enabled = true
 			local petModel: Model? = ReplicatedStorage.Assets.Pets:FindFirstChild(pet.Name)		
-			local petCard: ImageLabel = UserInterface.Hatching.PetChanceCard:Clone()
-			local viewport: ViewportFrame = petCard.Viewport
+			local petCard: ImageLabel & { Viewport: ViewportFrame; Chance: TextLabel } = UserInterface.Hatching.PetChanceCard:Clone()
+			local viewport = petCard.Viewport
 			petCard.Chance.Text = `{pet.Chance}%`
 			petCard.Parent = container
 			
@@ -217,6 +230,7 @@ function HatchingStand:AddPetCards(): nil
 	self._chancesUI.Adornee = self._egg.PrimaryPart
 	self._chancesUI.Parent = player.PlayerGui
 	self._chancesUI.Enabled = true
+	return
 end
 
 return Component.new(HatchingStand)

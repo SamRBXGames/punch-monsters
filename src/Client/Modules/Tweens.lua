@@ -1,3 +1,5 @@
+--!native
+--!strict
 local Tween = game:GetService("TweenService")
 local tween = {}
 

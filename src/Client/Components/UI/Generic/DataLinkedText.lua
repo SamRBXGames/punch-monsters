@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
@@ -29,6 +31,7 @@ function DataLinkedText:Initialize(): nil
 		local value = self._data:GetValue(linkedKey)
 		self.Instance.Text = if self.Attributes.Abbreviate then abbreviate(value) else tostring(value)
 	end))
+	return
 end
 
 return Component.new(DataLinkedText)

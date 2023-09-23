@@ -1,3 +1,5 @@
+--!native
+--!strict
 local module = {
 	release = {
 		Wins = 115

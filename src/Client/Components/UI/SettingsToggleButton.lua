@@ -19,7 +19,11 @@ local SettingsToggleButton: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		Ancestors = { player.PlayerGui }
+		Ancestors = { player.PlayerGui },
+		ClassName = "ImageButton",
+		Children = {
+			Text = { ClassName = "ImageLabel" }
+		}
 	};
 }
 
@@ -31,17 +35,20 @@ function SettingsToggleButton:Initialize(): nil
 		if key ~= "Settings" then return end
 		self:UpdateImages()
 	end))
+	return
 end
 
 function SettingsToggleButton:Event_MouseButton1Click(): nil
 	local on: boolean = self._data:GetSetting(self._settingName)
 	self._data:SetSetting(self._settingName, not on)
+	return
 end
 
 function SettingsToggleButton:UpdateImages(): nil
 	local on: boolean = self._data:GetSetting(self._settingName)
 	self.Instance.Image = if on then ON_BACKGROUND else OFF_BACKGROUND
 	self.Instance.Text.Image = if on then ON_TEXT else OFF_TEXT
+	return
 end
 
 return Component.new(SettingsToggleButton)

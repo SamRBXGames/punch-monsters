@@ -1,242 +1,242 @@
-local HttpService = game:GetService("HttpService")
-
+--!native
+--!strict
 local module = {	
 	-- Map1Egg 1
 	
-	['Dog'] = {
+	["Dog"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 1.2,
 	},
-	['Cat'] = {
+	["Cat"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 1.2,
 	},
-	['Bunny'] = {
+	["Bunny"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 1.3,
 	},
-	['Pink Bunny'] = {
+	["Pink Bunny"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 1.5,
 	},
-	['Fox'] = {
+	["Fox"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 1.6,
 	},
 	
 	-- Map1 Egg 2
 	
-	['Bull'] = {
+	["Bull"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 2.2,
 	},
-	['Cow'] = {
+	["Cow"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 2.5,
 	},
-	['Chicken'] = {
+	["Chicken"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 3.2,
 	},
-	['Pig'] = {
+	["Pig"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 4,
 	},
-	['Monkey'] = {
+	["Monkey"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 7,
 	},
-	['Lucky Cat'] = {
+	["Lucky Cat"] = {
 		ID = nil,
-		Rarity = 'Legendary',
+		Rarity = "Legendary",
 		StrengthMultiplier = 15,
 	},
 	
 	-- Map1 Egg 3 Robux
 	
-	['Crowned Dog'] = {
+	["Crowned Dog"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 15,
 	},
-	['Crowned Cat'] = {
+	["Crowned Cat"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 22,
 	},
-	['Crowned Bunny'] = {
+	["Crowned Bunny"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 28,
 	},
-	['Crowned Pink Bunny'] = {
+	["Crowned Pink Bunny"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 40,
 	},
-	['Crowned Fox'] = {
+	["Crowned Fox"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 75,
 	},
-	['Huge Dragon'] = {
+	["Huge Dragon"] = {
 		ID = nil,
-		Rarity = 'Legendary Huge',
+		Rarity = "Legendary Huge",
 		StrengthMultiplier = 450,
 	},
 	
 	-- Map2 Egg 1
 	
-	['Capybara'] = {
+	["Capybara"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 5,
 	},
-	['Bear'] = {
+	["Bear"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 8,
 	},
-	['Tiger'] = {
+	["Tiger"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 16,
 	},
-	['Elephant'] = {
+	["Elephant"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 28,
 	},
-	['Lion'] = {
+	["Lion"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 40,
 	},
 	
 	-- Map2 Egg 2
 	
-	['Walrus'] = {
+	["Walrus"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 45,
 	},
-	['Ram'] = {
+	["Ram"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 55,
 	},
-	['Deer'] = {
+	["Deer"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 68,
 	},
-	['Bee'] = {
+	["Bee"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 82,
 	},
-	['Unicorn'] = {
+	["Unicorn"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 175,
 	},
-	['Dragon'] = {
+	["Dragon"] = {
 		ID = nil,
-		Rarity = 'Legendary',
+		Rarity = "Legendary",
 		StrengthMultiplier = 300,
 	},
-	['Hydra'] = {
+	["Hydra"] = {
 		ID = nil,
-		Rarity = 'Legendary Huge',
+		Rarity = "Legendary Huge",
 		StrengthMultiplier = 4575,
 	},
 	
 	-- Map3 Egg 1
 	
-	['Crystal Dog'] = {
+	["Crystal Dog"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 85,
 	},
-	['Crystal Cat'] = {
+	["Crystal Cat"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 100,
 	},
-	['Crystal Bunny'] = {
+	["Crystal Bunny"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 118,
 	},
-	['Spider'] = {
+	["Spider"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 125,
 	},
-	['Golem'] = {
+	["Golem"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 140,
 	},
 	
 	-- Map3 Egg 2
 	
-	['Flaming Dog'] = {
+	["Flaming Dog"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 150,
 	},
-	['Flaming Cat'] = {
+	["Flaming Cat"] = {
 		ID = nil,
-		Rarity = 'Common',
+		Rarity = "Common",
 		StrengthMultiplier = 185,
 	},
-	['Flaming Rock'] = {
+	["Flaming Rock"] = {
 		ID = nil,
-		Rarity = 'Uncommon',
+		Rarity = "Uncommon",
 		StrengthMultiplier = 225,
 	},
-	['Bat'] = {
+	["Bat"] = {
 		ID = nil,
-		Rarity = 'Rare',
+		Rarity = "Rare",
 		StrengthMultiplier = 226,
 	},
-	['Flaming Scorpion'] = {
+	["Flaming Scorpion"] = {
 		ID = nil,
-		Rarity = 'Epic',
+		Rarity = "Epic",
 		StrengthMultiplier = 425,
 	},	
-	['Flaming Dragon'] = {
+	["Flaming Dragon"] = {
 		ID = nil,
-		Rarity = 'Legendary',
+		Rarity = "Legendary",
 		StrengthMultiplier = 1100,
 	},	
-	['Flaming Hydra'] = {
+	["Flaming Hydra"] = {
 		ID = nil,
-		Rarity = 'Legendary Huge',
+		Rarity = "Legendary Huge",
 		StrengthMultiplier = 12000,
 	},	
 	
 	-- Robux Pets --
-	['Mystical Pyra'] = {
+	["Mystical Pyra"] = {
 		ID = nil,
-		Rarity = 'Huge',
+		Rarity = "Huge",
 		StrengthMultiplier = 1500,
 	},
 	
-	['Mystic Repear Heart'] = {
+	["Mystic Repear Heart"] = {
 		ID = nil,
-		Rarity = 'Huge',
+		Rarity = "Huge",
 		StrengthMultiplier = 7000,
 	},
 }

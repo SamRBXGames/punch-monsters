@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local StarterGui = game:GetService("StarterGui")
@@ -23,6 +25,7 @@ function PurchasePromptButton:Event_MouseButton1Click(): nil
 	else
 		MarketplaceService:PromptProductPurchase(player, productID)
 	end
+	return
 end
 
 return Component.new(PurchasePromptButton)
