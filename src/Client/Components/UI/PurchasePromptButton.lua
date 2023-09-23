@@ -23,4 +23,4 @@ function PurchasePromptButton:Event_MouseButton1Click(): nil
 	end
 end
 
-return PurchasePromptButton
+return Component.new(PurchasePromptButton)

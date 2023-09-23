@@ -1,3 +1,3 @@
-return function(player: Player, instance: Instance, name: string, value: unknown)
+return function<T>(player: Player, instance: Instance, name: string, value: T)
 	instance:SetAttribute(name, value)
 end

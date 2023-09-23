@@ -18,7 +18,7 @@ local GamepassService = Knit.CreateService {
 local apiEndpoint = `https://games.roproxy.com/v1/games/{game.GameId}/game-passes?limit=25`
 local PASS_CACHE
 
-local function getAllPasses(): { unknown }
+local function getAllPasses(): { any }
 	if PASS_CACHE then
 		return PASS_CACHE
 	end

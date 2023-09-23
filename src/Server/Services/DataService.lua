@@ -50,14 +50,6 @@ local function GetProfile(player: Player)
 	return profile
 end
 
-local function ReturnTypeOf(value: unknown): "IntValue" | "String"
-	if typeof(value) == "number" then
-		return "IntValue"
-	elseif typeof(value) == "string" then
-		return "String"
-	end
-end
-
 local function CreateLeaderstats(player: Player)
 	AssertPlayer(player)
 	local leaderstats = Instance.new("Folder")
@@ -152,7 +144,7 @@ function DataService:InitializeClientUpdate(player: Player): nil
 	end)
 end
 
-function DataService:DataUpdate(player: Player, key: string, value: unknown): nil
+function DataService:DataUpdate<T>(player: Player, key: string, value: T): nil
 	self.Client.DataUpdated:Fire(player, key, value)
 	self.DataUpdated:Fire(player, key, value)
 end
@@ -178,7 +170,7 @@ local function ArePetDuplicatesFound(): boolean
 	return duplicatesFound
 end
 
-function DataService:SetValue(player: Player, name: string, value: unknown): nil
+function DataService:SetValue<T>(player: Player, name: string, value: T): nil
 	AssertPlayer(player)
 	task.spawn(function()
 		local Data = GetProfile(player).Data
@@ -203,20 +195,20 @@ function DataService:IncrementValue(player: Player, name: string, amount: number
 	self:SetValue(player, name, value + amount)
 end
 
-function DataService:GetValue(player: Player, name: string): unknown
+function DataService:GetValue(player: Player, name: string): any
 	AssertPlayer(player)
 	local Data = GetProfile(player).Data
 	return Data[name] or Data.leaderstats[name] or Data.Pets[name]
 end
 
-function DataService:SetSetting(player: Player, settingName: string, value: unknown): unknown
+function DataService:SetSetting<T>(player: Player, settingName: string, value: T): nil
 	AssertPlayer(player)
 	local Settings = self:GetValue(player, "Settings")
 	Settings[settingName] = value
 	self:SetValue(player, "Settings", Settings)
 end
 
-function DataService:GetSetting(player: Player, settingName: string): unknown
+function DataService:GetSetting(player: Player, settingName: string): any
 	AssertPlayer(player)
 	local Settings = self:GetValue(player, "Settings")
 	return Settings[settingName]

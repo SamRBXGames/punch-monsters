@@ -29,4 +29,4 @@ function Viewport:AttributeChanged_FOV(): nil
 	self._camera.FieldOfView = self.Attributes.FOV or 55
 end
 
-return Viewport
+return Component.new(Viewport)

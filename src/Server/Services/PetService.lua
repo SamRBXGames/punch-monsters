@@ -1,18 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local Modules = ServerScriptService.Server.Modules
-local Packages = ReplicatedStorage.Packages
-
 local VerifyID = require(Modules.VerifyID)
 local AssertPlayer = require(Modules.AssertPlayer)
 local Welder = require(Modules.Welder)
-local ProfileService = require(Modules.ProfileService)
+
+local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
+
+local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
-local Signal = require(Packages.Signal)
+local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
 
 local PetService = Knit.CreateService{

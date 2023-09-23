@@ -18,4 +18,4 @@ function Spin:Update()
 	self.Instance.Rotation += 1
 end
 
-return Spin
+return Component.new(Spin)
