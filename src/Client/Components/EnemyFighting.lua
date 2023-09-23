@@ -31,6 +31,10 @@ local EnemyFighting: Component.Def = {
 	Guards = {
 		Ancestors = { workspace.Map1.Enemies },
 		ClassName = "Model",
+		Attributes = {
+			InUse = { Type = "boolean" },
+			PunchDebounce = { Type = "boolean" }
+		},
 		Children = {
 			Head = { IsA = "BasePart" },
 			HumanoidRootPart = { ClassName = "Part" },

@@ -31,6 +31,9 @@ local PunchingBag: Component.Def = {
 	Guards = {
 		Ancestors = { workspace.Map1.PunchingBags, workspace.Map2.PunchingBags, workspace.Map3.PunchingBags },
 		ClassName = "Model",
+		Attributes = {
+			PunchDebounce = { Type = "boolean" }
+		},
 		Children = {
 			Cylinder = { ClassName = "MeshPart" }
 		}

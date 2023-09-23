@@ -19,6 +19,9 @@ local DumbellsScreen: Component.Def = {
 	Guards = {
 		Ancestors = { player.PlayerGui },
 		ClassName = "ScreenGui",
+		Attributes = {
+			MapName = { Type = "string" }
+		},
 		Children = {
 			Map1 = {
 				ClassName = "ImageLabel",
@@ -56,7 +59,7 @@ function DumbellsScreen:Initialize(): nil
 		task.spawn(function()
 			local equipButton = card.ImageButton
 			self:AddToJanitor(equipButton.MouseButton1Click:Connect(function()
-				local mapName = self.Attributes.MapName
+				local mapName: string = self.Attributes.MapName
 				local mapDumbells = DumbellsTemplate[mapName]
 				local cardNumber = tonumber(card.Name) :: number
 				local template = mapDumbells[cardNumber]

@@ -14,7 +14,11 @@ local PurchasePromptButton: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		Ancestors = { player.PlayerGui }
+		Ancestors = { player.PlayerGui },
+		Attributes = {
+			ProductID = { Type = "number" },
+			Gamepass = { Type = "boolean" }
+		}
 	};
 }
 

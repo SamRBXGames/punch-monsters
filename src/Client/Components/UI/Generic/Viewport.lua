@@ -11,7 +11,11 @@ local Viewport: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
 	Guards = {
-		ClassName = "ViewportFrame"
+		ClassName = "ViewportFrame",
+		Attributes = {
+			FOV = { Type = "number" },
+			DefaultFOV = { Type = "number" }
+		}
 	};
 }
 

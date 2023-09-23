@@ -19,6 +19,10 @@ local SitupBench: Component.Def = {
 	Guards = {
 		Ancestors = { workspace.Map1.SitupBenches, workspace.Map2.SitupBenches, workspace.Map3.SitupBenches },
 		ClassName = "Model",
+		Attributes = {
+			InUse = { Type = "boolean" },
+			SitupDebounce = { Type = "boolean" }
+		},
 		Children = {
 			Cube = { ClassName = "MeshPart" },
 			TP = {
@@ -70,7 +74,7 @@ function SitupBench:Toggle(on: boolean): nil
 end
 
 function SitupBench:Enter(): nil
-	if self.Instance:GetAttribute("InUse") then return end
+	if self.Attributes.InUse then return end
 	
 	local absStrength = self._data:GetTotalStrength("Abs")
 	if absStrength < self._AbsRequirement then return end
