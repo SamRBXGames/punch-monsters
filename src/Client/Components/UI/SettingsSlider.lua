@@ -17,7 +17,10 @@ local SettingsSlider: Component.Def = {
 	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui },
-		ClassName = "ImageButton"
+		ClassName = "ImageLabel",
+		Children = {
+			Knob = { ClassName = "ImageButton" }
+		}
 	};
 }
 

@@ -19,13 +19,13 @@ dependencies = []
 
 [[package]]
 name = "r-unic/componentize"
-version = "0.3.5"
+version = "0.3.7"
 dependencies = [["Array", "r-unic/array@0.2.4"], ["Janitor", "howmanysmall/janitor@1.15.6"]]
 
 [[package]]
 name = "sam-rbx/punch-monsters"
 version = "0.1.0"
-dependencies = [["Array", "r-unic/array@0.2.4"], ["Component", "r-unic/componentize@0.3.5"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["Signal", "sleitnick/signal@1.5.0"]]
+dependencies = [["Array", "r-unic/array@0.2.4"], ["Component", "r-unic/componentize@0.3.7"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["Signal", "sleitnick/signal@1.5.0"]]
 
 [[package]]
 name = "sleitnick/comm"

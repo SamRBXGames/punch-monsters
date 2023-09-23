@@ -32,7 +32,7 @@ local EnemyFighting: Component.Def = {
 		Ancestors = { workspace.Map1.Enemies },
 		ClassName = "Model",
 		Children = {
-			Head = { ClassName = "Part" },
+			Head = { IsA = "BasePart" },
 			HumanoidRootPart = { ClassName = "Part" },
 			Humanoid = { ClassName = "Humanoid" },
 			ProxyPart = {
