@@ -40,6 +40,7 @@ local PunchingBag: Component.Def = {
 function PunchingBag:Initialize(): nil	
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
+	self._pets = Knit.GetService("PetService")
 	self._gamepass = Knit.GetService("GamepassService")
 	return
 end
@@ -81,7 +82,7 @@ function PunchingBag:Punch(): nil
 
 	local vip =  self._gamepass:DoesPlayerOwn("VIP")
 	local hasStrengthBoost = self._gamepass:DoesPlayerOwn("2x Strength")
-	local punchMultiplier = if hasStrengthBoost then 2 else 1
+	local punchMultiplier = (if hasStrengthBoost then 2 else 1) * self._pets:GetTotalMultiplier()
 	if bagTemplate.Vip and not vip then
 		return self._gamepass:PromptPurchase("VIP")
 	end

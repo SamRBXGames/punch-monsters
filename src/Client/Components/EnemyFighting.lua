@@ -89,7 +89,7 @@ function EnemyFighting:Toggle(on: boolean): nil
 end
 
 function EnemyFighting:Enter(): nil
-	if self.Instance:GetAttribute("InUse") then return end
+	if self.Attributes.InUse then return end
 	
 	local playerStrength: number = self._data:GetValue("Strength")
 	self._playerMaxHealth = playerStrength * self._healthToDamageRatio
@@ -116,7 +116,7 @@ function EnemyFighting:Enter(): nil
 	self._ui:SetScreen("FightUi")
 	
 	for i = 3, 1, -1 do
-		task.wait(0.75)
+		task.wait(0.8)
 		self._fightUi.Countdown.Text = tostring(i)
 	end
 	self._fightUi.Countdown.Text = "Fight!"

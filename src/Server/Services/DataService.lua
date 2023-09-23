@@ -8,8 +8,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Modules = ServerScriptService.Server.Modules
 local Packages = ReplicatedStorage.Packages
 
-local AssertPlayer = require(Modules.AssertPlayer)
 local ProfileService = require(Modules.ProfileService)
+local AssertPlayer = require(Modules.AssertPlayer)
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
 local Knit = require(Packages.Knit)
@@ -224,9 +224,9 @@ function DataService:GetSetting(player: Player, settingName: string): any
 	return Settings[settingName]
 end
 
-function DataService:GetTotalStrength(player: Player, strengthType: "Punch" | "Abs" | "Biceps"): number
+function DataService:GetTotalStrength(player: Player, strengthType: "Punch" | "Abs" | "Biceps"?): number
 	AssertPlayer(player)
-	local initialStrength = self:GetValue(player, strengthType .. "Strength")
+	local initialStrength = self:GetValue(player, (strengthType or "") .. "Strength")
 	local petMultiplier = self._pets:GetTotalMultiplier(player)
 	return math.round(initialStrength * petMultiplier)
 end
@@ -252,7 +252,7 @@ function DataService.Client:SetSetting(player, name, value)
 	return self.Server:SetSetting(player, name, value)
 end
 
-function DataService.Client:GetTotalStrength(player, strengthType: "Punch" | "Abs" | "Biceps")
+function DataService.Client:GetTotalStrength(player, strengthType: "Punch" | "Abs" | "Biceps"?)
 	return self.Server:GetTotalStrength(player, strengthType)
 end
 

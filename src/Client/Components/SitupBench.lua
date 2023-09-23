@@ -34,6 +34,7 @@ local SitupBench: Component.Def = {
 function SitupBench:Initialize(): nil	
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
+	self._pets = Knit.GetService("PetService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
 	
@@ -97,8 +98,7 @@ function SitupBench:Situp(): nil
 
 	local vip = self._gamepass:DoesPlayerOwn("VIP")
 	local hasStrengthBoost = self._gamepass:DoesPlayerOwn("2x Strength")
-	local absMultiplier = if hasStrengthBoost then 2 else 1
-	
+	local absMultiplier = (if hasStrengthBoost then 2 else 1) * self._pets:GetTotalMultiplier()
 	if self._benchTemplate.Vip and not vip then
 		return self._gamepass:PromptPurchase("VIP")
 	end
