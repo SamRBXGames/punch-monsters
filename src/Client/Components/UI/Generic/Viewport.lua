@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
@@ -8,9 +9,9 @@ local player = Players.LocalPlayer
 
 local Viewport: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
-		ClassName = "ViewportFrame",
-		Ancestors = { player.PlayerGui }
+		ClassName = "ViewportFrame"
 	};
 }
 

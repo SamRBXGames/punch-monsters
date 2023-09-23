@@ -1,6 +1,7 @@
 --!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
@@ -10,6 +11,7 @@ local player = Players.LocalPlayer
 
 local ShopCategoryButton: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui }
 	};

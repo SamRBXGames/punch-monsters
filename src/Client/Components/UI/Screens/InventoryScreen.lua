@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
 
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
 local Packages = ReplicatedStorage.Packages
@@ -16,6 +17,7 @@ local player = Players.LocalPlayer
 type Pet = typeof(PetsTemplate.Dog)
 local InventoryScreen: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		ClassName = "ScreenGui",
 		Ancestors = { player.PlayerGui }

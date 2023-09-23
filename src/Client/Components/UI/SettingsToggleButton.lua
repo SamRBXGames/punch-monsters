@@ -1,6 +1,7 @@
 --!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
@@ -16,9 +17,10 @@ local ON_TEXT = "rbxassetid://14509109517"
 
 local SettingsToggleButton: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui }
-	}
+	};
 }
 
 function SettingsToggleButton:Initialize(): nil

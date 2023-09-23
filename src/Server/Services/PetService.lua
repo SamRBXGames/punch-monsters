@@ -13,7 +13,7 @@ local Knit = require(Packages.Knit)
 local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
 
-local PetService = Knit.CreateService{
+local PetService = Knit.CreateService {
 	Name = "PetService";
 	Client = {};
 }

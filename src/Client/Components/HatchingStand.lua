@@ -1,10 +1,11 @@
 --!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
-local HttpService = game:GetService("HttpService")
 
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
 local EggTemplate = require(ReplicatedStorage.Templates.EggTemplate)
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
 
@@ -23,6 +24,7 @@ local MAX_STAND_DISTANCE = 8
 
 local HatchingStand: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { workspace.Map1.Eggs } --workspace.Map2.Eggs, workspace.Map3.Eggs
 	};
@@ -168,8 +170,8 @@ function HatchingStand:IsClosest(): boolean
 			return distanceA < distanceB
 		end)
 		:First()
-
-	return closestStand == self.Instance
+		
+		return closestStand == self.Instance
 end
 
 function HatchingStand:AddPetCards(): nil
@@ -185,11 +187,11 @@ function HatchingStand:AddPetCards(): nil
 				Chance = chance
 			})
 		end
-
+		
 		pets:SortMutable(function(a, b)
 			return a.Chance > b.Chance
 		end)
-
+		
 		for pet in pets:Values() do
 			self._chancesUI.Enabled = true
 			local petModel: Model? = ReplicatedStorage.Assets.Pets:FindFirstChild(pet.Name)		
@@ -197,7 +199,7 @@ function HatchingStand:AddPetCards(): nil
 			local viewport: ViewportFrame = petCard.Viewport
 			petCard.Chance.Text = `{pet.Chance}%`
 			petCard.Parent = container
-
+			
 			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, petModel)
 			self._janitor:Add(petCard)

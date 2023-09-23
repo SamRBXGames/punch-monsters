@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
 local Component = require(Packages.Component)
@@ -9,6 +10,7 @@ local player = Players.LocalPlayer
 
 local PurchasePromptButton: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui }
 	};

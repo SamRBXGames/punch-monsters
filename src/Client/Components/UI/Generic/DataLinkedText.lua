@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
@@ -11,6 +12,7 @@ local player = Players.LocalPlayer
 
 local DataLinkedText: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		ClassName = "TextLabel",
 		Ancestors = { player.PlayerGui }

@@ -14,10 +14,6 @@ local UIController = Knit.CreateController {
 	Name = "UIController";
 }
 
-function UIController:KnitStart()
-	Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
-end
-
 function UIController:KnitInit()
 	task.spawn(function()
 		repeat 

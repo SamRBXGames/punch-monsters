@@ -1,17 +1,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local HttpService = game:GetService("HttpService")
 
 local Packages = ReplicatedStorage.Packages
 
 local AssertPlayer = require(ServerScriptService.Server.Modules.AssertPlayer)
 local Knit = require(Packages.Knit)
 
-local WEBHOOK_URL = script.Webhook.Value
+local WEBHOOK_URL = require(script.Webhook)
 script.Webhook:Destroy()
 
-local PurchaseLogService = Knit.CreateService{
+local PurchaseLogService = Knit.CreateService {
 	Name = "PurchaseLogService"
 }
 

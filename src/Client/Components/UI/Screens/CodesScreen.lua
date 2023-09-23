@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local trim = require(ReplicatedStorage.Assets.Modules.trim)
@@ -17,6 +18,7 @@ local ERROR_STATUS_COLOR = Color3.fromRGB(255, 45, 45)
 
 local CodesScreen: Component.Def = {
 	Name = script.Name;
+	IgnoreAncestors = { StarterGui };
 	Guards = {
 		ClassName = "ScreenGui",
 		Ancestors = { player.PlayerGui }
