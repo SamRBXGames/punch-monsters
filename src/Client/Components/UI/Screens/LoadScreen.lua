@@ -102,7 +102,7 @@ function LoadScreen:UpdateProgressBar(progress: number): nil
 end
 
 function LoadScreen:AnimateBar(): nil
-	local tweens = Array.new()
+	local tweens = Array.new("Instance")
 	tweens:Push(
 		Tweens.moveFromPosition(self._bar,
 			self._bar.Position - UDim2.fromScale(0, 1),

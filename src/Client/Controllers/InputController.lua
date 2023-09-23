@@ -1,23 +1,23 @@
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterPlayer = game:GetService("StarterPlayer")
-local Players = game:GetService('Players')
+local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
-local player = Players.LocalPlayer
-
 local Knit = require(Packages.Knit)
-local Array = require(Packages.Array)
+local Component = require(Packages.Component)
+
+local player = Players.LocalPlayer
 
 local InputController = Knit.CreateController {
 	Name = "InputController";
 }
 
 local function forEachComponent(componentName: string, actionName: string): nil
-	local components = shared.components:Filter(function(component)
-		return component.Tag == componentName
+	local componentManager = Component.Get(componentName)
+	local components = componentManager._ownedComponents:Filter(function(component)
+		return component.Name == componentName
 	end)
-	
+
 	for component in components:Values() do
 		local action = component[actionName]
 		task.spawn(action, component)
@@ -47,7 +47,7 @@ local KeyboardInputMap = {
 function InputController:KnitStart()
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if processed then return end
-		if not player:GetAttribute('Loaded') then return end
+		if not player:GetAttribute("Loaded") then return end
 		self:ExecuteAction(input, "UserInputType")
 		self:ExecuteAction(input, "KeyCode")
 	end)

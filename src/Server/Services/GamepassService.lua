@@ -39,7 +39,7 @@ local function getPassIDByName(name: string): number?
 		return NAME_TO_ID_CACHE[name]
 	end
 	
-	local pass = Array.new(getAllPasses())
+	local pass = Array.new("table", getAllPasses())
 		:Find(function(pass)
 			return trim(pass.name) == trim(name)
 		end)

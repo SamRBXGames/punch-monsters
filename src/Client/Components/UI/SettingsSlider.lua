@@ -41,9 +41,10 @@ function SettingsSlider:Initialize(): nil
 		self._data:SetSetting(self._settingName, value)
 	end))
 	
-	self._data.DataUpdated:ConnectOnce(function(key, settings)
+	local conn: RBXScriptConnection; conn = self._data.DataUpdated:Connect(function(key, settings)
 		if key ~= "Settings" then return end
 		slider:OverrideValue(settings[self._settingName])
+		conn:Disconnect()
 		initialized = true
 	end)
 	

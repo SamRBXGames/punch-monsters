@@ -8,12 +8,12 @@ local function IsValidID(id: string?): nil
 
 	local firstChar = id:sub(1, 1)
 	local lastChar = id:sub(uuidLength, uuidLength)
-	local idParts = Array.new(id:sub(2, uuidLength - 1):split("-"))
+	local idParts = Array.new("string", id:sub(2, uuidLength - 1):split("-"))
 
 	return #id == uuidLength
 		and firstChar == "{"
 		and lastChar == "}"
-		and id:find("[-][0-9A-Z]")
+		and id:match("[-][0-9A-Z]")
 		and #idParts == #validFormat
 		and idParts:Reduce(function(isValidFormat, part)
 			local validPartLength = validFormat[idParts:IndexOf(part)]

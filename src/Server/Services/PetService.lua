@@ -13,6 +13,17 @@ local Knit = require(Packages.Knit)
 local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
 
+local FOLLOW_SPEED = 15
+local Y_OFFSET = 0
+local PET_POSITIONS = Array.new("Vector3", {
+	Vector3.new(2, Y_OFFSET, 3),
+	Vector3.new(-4, Y_OFFSET, 6),
+	Vector3.new(6, Y_OFFSET, 10),
+	Vector3.new(-7, Y_OFFSET, 12),
+	Vector3.new(10, Y_OFFSET, 15),
+	Vector3.new(-10, Y_OFFSET, 15)
+})
+
 local PetService = Knit.CreateService {
 	Name = "PetService";
 	Client = {};
@@ -43,7 +54,7 @@ function PetService:Find(player: Player, id: string): nil
 	VerifyID(player, id)
 
 	local pets = self._data:GetValue(player, "Pets")
-	return Array.new(pets.OwnedPets)
+	return Array.new("table", pets.OwnedPets)
 		:Find(function(pet)
 			return pet.ID == id
 		end)
@@ -97,7 +108,7 @@ function PetService:Unequip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 		VerifyID(player, pet.ID)
 
 		local pets = self._data:GetValue(player, "Pets")
-		local equippedPets = Array.new(pets.Equipped)
+		local equippedPets = Array.new("table", pets.Equipped)
 		equippedPets:Remove(equippedPets:IndexOf(pet))
 		pets.Equipped = equippedPets:ToTable()
 		self._data:SetValue(player, "Pets", pets)
@@ -109,7 +120,7 @@ function PetService:IsEquipped(player: Player, pet: typeof(PetsTemplate.Dog)): b
 	VerifyID(player, pet.ID)
 
 	local pets = self._data:GetValue(player, "Pets")
-	return Array.new(pets.Equipped)
+	return Array.new("table", pets.Equipped)
 		:Map(function(pet)
 			return pet.ID
 		end)
@@ -118,16 +129,15 @@ end
 
 function PetService:GetTotalMultiplier(player: Player): number
 	AssertPlayer(player)
-	local total = 0
 	local pets = self._data:GetValue(player, "Pets")
 
-	return Array.new(pets.Equipped)
+	return Array.new("table", pets.Equipped)
 		:Map(function(pet)
 			return pet.StrengthMultiplier
 		end)
 		:Reduce(function(total, mult)
 			return total + mult
-		end)
+		end, 1)
 end
 
 function PetService:GetPetOrder(player: Player): number
@@ -151,17 +161,6 @@ function PetService:GetPetOrder(player: Player): number
 		end
 	end
 end
-
-local FOLLOW_SPEED = 15
-local Y_OFFSET = 0
-local PET_POSITIONS = Array.new {
-	Vector3.new(2, Y_OFFSET, 3),
-	Vector3.new(-4, Y_OFFSET, 6),
-	Vector3.new(6, Y_OFFSET, 10),
-	Vector3.new(-7, Y_OFFSET, 12),
-	Vector3.new(10, Y_OFFSET, 15),
-	Vector3.new(-10, Y_OFFSET, 15)
-}
 
 function PetService:StartFollowing(player: Player, pet: Model): nil
 	AssertPlayer(player)
@@ -204,16 +203,18 @@ function PetService:StartFollowing(player: Player, pet: Model): nil
 		characterAttachment.Position = position
 		characterAttachment.Orientation = Vector3.new(0, -90, 0)
 		
-		local petParts = Array.new(pet:GetChildren())
+		local petParts = Array.new("Instance", pet:GetChildren())
 			:Filter(function(e)
 				return e:IsA("BasePart")
 			end)
 		
-		Welder.Weld(pet.PrimaryPart, petParts:Remove(petParts:IndexOf(pet.PrimaryPart)):ToTable())
 		for part in petParts:Values() do
 			part.Anchored = false
 			part.CanCollide = false
+			if part == pet.PrimaryPart then continue end
+			Welder.Weld(pet.PrimaryPart, part)
 		end
+		
 		pet.Parent = petFolder
 		pet.PrimaryPart:SetNetworkOwner(player)
 	end)

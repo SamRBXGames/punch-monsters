@@ -10,7 +10,6 @@ local Assets = ReplicatedStorage.Assets
 local Knit = require(Packages.Knit)
 local Janitor = require(Packages.Janitor)
 local Component = require(Packages.Component)
-local Viewport = Component.Get("Viewport")
 
 local player = Players.LocalPlayer
 
@@ -126,6 +125,7 @@ function InventoryScreen:UpdatePetCards(): nil
 			card.StrengthMultiplier.Text = `{pet.StrengthMultiplier}x`
 			card.Parent = self._container
 			
+			local Viewport = Component.Get("Viewport")
 			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, Assets.Pets[pet.Name])
 			self._updateJanitor:Add(card)

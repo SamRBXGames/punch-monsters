@@ -46,7 +46,7 @@ function CodesScreen:Redeem(): nil
 		return self:PushStatus("Invalid code provided!", true)
 	end
 
-	local redeemedCodes = Array.new(self._data:GetValue("RedeemedCodes"))
+	local redeemedCodes = Array.new("string", self._data:GetValue("RedeemedCodes"))
 	if redeemedCodes:Has(code) then
 		return self:PushStatus("You've already redeemed this code!", true)
 	end

@@ -64,6 +64,8 @@ function EnemyFighting:Initialize(): nil
 	self._janitor:Add(self._fightUi.Exit.MouseButton1Click:Connect(function()
 		self:Exit()
 	end))
+
+	return
 end
 
 local defaultSpeed = humanoid.WalkSpeed
@@ -72,6 +74,7 @@ function EnemyFighting:Toggle(on: boolean): nil
 	self._proximityPrompt.Enabled = not on
 	self._remoteDispatcher:SetAttribute(self.Instance, "InUse", on)
 	self._remoteDispatcher:SetShiftLockOption(not on)
+	return
 end
 
 function EnemyFighting:Enter(): nil
@@ -107,9 +110,10 @@ function EnemyFighting:Enter(): nil
 	self._fightUi.Countdown.Text = "Fight!"
 	
 	self:StartFight()
+	return
 end
 
-function EnemyFighting:StartFight()
+function EnemyFighting:StartFight(): nil
 	self._fighting = true
 	task.spawn(function()
 		repeat task.wait(0.25)
@@ -120,13 +124,15 @@ function EnemyFighting:StartFight()
 			self:PlayerKill()
 		end	
 	end)
+	return
 end
 
-function EnemyFighting:Reset()
+function EnemyFighting:Reset(): nil
 	self._ui:SetScreen("MainUi")
 	self._fightUi.Countdown.Text = "3"
 	self._fightUi.Me.HP.Bar.Size = UDim2.new(1, 0, 1, 0)
 	self._fightUi.Enemy.HP.Bar.Size = UDim2.new(1, 0, 1, 0)
+	return
 end
 
 function EnemyFighting:Exit(): nil
@@ -134,9 +140,10 @@ function EnemyFighting:Exit(): nil
 	self:Toggle(false)
 	self:Reset()
 	self._fighting = false
+	return
 end
 
-function EnemyFighting:UpdateBar()
+function EnemyFighting:UpdateBar(): nil
 	local PlayerHPSize = math.clamp(self._playerHealth / self._playerMaxHealth, 0, 1)
 	local EnemyHPSize = math.clamp(self._enemyHealth / self._enemyMaxHealth, 0, 1)
 	
@@ -152,16 +159,18 @@ function EnemyFighting:UpdateBar()
 		Enum.EasingStyle.Linear,
 		0.2
 	)
+
+	return
 end
 
 function EnemyFighting:Attack(): nil
 	if not self._fighting then return end
-	if not self.Instance:GetAttribute("InUse") then return end
-	if self.Instance:GetAttribute("PunchDebounce") then return end
+	if not self.Attributes.InUse then return end
+	if self.Attributes.PunchDebounce then return end
 	
-	self.Instance:SetAttribute("PunchDebounce", true)
+	self.Attributes.PunchDebounce = true
 	task.delay(PUNCH_COOLDOWN, function()
-		self.Instance:SetAttribute("PunchDebounce", false)
+		self.Attributes.PunchDebounce = false
 	end)
 	
 	cameraShaker:Shake(CameraShaker.Presets.Rock)
@@ -171,28 +180,33 @@ function EnemyFighting:Attack(): nil
 	if self._enemyHealth <= 0 then
 		self:Kill()
 	end
+
+	return
 end
 
-function EnemyFighting:AddWin()
+function EnemyFighting:AddWin(): nil
 	local hasWinsBoost = self._gamepass:DoesPlayerOwn("2x Wins")
 	local multiplier = if hasWinsBoost then 2 else 1
 
 	self._data:IncrementValue("Wins", self._enemyTemplate.Wins * multiplier)
+	return
 end
 
-function EnemyFighting:PlayerKill()
+function EnemyFighting:PlayerKill(): nil
 	self._fighting = false
 	self._fightUi.Countdown.Text = `{self.Instance.Name} has won!`
 	task.wait(2)
 	self:Exit()
+	return
 end
 
-function EnemyFighting:Kill()
+function EnemyFighting:Kill(): nil
 	self._fighting = false
 	self._fightUi.Countdown.Text = "You won!"
 	self:AddWin()
 	task.wait(2)
 	self:Exit()
+	return
 end
 
 return Component.new(EnemyFighting)

@@ -13,7 +13,6 @@ local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Array = require(Packages.Array)
 local Component = require(Packages.Component)
-local Viewport = Component.Get("Viewport")
 
 local UserInterface = ReplicatedStorage.Assets.UserInterface
 local player = Players.LocalPlayer
@@ -43,9 +42,10 @@ function HatchingStand:Initialize(): nil
 	self._eggTemplate = EggTemplate[self._map][self.Instance.Name]
 	
 	self:AddPetCards()
+	return
 end
 
-local function createPet(petName: string)
+local function createPet(petName: string): typeof(PetsTemplate.Dog)
 	local pet = PetsTemplate[petName]
 	return {
 		Name = petName,
@@ -55,7 +55,7 @@ local function createPet(petName: string)
 	}
 end
 
-function HatchingStand:ReturnPet()
+function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
 	local has2xLuck = self._gamepass:DoesPlayerOwn("2x Luck")
 	local has10xLuck = self._gamepass:DoesPlayerOwn("10x Luck")
 	local has100xLuck = self._gamepass:DoesPlayerOwn("100x Luck")
@@ -88,9 +88,11 @@ function HatchingStand:ReturnPet()
 	for petName in self._eggTemplate.Chances do
 		return createPet(petName)
 	end
+
+	return
 end
 
-function HatchingStand:Hatch()
+function HatchingStand:Hatch(): nil
 	if self._hatching then return end
 	self._hatching = true
 	
@@ -130,11 +132,13 @@ function HatchingStand:Hatch()
 	
 	self._hatching = false
 	self._chancesUI.Enabled = true
+	return
 end
 
 function HatchingStand:BuyOne(): nil
 	if not self:IsClosest() then return end
 	self:Hatch()
+	return
 end
 
 function HatchingStand:BuyThree(): nil
@@ -145,11 +149,14 @@ function HatchingStand:BuyThree(): nil
 			self:Hatch()
 		end)
 	end
+	return
+
 end
 
 function HatchingStand:Auto(): nil
 	if not self:IsClosest() then return end
 	-- do stuff
+	return
 end
 
 local function getDistanceFromPlayer(stand: Model): number
@@ -159,7 +166,7 @@ local function getDistanceFromPlayer(stand: Model): number
 end
 
 function HatchingStand:IsClosest(): boolean
-	local closestStand= Array.new(CollectionService:GetTagged(self.Name))
+	local closestStand= Array.new("Instance", CollectionService:GetTagged(self.Name))
 		:Filter(function(stand)
 			local distance = getDistanceFromPlayer(stand)
 			return distance <= MAX_STAND_DISTANCE
@@ -171,7 +178,7 @@ function HatchingStand:IsClosest(): boolean
 		end)
 		:First()
 		
-		return closestStand == self.Instance
+	return closestStand == self.Instance
 end
 
 function HatchingStand:AddPetCards(): nil
@@ -180,7 +187,7 @@ function HatchingStand:AddPetCards(): nil
 	
 	local container: Frame = self._chancesUI.Background.PetChances
 	task.spawn(function()
-		local pets = Array.new()
+		local pets = Array.new("table")
 		for pet, chance in self._eggTemplate.Chances do
 			pets:Push({
 				Name = pet, 
@@ -200,6 +207,7 @@ function HatchingStand:AddPetCards(): nil
 			petCard.Chance.Text = `{pet.Chance}%`
 			petCard.Parent = container
 			
+			local Viewport = Component.Get("Viewport")
 			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, petModel)
 			self._janitor:Add(petCard)

@@ -44,6 +44,8 @@ function SitupBench:Initialize(): nil
 	self._janitor:Add(self._exitBench.MouseButton1Click:Connect(function()
 		self:Exit()
 	end))
+	
+	return
 end
 
 function SitupBench:Toggle(on: boolean): nil

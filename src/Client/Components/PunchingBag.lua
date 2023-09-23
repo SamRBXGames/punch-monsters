@@ -38,6 +38,7 @@ function PunchingBag:Initialize(): nil
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
+	return
 end
 
 local function getDistanceFromPlayer(bag: Model): number
@@ -46,7 +47,7 @@ local function getDistanceFromPlayer(bag: Model): number
 end
 
 function PunchingBag:IsClosest(): boolean
-	local closestBag = Array.new(CollectionService:GetTagged(self.Tag))
+	local closestBag = Array.new("Instance", CollectionService:GetTagged(self.Name))
 		:Filter(function(bag)
 			local distance = getDistanceFromPlayer(bag)
 			return distance <= MAX_BAG_DISTANCE
