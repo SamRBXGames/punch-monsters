@@ -17,10 +17,10 @@ local InputController = Knit.CreateController {
 local function forEachComponent(componentName: string, actionName: string): nil
 	task.spawn(function()
 		local componentManager = Component.Get(componentName)
-		local components = componentManager.OwnedComponents:Filter(function(component)
+		local components = componentManager.OwnedComponents:Filter(function(component: Component.Component)
 			return component.Name == componentName
 		end)
-
+	
 		for component in components:Values() do
 			local action = component[actionName]
 			task.spawn(action, component)
@@ -35,8 +35,10 @@ local InputTypeMap = {
 		forEachComponent("SitupBench", "Situp")
 		forEachComponent("EnemyFighting", "Attack")
 
-		local Dumbell = Knit.GetController("DumbellController")
-		Dumbell:Lift()
+		task.spawn(function()
+			local Dumbell = Knit.GetController("DumbellController")
+			Dumbell:Lift()
+		end)
 	end
 }
 
@@ -70,7 +72,7 @@ function InputController:ExecuteAction(input: InputObject, type: "UserInputType"
 	end
 	
 	local actionName: string = (input :: any)[type].Name
-	local action: () -> () = (actionMap :: any)[actionName]
+	local action: () -> ()? = (actionMap :: any)[actionName]
 	if not action then return end
 	task.spawn(action)
 end

@@ -32,7 +32,7 @@ function DumbellController:Lift(): nil
 	if not self.Equipped then return end
 	if self.LiftDebounce then return end
 
-	 self.LiftDebounce = true
+	self.LiftDebounce = true
 	task.delay(LIFT_COOLDOWN, function()
 		self.LiftDebounce = false
 	end)

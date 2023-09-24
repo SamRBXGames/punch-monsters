@@ -19,10 +19,12 @@ local Dumbells: Component.Def = {
 
 function Dumbells:Initialize(): nil	
   local ui = Knit.GetController("UIController")
+
+  local pad = self.Instance:WaitForChild("Circle")
   local touching = false
   local db = false
 
-  self:AddToJanitor(self.Instance.Circle.Touched:Connect(function(hit: BasePart)
+  self:AddToJanitor(pad.Touched:Connect(function(hit: BasePart)
     if touching then return end
     if db then return end
     db = true
@@ -45,7 +47,7 @@ function Dumbells:Initialize(): nil
       (window :: ImageLabel).Visible = window.Name == mapName
     end
   end))
-  self:AddToJanitor(self.Instance.Circle.TouchEnded:Connect(function(hit: BasePart)
+  self:AddToJanitor(pad.TouchEnded:Connect(function(hit: BasePart)
     if not touching then return end
     if db then return end
     

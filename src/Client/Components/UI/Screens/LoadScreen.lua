@@ -24,11 +24,15 @@ local LoadScreen: Component.Def = {
 			Transition = { ClassName = "Frame" },
 			Background = {
 				ClassName = "Frame",
-				Gloves = { ClassName = "ImageLabel" },
-				LoadingBar = {
-					ClassName = "Frame",
-					Skip = { ClassName = "TextButton" },
-					Title = { ClassName = "TextLabel" }
+				Children = {
+					Gloves = { ClassName = "ImageLabel" },
+					LoadingBar = {
+						ClassName = "Frame",
+						Children = {
+							Skip = { ClassName = "TextButton" },
+							Title = { ClassName = "TextLabel" }
+						}
+					}
 				}
 			}
 		}
@@ -41,7 +45,7 @@ function LoadScreen:Initialize(): nil
 	self._imageOffset = 0
 	
 	local playerGui = self.Instance:FindFirstAncestorOfClass("PlayerGui")
-	self._mainUI = playerGui.MainUi
+	self._mainUI = playerGui:WaitForChild("MainUi")
 	
 	local background = self.Instance.Background
 	self._background = background

@@ -41,6 +41,7 @@ function SitupBench:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
+	self._dumbell = Knit.GetController("DumbellController")
 	self._ui = Knit.GetController("UIController")
 	
 	self._proximityPrompt = Instance.new("ProximityPrompt")
@@ -75,6 +76,7 @@ function SitupBench:Toggle(on: boolean): nil
 end
 
 function SitupBench:Enter(): nil
+	if self._dumbell.Equipped then return end
 	if self.Attributes.InUse then return end
 	
 	local absStrength = self._data:GetTotalStrength("Abs")

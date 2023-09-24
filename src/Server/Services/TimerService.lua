@@ -22,18 +22,22 @@ function TimerService:KnitStart(): nil
   self._data = Knit.GetService("DataService")
 
   Players.PlayerAdded:Connect(function(player): nil
-    local unfinishedTimers: { Timer } = Array.new("table", self:GetAll(player))
-      :Filter(function(timer: Timer)
-        return not self:IsFinished(timer)
-      end)
-
-    self._data:SetValue(player, "Timers", unfinishedTimers)
+    self:RemoveFinished(player)
     return
   end)
 
   return
 end
 
+function TimerService:RemoveFinished(player: Player): nil
+  local unfinishedTimers: { Timer } = Array.new("table", self:GetAll(player))
+    :Filter(function(timer: Timer)
+      return not self:IsFinished(timer)
+    end)
+
+  self._data:SetValue(player, "Timers", unfinishedTimers)
+  return
+end
 
 function TimerService:IsFinished(timer: Timer): boolean
   return tick() - timer.BeginTime >= timer.Length
@@ -54,6 +58,7 @@ function TimerService:Start(player: Player, name: string, length: number): nil
   local timers = self:GetAll(player)
   table.insert(timers, timer)
   self._data:SetValue(player, "Timers", timers)
+  self:RemoveFinished(player)
   return
 end
 

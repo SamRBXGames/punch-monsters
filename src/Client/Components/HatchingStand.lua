@@ -42,6 +42,7 @@ function HatchingStand:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
+	self._dumbell = Knit.GetController("DumbellController")
 	self._ui = Knit.GetController("UIController")
 	self._hatching = false
 	
@@ -111,6 +112,7 @@ function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
 end
 
 function HatchingStand:Hatch(): nil
+	if self._dumbell.Equipped then return end
 	if self._hatching then return end
 	self._hatching = true
 	
