@@ -29,6 +29,7 @@ local SettingsToggleButton: Component.Def = {
 
 function SettingsToggleButton:Initialize(): nil
 	self._data = Knit.GetService("DataService")
+	self._gamepass = Knit.GetService("GamepassService")
 	self._settingName = self.Instance.Parent.Name
 	
 	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
@@ -39,6 +40,10 @@ function SettingsToggleButton:Initialize(): nil
 end
 
 function SettingsToggleButton:Event_MouseButton1Click(): nil
+	if self._settingName == "AutoRebirth" and not self._gamepass:DoesPlayerOwn("Auto Rebirth") then
+		return self._gamepass:PromptPurchase("Auto Rebirth")
+	end
+
 	local on: boolean = self._data:GetSetting(self._settingName)
 	self._data:SetSetting(self._settingName, not on)
 	return
