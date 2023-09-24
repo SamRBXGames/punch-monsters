@@ -4,7 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
-local trim = require(ReplicatedStorage.Assets.Modules.trim)
+local trim = require(ReplicatedStorage.Assets.Modules.Trim)
 
 local CodeTemplate = require(ReplicatedStorage.Templates.CodeTemplate)
 

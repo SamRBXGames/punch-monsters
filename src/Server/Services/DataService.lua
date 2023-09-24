@@ -19,6 +19,7 @@ local Array = require(Packages.Array)
 local PROFILE_TEMPLATE = require(ReplicatedStorage.Templates.ProfileTemplate)
 
 local Test = RunService:IsStudio()
+-- local Test = false
 
 local DataService = Knit.CreateService {
 	Name = "DataService";
@@ -29,7 +30,7 @@ local DataService = Knit.CreateService {
 }
 
 local ProfileStore = ProfileService.GetProfileStore(
-	"PlayerTestData#12",
+	"PlayerTestData#14",
 	PROFILE_TEMPLATE
 )
 

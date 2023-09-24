@@ -15,6 +15,7 @@ local PROFILE_TEMPLATE = {
 	},
 	
 	Timers = {},
+	ClaimedRewardsToday = {},
 	FirstJoinToday = tick(),
 
 	Wins = 0,

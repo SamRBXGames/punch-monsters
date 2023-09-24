@@ -14,8 +14,7 @@ local MasterSounds: Component.Def = {
 		Ancestors = { SoundService },
 		ClassName = "SoundGroup",
 		Children = {
-			Circle = { ClassName = "MeshPart" },
-			Dashes = { ClassName = "MeshPart" }
+			Music = { ClassName = "SoundGroup" }
 		}
 	};
 }

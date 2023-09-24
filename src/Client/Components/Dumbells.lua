@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
+local Debounce = require(ReplicatedStorage.Modules.Debounce)
 
 local Dumbells: Component.Def = {
 	Name = script.Name;
@@ -22,15 +23,11 @@ function Dumbells:Initialize(): nil
 
   local pad = self.Instance:WaitForChild("Circle")
   local touching = false
-  local db = false
+  local db = Debounce.new(4)
 
   self:AddToJanitor(pad.Touched:Connect(function(hit: BasePart)
     if touching then return end
-    if db then return end
-    db = true
-    task.delay(4, function()
-      db = false
-    end)
+    if db:IsActive() then return end
 
     local char = hit:FindFirstAncestorOfClass("Model")
     if not char then return end
@@ -49,7 +46,7 @@ function Dumbells:Initialize(): nil
   end))
   self:AddToJanitor(pad.TouchEnded:Connect(function(hit: BasePart)
     if not touching then return end
-    if db then return end
+    if db:IsActive() then return end
     
     local char = hit:FindFirstAncestorOfClass("Model")
     if not char then return end
