@@ -16,9 +16,10 @@ local function assignPlayerCollisionGroup(char: Model): nil
 	char:WaitForChild("Humanoid")
 
 	for _, descendant: Instance in pairs(char:GetDescendants()) do
-		if descendant:IsA("BasePart") then
+		task.spawn(function()
+			if not descendant:IsA("BasePart") then return end
 			descendant.CollisionGroup = "Player"
-		end
+		end)
 	end
   return
 end
@@ -28,9 +29,7 @@ function PlayerCollisionService:KnitInit()
 	Physics:CollisionGroupSetCollidable("Player", "Player", false)
 	
   Players.PlayerAdded:Connect(function(plr)
-    plr.CharacterAppearanceLoaded:Connect(function(char)
-      assignPlayerCollisionGroup(char)
-    end)
+    plr.CharacterAppearanceLoaded:Connect(assignPlayerCollisionGroup)
   end)
 end
 

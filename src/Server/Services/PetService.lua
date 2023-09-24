@@ -1,5 +1,6 @@
 --!native
 --!strict
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -14,6 +15,7 @@ local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Janitor = require(Packages.Janitor)
 local Array = require(Packages.Array)
+local ProfileTemplate = require(ReplicatedStorage.Templates.ProfileTemplate)
 
 local FOLLOW_SPEED = 15
 local Y_OFFSET = 0
@@ -31,24 +33,69 @@ local PetService = Knit.CreateService {
 	Client = {};
 }
 
-local lastEquippedPlayerPets = {}
+local lastEquippedPlayerPets: { [number]: boolean } = {}
+local playersLastOwnVisible: { [number]: boolean } = {}
+local playersLastOthersVisible: { [number]: boolean } = {}
+
 function PetService:KnitStart()
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	
 	self._data.DataUpdated.Event:Connect(function(player, key, value)
-		if key ~= "Pets" then return end
-		
-		local lastEquippedPets = lastEquippedPlayerPets[player.UserId]
-		if not lastEquippedPets then
-			lastEquippedPets = {}
-			lastEquippedPlayerPets[player.UserId] = lastEquippedPets
+		if key == "Pets" then
+			local lastEquippedPets = lastEquippedPlayerPets[player.UserId]
+			if not lastEquippedPets then
+				lastEquippedPets = {} :: any
+				lastEquippedPlayerPets[player.UserId] = lastEquippedPets
+			end
+			
+			local pets = value
+			if lastEquippedPets == pets.Equipped then return end
+			self:UpdateFollowingPets(player, pets.Equipped)
+			lastEquippedPlayerPets[player.UserId] = pets.Equipped
+		elseif key == "Settings" then
+			task.spawn(function()
+				local lastOwnVisible = playersLastOwnVisible[player.UserId]
+				local settings: typeof(ProfileTemplate.Settings) = value
+				if lastOwnVisible == settings.ShowOwnPets then return end
+
+				self:ToggleVisibility(player, settings.ShowOwnPets)
+				playersLastOwnVisible[player.UserId] = settings.ShowOwnPets
+			end)
+			task.spawn(function()
+				local lastOthersVisible = playersLastOthersVisible[player.UserId]
+				local settings: typeof(ProfileTemplate.Settings) = value
+
+				if lastOthersVisible == settings.ShowOtherPets then return end
+				for _, otherPlayer in pairs(Players:GetPlayers()) do
+					if otherPlayer == player then continue end
+					self:ToggleVisibility(otherPlayer, settings.ShowOtherPets)
+				end
+
+				playersLastOthersVisible[player.UserId] = settings.ShowOtherPets
+			end)
 		end
-		
-		if lastEquippedPets == value.Equipped then return end
-		self:UpdateFollowingPets(player, value.Equipped)
-		lastEquippedPets = value.Equipped
 	end)
+end
+
+function PetService:ToggleVisibility(player: Player, on: boolean): nil
+	task.spawn(function()
+		local char = player.Character :: Model
+		local petsFolder = char:FindFirstChild("Pets")
+		if not petsFolder then return end
+
+		for _, pet in pairs(petsFolder:GetChildren()) do
+			task.spawn(function()
+				for _, part in pairs(pet:GetChildren()) do
+					task.spawn(function()
+						if not part:IsA("BasePart") then return end
+						part.Transparency = if on then 0 else 1
+					end)
+				end
+			end)
+		end
+	end)
+	return
 end
 
 function PetService:Find(player: Player, id: string): typeof(PetsTemplate.Dog)?
@@ -102,6 +149,9 @@ function PetService:Equip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 		table.insert(equippedPets, pet)
 		pets.Equipped = equippedPets
 		self._data:SetValue(player, "Pets", pets)
+
+		local visible = self._data:GetSetting(player, "ShowOwnPets")
+		self:ToggleVisibility(player, visible)
 	end)
 	return
 end
@@ -166,6 +216,7 @@ function PetService:GetPetOrder(player: Player): number?
 			return availableSlot
 		end
 	end
+	
 	return
 end
 
@@ -241,6 +292,9 @@ function PetService:UpdateFollowingPets(player: Player, pets: { typeof(PetsTempl
 		petJanitors[player.UserId] = petsJanitor
 	end
 	petsJanitor:Cleanup()
+
+	local visible = self._data:GetSetting(player, "ShowOwnPets")
+	self:ToggleVisibility(player, visible)
 
 	for _, pet in pets do
 		task.spawn(function(): nil

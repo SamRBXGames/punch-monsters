@@ -30,12 +30,14 @@ function TimerService:KnitStart(): nil
 end
 
 function TimerService:RemoveFinished(player: Player): nil
-  local unfinishedTimers: { Timer } = Array.new("table", self:GetAll(player))
-    :Filter(function(timer: Timer)
-      return not self:IsFinished(timer)
-    end)
+  task.spawn(function()
+    local unfinishedTimers: { Timer } = Array.new("table", self:GetAll(player))
+      :Filter(function(timer: Timer)
+        return not self:IsFinished(timer)
+      end)
 
-  self._data:SetValue(player, "Timers", unfinishedTimers)
+    self._data:SetValue(player, "Timers", unfinishedTimers)
+  end)
   return
 end
 
@@ -48,17 +50,19 @@ function TimerService:GetAll(player: Player): { Timer }
 end
 
 function TimerService:Start(player: Player, name: string, length: number): nil
-  local timer: Timer = {
-    Name = name,
-    ID = HttpService:GenerateGUID(),
-    BeginTime = tick(),
-    Length = length
-  }
-
-  local timers = self:GetAll(player)
-  table.insert(timers, timer)
-  self._data:SetValue(player, "Timers", timers)
-  self:RemoveFinished(player)
+  task.spawn(function()
+    local timer: Timer = {
+      Name = name,
+      ID = HttpService:GenerateGUID(),
+      BeginTime = tick(),
+      Length = length
+    }
+  
+    local timers = self:GetAll(player)
+    table.insert(timers, timer)
+    self._data:SetValue(player, "Timers", timers)
+    self:RemoveFinished(player)
+  end)
   return
 end
 

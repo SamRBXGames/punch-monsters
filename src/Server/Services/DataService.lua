@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Modules = ServerScriptService.Server.Modules
@@ -17,7 +18,7 @@ local Array = require(Packages.Array)
 
 local PROFILE_TEMPLATE = require(ReplicatedStorage.Templates.ProfileTemplate)
 
-local Test = true
+local Test = RunService:IsStudio()
 
 local DataService = Knit.CreateService {
 	Name = "DataService";

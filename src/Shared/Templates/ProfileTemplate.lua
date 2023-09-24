@@ -23,9 +23,13 @@ local PROFILE_TEMPLATE = {
 
 	ProductsLog = {},
 	RedeemedCodes = {},
+	
+	AutoFight = false,
+	AutoTrain = false,
 
 	Settings = {
 		Sound = 0, -- 0 to 100
+		ShowOwnPets = true,
 		ShowOtherPets = true,
 		AutoRebirth = false,
 		LowQuality = false

@@ -15,6 +15,11 @@ local PurchaseLogService = Knit.CreateService {
 	Name = "PurchaseLogService"
 }
 
+function PurchaseLogService:KnitStart(): nil
+	self._data = Knit.GetService("DataService")
+	return
+end
+
 function PurchaseLogService:Log(player: Player, productID: number, isGamepass: boolean): nil
 	AssertPlayer(player)
 	local infoType = Enum.InfoType[if isGamepass  then "GamePass" else "Product"]
@@ -45,6 +50,16 @@ function PurchaseLogService:Log(player: Player, productID: number, isGamepass: b
 			}
 		}
 	}))
+
+	task.spawn(function()
+		local productLog = self._data:GetValue("ProductsLog")
+		table.insert(productLog, {
+			ID = productID,
+			PurchaseTime = tick()
+		})
+		self._data:SetValue("ProductsLog", productLog)
+	end)
+
 	return
 end
 

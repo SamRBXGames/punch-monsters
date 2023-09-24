@@ -3,7 +3,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
-local Tween = game:GetService("TweenService")
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
@@ -16,7 +15,9 @@ local UIController = Knit.CreateController {
 
 function UIController:KnitStart(): nil
 	self._blur = Knit.GetController("BlurController")
-	Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
+	task.delay(1.5, function()
+		Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
+	end)
 	return
 end
 
@@ -39,13 +40,13 @@ function UIController:SetScreen(name: string, blur: boolean?): ScreenGui?
 
 	local setScreen: ScreenGui
 	for _, screen in player:WaitForChild("PlayerGui"):GetChildren() do
+		local on = screen.Name == name
 		task.spawn(function()
-			local on = screen.Name == name
 			screen.Enabled = on
-			if on then
-				setScreen = screen
-			end
 		end)
+		if on then
+			setScreen = screen
+		end
 	end
 	
 	return setScreen
@@ -62,14 +63,14 @@ function UIController:SetShiftLock(on: boolean): nil
 end
 
 function UIController:AddModelToViewport(viewport: ViewportFrame, modelTemplate: Model, options: { replaceModel: boolean? }?): nil
-	if not modelTemplate then error("Missing viewport model template") end
-	
-	local replaceModel = if options then options.replaceModel else false
-	if viewport:FindFirstChild("model") and not replaceModel then
-		return warn(`Attempt to add model to viewport already containing a model. Viewport location: {viewport:GetFullName()}`)
-	end
-	
 	task.spawn(function()
+		if not modelTemplate then error("Missing viewport model template") end
+		
+		local replaceModel = if options then options.replaceModel else false
+		if viewport:FindFirstChild("model") and not replaceModel then
+			return warn(`Attempt to add model to viewport already containing a model. Viewport location: {viewport:GetFullName()}`)
+		end
+		
 		if replaceModel and viewport:FindFirstChild("model") then
 			(viewport :: any).model:Destroy()
 		end
@@ -94,7 +95,6 @@ function UIController:AddModelToViewport(viewport: ViewportFrame, modelTemplate:
 
 		model:PivotTo(modelCFrame)
 	end)
-
 	return
 end
 

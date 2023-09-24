@@ -30,9 +30,10 @@ function PreloadController:KnitInit(): nil
 				id = asset.MeshId
 			end
 
-			ContentProvider:PreloadAsync({ id }, function()
+			ContentProvider:PreloadAsync({ id }, function(): nil
 				loaded += 1
 				self.ContentLoaded:Fire()
+				return
 			end)
 		end
 		

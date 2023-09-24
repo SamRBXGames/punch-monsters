@@ -6,7 +6,6 @@ local StarterGui = game:GetService("StarterGui")
 local Packages = ReplicatedStorage.Packages
 local Component = require(Packages.Component)
 
-
 local Viewport: Component.Def = {
 	Name = script.Name;
 	IgnoreAncestors = { StarterGui };
