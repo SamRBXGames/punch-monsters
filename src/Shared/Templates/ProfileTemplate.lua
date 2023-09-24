@@ -14,7 +14,7 @@ local PROFILE_TEMPLATE = {
 		Equipped = {}
 	},
 	
-	ActiveBoosts = {},
+	Timers = {},
 
 	Wins = 0,
 	PunchStrength = 0,

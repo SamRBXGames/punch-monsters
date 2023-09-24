@@ -18,6 +18,7 @@ local TransactionService = Knit.CreateService {
 
 function TransactionService:KnitStart()
 	local DataService = Knit.GetService("DataService")
+	local BoostService = Knit.GetService("BoostService")
 	local PurchaseLogger = Knit.GetService("PurchaseLogService")
 	
 	local ProductFunctions = {
@@ -38,6 +39,18 @@ function TransactionService:KnitStart()
 		end,
 		[1631385718] = function(player: Player) -- win6
 			DataService:IncrementValue(player, "Wins", 5_000_000)
+		end,
+		[1631385716] = function(player: Player)
+			BoostService:Activate10xLuckBoost(player)
+		end,
+		[1631387042] = function(player: Player)
+			BoostService:Activate100xLuckBoost(player)
+		end,
+		[1631387040] = function(player: Player)
+			BoostService:Activate2xWinsBoost(player)
+		end,
+		[1631387043] = function(player: Player)
+			BoostService:Activate2xStrengthBoost(player)
 		end
 	}
 	
