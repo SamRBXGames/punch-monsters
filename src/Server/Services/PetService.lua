@@ -41,7 +41,7 @@ function PetService:KnitStart()
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	
-	self._data.DataUpdated.Event:Connect(function(player, key, value)
+	self._data.DataUpdated.Event:Connect(function(player, key, value): nil
 		if key == "Pets" then
 			local lastEquippedPets = lastEquippedPlayerPets[player.UserId]
 			if not lastEquippedPets then
@@ -75,6 +75,7 @@ function PetService:KnitStart()
 				playersLastOthersVisible[player.UserId] = settings.ShowOtherPets
 			end)
 		end
+		return
 	end)
 end
 

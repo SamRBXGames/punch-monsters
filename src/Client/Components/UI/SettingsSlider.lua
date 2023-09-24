@@ -41,7 +41,7 @@ function SettingsSlider:Initialize(): nil
 	})
 	
 	self._janitor:Add(slider)
-	self._janitor:Add(slider.Changed:Connect(function(value)
+	self._janitor:Add(slider.Released:Connect(function(value)
 		if not initialized then return end
 		self._data:SetSetting(self._settingName, value)
 	end))
