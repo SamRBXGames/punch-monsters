@@ -13,10 +13,6 @@ local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local characterRoot = character:WaitForChild("HumanoidRootPart")
-local humanoid = character:WaitForChild("Humanoid")
 local camera = workspace.CurrentCamera
 
 local cameraShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value + 1, function(shakeCF)
@@ -24,7 +20,17 @@ local cameraShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value + 1, func
 end)
 cameraShaker:Start()
 
-local PUNCH_COOLDOWN = 0.25
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local characterRoot = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator") :: Animator
+local animations = ReplicatedStorage.Assets.Animations
+
+local JAB1_ANIM = animator:LoadAnimation(animations.Jab)
+local JAB2_ANIM = animator:LoadAnimation(animations.Jab2)
+local UPPERCUT_ANIM = animator:LoadAnimation(animations.Uppercut)
+local ANIMS = {JAB1_ANIM, JAB2_ANIM, UPPERCUT_ANIM}
 
 local EnemyFighting: Component.Def = {
 	Name = script.Name;
@@ -187,11 +193,13 @@ function EnemyFighting:Attack(): nil
 	if not self._fighting then return end
 	if not self.Attributes.InUse then return end
 	if self.Attributes.PunchDebounce then return end
-	
 	self.Attributes.PunchDebounce = true
-	task.delay(PUNCH_COOLDOWN, function()
-		self.Attributes.PunchDebounce = false
+	
+	local punchAnim = ANIMS[math.random(1, #ANIMS)]
+	punchAnim.Ended:Once(function()
+		self.LiftDebounce = false
 	end)
+	punchAnim:Play()
 	
 	cameraShaker:Shake(CameraShaker.Presets.Rock);
 	(self :: any)._enemyHealth -= self._playerDamage

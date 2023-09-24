@@ -71,7 +71,7 @@ function DumbellsScreen:Initialize(): nil
 				if Dumbell.Equipped then
 					Dumbell:Unequip()
 				else
-					Dumbell:Equip(mapName, template)
+					Dumbell:Equip(mapName, cardNumber, template)
 				end
 				equipButton.TextLabel.Text = if Dumbell.Equipped then "Unequip" else "Equip"
 				equipButton.ImageColor3 = if Dumbell.Equipped then Color3.fromRGB(255, 46, 46) else Color3.fromRGB(255, 255, 255)

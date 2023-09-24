@@ -8,11 +8,13 @@ local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
+local defaultCameraMinZoom = player.CameraMinZoomDistance
 local character = player.Character or player.CharacterAdded:Wait()
 local characterRoot = character:WaitForChild("HumanoidRootPart")
-local defaultCameraMinZoom = player.CameraMinZoomDistance
+local animator = character.Humanoid:WaitForChild("Animator") :: Animator
+local animations = ReplicatedStorage.Assets.Animations
 
-local SITUP_COOLDOWN = 0.5
+local SITUP_ANIM = animator:LoadAnimation(animations.Situp)
 
 local SitupBench: Component.Def = {
 	Name = script.Name;
@@ -97,12 +99,13 @@ end
 function SitupBench:Situp(): nil
 	if not self.Attributes.InUse then return end
 	if self.Attributes.SitupDebounce then return end
+	self.Attributes.SitupDebounce = true
 
-	 self.Attributes.SitupDebounce = true
-	task.delay(SITUP_COOLDOWN, function()
+	SITUP_ANIM.Ended:Once(function()
 		self.Attributes.SitupDebounce = false
 	end)
-
+	SITUP_ANIM:Play()
+	
 	local hasVIP = self._gamepass:DoesPlayerOwn("VIP")
 	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")
 	local hasStrengthBoost = self._boosts:IsBoostActive("2xStrength")

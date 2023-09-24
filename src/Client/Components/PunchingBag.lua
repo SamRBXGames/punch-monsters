@@ -13,9 +13,6 @@ local Knit = require(Packages.Knit)
 local Array = require(Packages.Array)
 local Component = require(Packages.Component)
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local characterRoot = character:WaitForChild("HumanoidRootPart")
 local camera = workspace.CurrentCamera
 
 local cameraShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value + 1, function(shakeCF)
@@ -23,8 +20,15 @@ local cameraShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value + 1, func
 end)
 cameraShaker:Start()
 
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local characterRoot = character:WaitForChild("HumanoidRootPart")
+local animator = character.Humanoid:WaitForChild("Animator") :: Animator
+local animations = ReplicatedStorage.Assets.Animations
+
+local JAB1_ANIM = animator:LoadAnimation(animations.Jab)
+local JAB2_ANIM = animator:LoadAnimation(animations.Jab2)
 local MAX_BAG_DISTANCE = 6
-local PUNCH_COOLDOWN = 0.35
 
 local PunchingBag: Component.Def = {
 	Name = script.Name;
@@ -41,12 +45,12 @@ local PunchingBag: Component.Def = {
 }
 
 function PunchingBag:Initialize(): nil	
-	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 	self._data = Knit.GetService("DataService")
 	self._pets = Knit.GetService("PetService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetController("DumbellController")
+	self._jab1 = false
 	return
 end
 
@@ -82,10 +86,14 @@ function PunchingBag:Punch(): nil
 	if punchStrength < bagTemplate.PunchRequirement then return end
 	
 	if self.Attributes.PunchDebounce then return end
-	self._remoteDispatcher:SetAttribute(self.Instance, "PunchDebounce", true)
-	task.delay(PUNCH_COOLDOWN, function()
-		self._remoteDispatcher:SetAttribute(self.Instance, "PunchDebounce", false)
+	self.Attributes.PunchDebounce = true
+
+	local punchAnim = if self._jab1 then JAB1_ANIM else JAB2_ANIM
+	punchAnim.Ended:Once(function()
+		self.Attributes.PunchDebounce = false
 	end)
+	punchAnim:Play()
+	self._jab1 = not self._jab1
 
 	local vip =  self._gamepass:DoesPlayerOwn("VIP")
 	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")

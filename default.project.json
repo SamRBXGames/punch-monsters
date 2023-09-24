@@ -9,6 +9,24 @@
       "Assets": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true,
+        "Animations": {
+          "$className": "Folder",
+          "Situp": {
+            "$className": "Animation"
+          },
+          "Lift": {
+            "$className": "Animation"
+          },
+          "Jab": {
+            "$className": "Animation"
+          },
+          "Jab2": {
+            "$className": "Animation"
+          },
+          "Uppercut": {
+            "$className": "Animation"
+          }
+        },
         "Modules": {
           "$path": "src/Shared/Modules",
           "$ignoreUnknownInstances": true

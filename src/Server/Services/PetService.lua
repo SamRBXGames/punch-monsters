@@ -6,9 +6,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Modules = ServerScriptService.Server.Modules
 local VerifyID = require(Modules.VerifyID)
 local AssertPlayer = require(Modules.AssertPlayer)
-local Welder = require(Modules.Welder)
 
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
+local Welder = require(ReplicatedStorage.Modules.Welder)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
@@ -51,7 +51,7 @@ function PetService:KnitStart()
 	end)
 end
 
-function PetService:Find(player: Player, id: string): nil
+function PetService:Find(player: Player, id: string): typeof(PetsTemplate.Dog)?
 	AssertPlayer(player)
 	VerifyID(player, id)
 
@@ -113,7 +113,7 @@ function PetService:Unequip(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 
 		local pets = self._data:GetValue(player, "Pets")
 		local equippedPets = Array.new("table", pets.Equipped)
-		equippedPets:Remove(equippedPets:IndexOf(pet))
+		equippedPets:RemoveValue(pet)
 		pets.Equipped = equippedPets:ToTable()
 		self._data:SetValue(player, "Pets", pets)
 	end)
@@ -217,11 +217,11 @@ function PetService:StartFollowing(player: Player, pet: Model): nil
 				return e:IsA("BasePart")
 			end)
 		
-		for part in petParts:Values() do
+		for part: BasePart in petParts:Values() do
 			part.Anchored = false
 			part.CanCollide = false
 			if part == pet.PrimaryPart then continue end
-			Welder.Weld(pet.PrimaryPart, part)
+			Welder.Weld(pet.PrimaryPart, { part })
 		end
 		
 		pet.Parent = petFolder
