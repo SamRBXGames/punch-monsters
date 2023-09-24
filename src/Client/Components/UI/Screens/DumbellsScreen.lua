@@ -51,7 +51,9 @@ local DumbellsScreen: Component.Def = {
 function DumbellsScreen:Initialize(): nil
 	local Dumbell = Knit.GetController("DumbellController")
 	local cards = Array.new("Instance", self.Instance.Map1:GetChildren())
-		:Filter(function(element)
+		:Combine(Array.new("Instance", self.Instance.Map2:GetChildren()))
+		:Combine(Array.new("Instance", self.Instance.Map3:GetChildren()))
+		:Filter(function(element: Instance): boolean
 			return element:IsA("ImageLabel") and element.Name ~= "Title"
 		end)
 
