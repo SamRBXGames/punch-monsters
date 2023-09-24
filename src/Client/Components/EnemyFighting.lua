@@ -52,6 +52,7 @@ local EnemyFighting: Component.Def = {
 function EnemyFighting:Initialize(): nil
 	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")	
 	self._data = Knit.GetService("DataService")
+	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
 	
@@ -152,7 +153,7 @@ function EnemyFighting:Reset(): nil
 end
 
 function EnemyFighting:Exit(): nil
-	if not self.Instance:GetAttribute("InUse") then return end
+	if not self.Attributes.InUse then return end
 	self:Toggle(false)
 	self:Reset()
 	self._fighting = false
@@ -200,8 +201,10 @@ function EnemyFighting:Attack(): nil
 end
 
 function EnemyFighting:AddWin(): nil
-	local hasWinsBoost = self._gamepass:DoesPlayerOwn("2x Wins")
-	local multiplier = if hasWinsBoost then 2 else 1
+	local hasDoubleWins = self._gamepass:DoesPlayerOwn("2x Wins")
+	local hasWinsBoost = self._boosts:IsBoostActive("2xWins")
+	local multiplier = (if hasDoubleWins then 2 else 1)
+		* (if hasWinsBoost then 2 else 1)
 
 	self._data:IncrementValue("Wins", (self :: any)._enemyTemplate.Wins * multiplier)
 	return

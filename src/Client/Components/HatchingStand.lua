@@ -40,6 +40,7 @@ local HatchingStand: Component.Def = {
 
 function HatchingStand:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
+	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._ui = Knit.GetController("UIController")
 	self._hatching = false
@@ -68,6 +69,8 @@ function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
 	local has2xLuck = self._gamepass:DoesPlayerOwn("2x Luck")
 	local has10xLuck = self._gamepass:DoesPlayerOwn("10x Luck")
 	local has100xLuck = self._gamepass:DoesPlayerOwn("100x Luck")
+	local has10xLuckBoost = self._boosts:IsBoostActive("10xLuck")
+	local has100xLuckBoost = self._boosts:IsBoostActive("100xLuck")
 	local luckMultiplier = 0
 	
 	if has2xLuck then
@@ -77,6 +80,12 @@ function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
 		luckMultiplier += 10
 	end
 	if has100xLuck then
+		luckMultiplier += 100
+	end
+	if has10xLuckBoost then
+		luckMultiplier += 10
+	end
+	if has100xLuckBoost then
 		luckMultiplier += 100
 	end
 	
