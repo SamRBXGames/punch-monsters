@@ -19,7 +19,19 @@ local LoadScreen: Component.Def = {
 	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui },
-		ClassName = "ScreenGui"
+		ClassName = "ScreenGui",
+		Children = {
+			Transition = { ClassName = "Frame" },
+			Background = {
+				ClassName = "Frame",
+				Gloves = { ClassName = "ImageLabel" },
+				LoadingBar = {
+					ClassName = "Frame",
+					Skip = { ClassName = "TextButton" },
+					Title = { ClassName = "TextLabel" }
+				}
+			}
+		}
 	};
 }
 

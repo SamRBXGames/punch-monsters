@@ -14,18 +14,18 @@ dependencies = [["Promise", "evaera/promise@4.0.0"]]
 
 [[package]]
 name = "r-unic/array"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = []
 
 [[package]]
 name = "r-unic/componentize"
-version = "0.4.1"
-dependencies = [["Array", "r-unic/array@0.2.6"], ["Janitor", "howmanysmall/janitor@1.15.6"]]
+version = "0.4.2"
+dependencies = [["Array", "r-unic/array@0.2.7"], ["Janitor", "howmanysmall/janitor@1.15.6"]]
 
 [[package]]
 name = "sam-rbx/punch-monsters"
 version = "0.1.0"
-dependencies = [["Array", "r-unic/array@0.2.6"], ["Component", "r-unic/componentize@0.4.1"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["Signal", "sleitnick/signal@1.5.0"]]
+dependencies = [["Array", "r-unic/array@0.2.7"], ["Component", "r-unic/componentize@0.4.2"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["Signal", "sleitnick/signal@1.5.0"]]
 
 [[package]]
 name = "sleitnick/comm"
