@@ -10,6 +10,8 @@ local BoostService = Knit.CreateService {
   Client = {};
 }
 
+type BoostName = "10xLuck" | "100xLuck" | "2xWins" | "2xStrength"
+
 local function minutes(seconds: number): number
   return seconds * 60
 end
@@ -19,39 +21,39 @@ function BoostService:KnitStart(): nil
   return
 end
 
-function BoostService:_StartTimer(player: Player, name: string, length: number): nil
+function BoostService:_StartTimer(player: Player, name: BoostName, length: number): nil
   self._timers:Start(player, name .. "Boost", length)
   return
 end
 
-function BoostService:IsBoostActive(player: Player, boostName: "10xLuck" | "100xLuck" | "2xWins" | "2xStrength"): boolean
+function BoostService:IsBoostActive(player: Player, boostName: BoostName): boolean
   return Array.new("table", self._timers:GetAll(player))
     :Some(function(timer)
-      return timer.Name == boostName .. "Boost"and not self._timers:IsFinished(player, timer)
+      return timer.Name == boostName .. "Boost" and not self._timers:IsFinished(timer)
     end)
 end
 
 function BoostService:Activate10xLuckBoost(player: Player): nil
-  self:_StartTimer(player, "10xLuckBoost", minutes(30))
+  self:_StartTimer(player, "10xLuck", minutes(30))
   return
 end
 
 function BoostService:Activate100xLuckBoost(player: Player): nil
-  self:_StartTimer(player, "100xLuckBoost", minutes(15))
+  self:_StartTimer(player, "100xLuck", minutes(15))
   return
 end
 
 function BoostService:ActivateDoubleWinsBoost(player: Player): nil
-  self:_StartTimer(player, "2xWinsBoost", minutes(30))
+  self:_StartTimer(player, "2xWins", minutes(30))
   return
 end
 
 function BoostService:ActivateDoubleStrengthBoost(player: Player): nil
-  self:_StartTimer(player, "2xStrengthBoost", minutes(30))
+  self:_StartTimer(player, "2xStrength", minutes(30))
   return
 end
 
-function BoostService.Client:IsBoostActive(player: Player, boostName: "10xLuck" | "100xLuck" | "2xWins" | "2xStrength"): boolean
+function BoostService.Client:IsBoostActive(player: Player, boostName: BoostName): boolean
   return self.Server:IsBoostActive(player, boostName)
 end
 

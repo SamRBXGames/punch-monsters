@@ -47,10 +47,10 @@ function TransactionService:KnitStart()
 			BoostService:Activate100xLuckBoost(player)
 		end,
 		[1631387040] = function(player: Player)
-			BoostService:Activate2xWinsBoost(player)
+			BoostService:ActivateDoubleWinsBoost(player)
 		end,
 		[1631387043] = function(player: Player)
-			BoostService:Activate2xStrengthBoost(player)
+			BoostService:ActivateDoubleStrengthBoost(player)
 		end
 	}
 	
@@ -80,14 +80,16 @@ function TransactionService:KnitStart()
 				local player = Players:GetPlayerByUserId(receipt.PlayerId)
 				if not player then return nil end
 
-				local handler = ProductFunctions[receipt.ProductId]
-				if not handler then
+				local handleProduct = ProductFunctions[receipt.ProductId]
+				if not handleProduct then
 					return error("Missing dev product handler function in TransactionService")
 				end
 
-				local success, result = pcall(handler, player, receipt)
+				local success, err = pcall(function()
+					task.spawn(handleProduct, player)
+				end)
 				if not success then
-					error(`Failed to process a product purchase for {player.Name}, ProductId: {receipt.ProductId}.  Error: {result}`)
+					error(`Failed to process a product purchase for {player.Name}, ProductId: {receipt.ProductId}.  Error: {err}`)
 					return nil
 				end
 				
