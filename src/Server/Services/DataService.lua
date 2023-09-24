@@ -68,9 +68,11 @@ end
 
 local function CreatePetsFolder(player: Player): nil
 	AssertPlayer(player)
-	local PetFolder = Instance.new("Folder")
-	PetFolder.Name = "PetFolder"
-	PetFolder.Parent = player
+	task.spawn(function()
+		local PetFolder = Instance.new("Folder")
+		PetFolder.Name = "PetFolder"
+		PetFolder.Parent = player
+	end)
 	return
 end
 
@@ -90,12 +92,6 @@ end
 
 function DataService:KnitStart()
 	self._pets = Knit.GetService("PetService")
-	
-	for _, player in Players:GetPlayers() do
-		task.spawn(function()
-			self:OnPlayerAdded(player)
-		end)
-	end
 		
 	Players.PlayerAdded:Connect(function(player)
 		task.wait(3)
@@ -106,36 +102,43 @@ function DataService:KnitStart()
 		if not profile  then return end
 		profile:Release()
 	end)
+
+	for _, player in Players:GetPlayers() do
+		self:OnPlayerAdded(player)
+	end
 end
 
 function DataService:OnPlayerAdded(player: Player): nil
-	local profile = ProfileStore:LoadProfileAsync("Player_" .. player.UserId)
-	if not profile then
-		return player:Kick()
-	end
-
-	profile:AddUserId(player.UserId)
-	profile:Reconcile()
-	profile:ListenToRelease(function()
-		Profiles[player] = nil
-		player:Kick()
+	task.spawn(function(): nil
+		local profile = ProfileStore:LoadProfileAsync("Player_" .. player.UserId)
+		if not profile then
+			return player:Kick()
+		end
+	
+		profile:AddUserId(player.UserId)
+		profile:Reconcile()
+		profile:ListenToRelease(function()
+			Profiles[player] = nil
+			player:Kick()
+		end)
+	
+		if player:IsDescendantOf(Players) then
+			Profiles[player] = profile
+			CreateLeaderstats(player)
+			CreatePetsFolder(player)
+			UpdateLeaderstats(player)
+			return self:InitializeClientUpdate(player)
+		else
+			return profile:Release()
+		end
 	end)
-
-	if player:IsDescendantOf(Players) then
-		Profiles[player] = profile
-		CreateLeaderstats(player)
-		CreatePetsFolder(player)
-		UpdateLeaderstats(player)
-		return self:InitializeClientUpdate(player)
-	else
-		return profile:Release()
-	end
+	return
 end
 
 function DataService:InitializeClientUpdate(player: Player): nil
 	AssertPlayer(player)
 	local profile = GetProfile(player)
-	task.spawn(function()
+	task.spawn(function(): nil
 		self:DataUpdate(player, "leaderstats", profile.Data.leaderstats)
 		self:DataUpdate(player, "Pets", profile.Data.Pets)
 		self:DataUpdate(player, "ActiveBoosts", profile.Data.ActiveBoosts)
@@ -146,13 +149,17 @@ function DataService:InitializeClientUpdate(player: Player): nil
 		self:DataUpdate(player, "ProductsLog", profile.Data.ProductsLog)
 		self:DataUpdate(player, "RedeemedCodes", profile.Data.RedeemedCodes)
 		self:DataUpdate(player, "Settings", profile.Data.Settings)
+		return
 	end)
 	return
 end
 
 function DataService:DataUpdate<T>(player: Player, key: string, value: T): nil
-	self.Client.DataUpdated:Fire(player, key, value)
-	self.DataUpdated:Fire(player, key, value)
+	task.spawn(function(): nil
+		self.Client.DataUpdated:Fire(player, key, value)
+		self.DataUpdated:Fire(player, key, value)
+		return
+	end)
 	return
 end
 
@@ -160,10 +167,10 @@ end
 
 local function ArePetDuplicatesFound(): boolean
 	local duplicatesFound = false
-	local ids = Array.new()
+	local ids = Array.new("string")
 	
 	for player, profile in Profiles do	
-		local pets = Array.new(profile.Data.Pets.OwnedPets)
+		local pets = Array.new("table", profile.Data.Pets.OwnedPets)
 		for pet in pets:Values() do
 			if ids:Has(pet.ID) then
 				duplicatesFound = true

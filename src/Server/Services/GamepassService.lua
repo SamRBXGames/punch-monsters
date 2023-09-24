@@ -21,7 +21,12 @@ local GamepassService = Knit.CreateService {
 local apiEndpoint = `https://games.roproxy.com/v1/games/{game.GameId}/game-passes?limit=25`
 local PASS_CACHE
 
-local function getAllPasses(): { { name: string, id: number } }
+type Gamepass = {
+	name: string;
+	id: number;
+}
+
+local function getAllPasses(): { Gamepass }
 	if PASS_CACHE then
 		return PASS_CACHE
 	end
@@ -41,8 +46,8 @@ local function getPassIDByName(name: string): number?
 		return NAME_TO_ID_CACHE[name]
 	end
 	
-	local pass = Array.new("table", getAllPasses())
-		:Find(function(pass)
+	local pass: Gamepass? = Array.new("table", getAllPasses())
+		:Find(function(pass: Gamepass)
 			return trim(pass.name) == trim(name)
 		end)
 	
@@ -60,9 +65,11 @@ end
 
 function GamepassService:PromptPurchase(player: Player, passName: string): nil
 	AssertPlayer(player)
-	local id = getPassIDByName(passName)
-	assert(id, `Failed to find gamepass ID for {passName}`)
-	MarketplaceService:PromptGamePassPurchase(player, id)
+	task.spawn(function()
+		local id = getPassIDByName(passName)
+		assert(id, `Failed to find gamepass ID for {passName}`)
+		MarketplaceService:PromptGamePassPurchase(player, id)
+	end)
 	return
 end
 
