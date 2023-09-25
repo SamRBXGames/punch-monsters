@@ -40,8 +40,8 @@ function SettingsSlider:Initialize(): nil
 		}
 	})
 	
-	self._janitor:Add(slider)
-	self._janitor:Add(slider.Released:Connect(function(value)
+	self:AddToJanitor(slider)
+	self:AddToJanitor(slider.Released:Connect(function(value)
 		if not initialized then return end
 		self._data:SetSetting(self._settingName, value)
 	end))

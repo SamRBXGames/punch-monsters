@@ -24,7 +24,7 @@ local DataLinkedText: Component.Def = {
 function DataLinkedText:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 
-	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
 		local linkedKey = self.Attributes.DataKey
 		if key ~= linkedKey then return end
 		

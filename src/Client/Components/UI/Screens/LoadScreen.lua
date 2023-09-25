@@ -79,11 +79,11 @@ function LoadScreen:Activate(): nil
 		self._bar.Skip.Visible = true
 	end)
 
-	self._janitor:Add(self._bar.Skip.MouseButton1Click:Connect(function()
+	self:AddToJanitor(self._bar.Skip.MouseButton1Click:Connect(function()
 		self._preloader.FinishedLoading:Fire()
 	end))
 
-	self._janitor:Add(self._preloader.ContentLoaded:Connect(function()
+	self:AddToJanitor(self._preloader.ContentLoaded:Connect(function()
 		local loaded: number = self._preloader:GetLoaded()
 		self:UpdateProgressBar(loaded / self._preloader:GetRemaining())
 	end))

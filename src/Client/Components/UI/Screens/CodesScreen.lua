@@ -45,7 +45,7 @@ function CodesScreen:Initialize(): nil
 	self._status = background.Status
 	self._textInput = background.TextBubble.Input
 	
-	self._janitor:Add(self._redeem.MouseButton1Click:Connect(function()
+	self:AddToJanitor(self._redeem.MouseButton1Click:Connect(function()
 		self:Redeem()
 	end))
 	return

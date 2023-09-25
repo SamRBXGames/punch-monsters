@@ -234,7 +234,7 @@ function HatchingStand:AddPetCards(): nil
 			local Viewport = Component.Get("Viewport")
 			Viewport:Add(viewport)
 			self._ui:AddModelToViewport(viewport, petModel)
-			self._janitor:Add(petCard)
+			self:AddToJanitor(petCard)
 		end
 	end)
 	

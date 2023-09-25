@@ -251,6 +251,13 @@ function DataService:GetTotalStrength(player: Player, strengthType: "Punch" | "A
 	return math.round(initialStrength * petMultiplier)
 end
 
+function DataService:AddDefeatedBoss(player: Player, bossMap: string): nil
+	local defeatedBosses = self:GetValue(player, "DefeatedBosses")
+	table.insert(defeatedBosses, bossMap)
+	self:SetValue(player, "DefeatedBosses", defeatedBosses)
+	return
+end
+
 -- client
 function DataService.Client:GetValue(player, name)
 	return self.Server:GetValue(player, name)
@@ -274,6 +281,10 @@ end
 
 function DataService.Client:GetTotalStrength(player, strengthType: "Punch" | "Abs" | "Biceps"?)
 	return self.Server:GetTotalStrength(player, strengthType)
+end
+
+function DataService.Client:AddDefeatedBoss(player: Player, bossMap: string): nil
+	return self.Server:AddDefeatedBoss(player, bossMap)
 end
 
 return DataService

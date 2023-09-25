@@ -46,7 +46,7 @@ function InventoryScreen:Initialize(): nil
 	self._petStats.Visible = false
 	
 	self._updateJanitor = Janitor.new()
-	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
 		if key ~= "Pets" then return end
 		self:UpdatePetCards()
 	end))

@@ -40,7 +40,8 @@ local EnemyFighting: Component.Def = {
 		ClassName = "Model",
 		Attributes = {
 			InUse = { Type = "boolean" },
-			PunchDebounce = { Type = "boolean" }
+			PunchDebounce = { Type = "boolean" },
+			Boss = { Type = "boolean" }
 		},
 		Children = {
 			Head = { IsA = "BasePart" },
@@ -81,11 +82,11 @@ function EnemyFighting:Initialize(): nil
 	self._enemyDamage = self._enemyStrength / self._healthToDamageRatio
 	
 	self._fightUi = player.PlayerGui.FightUi
-	self._janitor:Add(self._proximityPrompt.Triggered:Connect(function(player)
+	self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function(player)
 		self:Enter()
 	end))
 	
-	self._janitor:Add(self._fightUi.Exit.MouseButton1Click:Connect(function()
+	self:AddToJanitor(self._fightUi.Exit.MouseButton1Click:Connect(function()
 		self:Exit()
 	end))
 
@@ -120,22 +121,22 @@ function EnemyFighting:Enter(): nil
 			Enum.ThumbnailType.HeadShot,
 			Enum.ThumbnailSize.Size420x420
 		)
+		self._fightUi.Me.TextLabel.Text = abbreviate(playerStrength)
+		self._fightUi.Enemy.TextLabel.Text = abbreviate(self._enemyStrength)
+		
+		local viewport = self._fightUi.Enemy.Viewport
+		self._ui:AddModelToViewport(viewport, self.Instance, { replaceModel = true })
+		self._ui:SetScreen("FightUi")
 	end)
 	
-	self._fightUi.Me.TextLabel.Text = abbreviate(playerStrength)
-	self._fightUi.Enemy.TextLabel.Text = abbreviate(self._enemyStrength)
-	
-	local viewport = self._fightUi.Enemy.Viewport
-	self._ui:AddModelToViewport(viewport, self.Instance, { replaceModel = true })
-	self._ui:SetScreen("FightUi")
-	
-	for i = 3, 1, -1 do
-		task.wait(0.8)
-		self._fightUi.Countdown.Text = tostring(i)
-	end
-	self._fightUi.Countdown.Text = "Fight!"
-	
-	self:StartFight()
+	task.spawn(function()
+		for i = 3, 1, -1 do
+			task.wait(0.8)
+			self._fightUi.Countdown.Text = tostring(i)
+		end
+		self._fightUi.Countdown.Text = "Fight!"
+		self:StartFight()
+	end)
 	return
 end
 
@@ -144,7 +145,7 @@ function EnemyFighting:StartFight(): nil
 	task.spawn(function()
 		repeat task.wait(0.5);
 			(self :: any)._playerHealth -= self._enemyDamage
-			self:UpdateBar()
+			self:UpdateBars()
 		until (self._playerHealth <= 0) or (self._enemyHealth <= 0)
 		if self._playerHealth <= 0 then
 			self:PlayerKill()
@@ -169,23 +170,24 @@ function EnemyFighting:Exit(): nil
 	return
 end
 
-function EnemyFighting:UpdateBar(): nil
-	local PlayerHPSize = math.clamp((self :: any)._playerHealth / self._playerMaxHealth, 0, 1)
-	local EnemyHPSize = math.clamp((self :: any)._enemyHealth / self._enemyMaxHealth, 0, 1)
-	
-	self._fightUi.Me.HP.Bar:TweenSize(
-		UDim2.fromScale(PlayerHPSize, 1),
-		Enum.EasingDirection.In,
-		Enum.EasingStyle.Linear,
-		0.2
-	)
-	self._fightUi.Enemy.HP.Bar:TweenSize(
-		UDim2.fromScale(EnemyHPSize, 1),
-		Enum.EasingDirection.In,
-		Enum.EasingStyle.Linear,
-		0.2
-	)
-
+function EnemyFighting:UpdateBars(): nil
+	task.spawn(function()
+		local PlayerHPSize = math.clamp((self :: any)._playerHealth / self._playerMaxHealth, 0, 1)
+		local EnemyHPSize = math.clamp((self :: any)._enemyHealth / self._enemyMaxHealth, 0, 1)
+		
+		self._fightUi.Me.HP.Bar:TweenSize(
+			UDim2.fromScale(PlayerHPSize, 1),
+			Enum.EasingDirection.In,
+			Enum.EasingStyle.Linear,
+			0.2
+		)
+		self._fightUi.Enemy.HP.Bar:TweenSize(
+			UDim2.fromScale(EnemyHPSize, 1),
+			Enum.EasingDirection.In,
+			Enum.EasingStyle.Linear,
+			0.2
+		)
+	end)
 	return
 end
 
@@ -195,38 +197,49 @@ function EnemyFighting:Attack(): nil
 	if self.Attributes.PunchDebounce then return end
 	self.Attributes.PunchDebounce = true
 	
-	local punchAnim = ANIMS[math.random(1, #ANIMS)]
-	punchAnim.Ended:Once(function()
-		self.Attributes.PunchDebounce = false
+	task.spawn(function(): nil
+		local punchAnim = ANIMS[math.random(1, #ANIMS)]
+		punchAnim.Ended:Once(function()
+			self.Attributes.PunchDebounce = false
+		end)
+		punchAnim:Play()
+		punchAnim:AdjustSpeed(2)
+		return
 	end)
-	punchAnim:Play()
-	punchAnim:AdjustSpeed(2)
 	
-	cameraShaker:Shake(CameraShaker.Presets.Rock);
+	task.spawn(function()
+		cameraShaker:Shake(CameraShaker.Presets.Rock);
+	end);
+	
 	(self :: any)._enemyHealth -= self._playerDamage
-	self:UpdateBar()
-	if self._enemyHealth <= 0 then
-		self:Kill()
-	end
+	task.spawn(function()
+		self:UpdateBars()
+		if self._enemyHealth <= 0 then
+			self:Kill()
+		end
+	end)
 
 	return
 end
 
 function EnemyFighting:AddWin(): nil
-	local hasDoubleWins = self._gamepass:DoesPlayerOwn("2x Wins")
-	local hasWinsBoost = self._boosts:IsBoostActive("2xWins")
-	local multiplier = (if hasDoubleWins then 2 else 1)
-		* (if hasWinsBoost then 2 else 1)
+	task.spawn(function()
+		local hasDoubleWins = self._gamepass:DoesPlayerOwn("2x Wins")
+		local hasWinsBoost = self._boosts:IsBoostActive("2xWins")
+		local multiplier = (if hasDoubleWins then 2 else 1)
+			* (if hasWinsBoost then 2 else 1)
 
-	self._data:IncrementValue("Wins", (self :: any)._enemyTemplate.Wins * multiplier)
+		self._data:IncrementValue("Wins", (self :: any)._enemyTemplate.Wins * multiplier)
+	end)
 	return
 end
 
 function EnemyFighting:PlayerKill(): nil
 	self._fighting = false
 	self._fightUi.Countdown.Text = `{self.Instance.Name} has won!`
-	task.wait(2)
-	self:Exit()
+	task.delay(2, function()
+		self:Exit()
+	end)
 	return
 end
 
@@ -234,8 +247,14 @@ function EnemyFighting:Kill(): nil
 	self._fighting = false
 	self._fightUi.Countdown.Text = "You won!"
 	self:AddWin()
-	task.wait(2)
-	self:Exit()
+	
+	if self.Attributes.Boss then
+		self._data:AddDefeatedBoss(script.Parent.Parent.Name) -- map name
+	end
+	task.delay(2, function()
+		self:Exit()
+	end)
+
 	return
 end
 

@@ -32,7 +32,7 @@ function SettingsToggleButton:Initialize(): nil
 	self._gamepass = Knit.GetService("GamepassService")
 	self._settingName = self.Instance.Parent.Name
 	
-	self._janitor:Add(self._data.DataUpdated:Connect(function(key)
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
 		if key ~= "Settings" then return end
 		self:UpdateImages()
 	end))

@@ -29,10 +29,10 @@ function AutoButton:Initialize(): nil
   self._data = Knit.GetService("DataService")
   self._dataKey = self.Attributes.Type:gsub(" ", "")
   
-  self._data.DataUpdated:Connect(function(key): nil
+  self:AddToJanitor(self._data.DataUpdated:Connect(function(key): nil
     if key ~= self._dataKey then return end
     return self:UpdateText()
-  end)
+  end))
 
   return
 end
