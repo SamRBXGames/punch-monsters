@@ -101,11 +101,13 @@ function SitupBench:Situp(): nil
 	if self.Attributes.SitupDebounce then return end
 	self.Attributes.SitupDebounce = true
 
-	SITUP_ANIM.Ended:Once(function()
-		self.Attributes.SitupDebounce = false
+	task.spawn(function()
+		SITUP_ANIM.Ended:Once(function()
+			self.Attributes.SitupDebounce = false
+		end)
+		SITUP_ANIM:Play()
+		SITUP_ANIM:AdjustSpeed(1.75)
 	end)
-	SITUP_ANIM:Play()
-	SITUP_ANIM:AdjustSpeed(1.75)
 
 	local hasVIP = self._gamepass:DoesPlayerOwn("VIP")
 	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")

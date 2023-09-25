@@ -90,13 +90,15 @@ function PunchingBag:Punch(): nil
 	if self.Attributes.PunchDebounce then return end
 	self.Attributes.PunchDebounce = true
 
-	local punchAnim = if self._jab1 then JAB1_ANIM else JAB2_ANIM
-	punchAnim.Ended:Once(function()
-		self.Attributes.PunchDebounce = false
+	task.spawn(function()
+		local punchAnim = if self._jab1 then JAB1_ANIM else JAB2_ANIM
+		punchAnim.Ended:Once(function()
+			self.Attributes.PunchDebounce = false
+		end)
+		punchAnim:Play()
+		punchAnim:AdjustSpeed(1.25)
+		self._jab1 = not self._jab1
 	end)
-	punchAnim:Play()
-	punchAnim:AdjustSpeed(1.25)
-	self._jab1 = not self._jab1
 
 	local vip =  self._gamepass:DoesPlayerOwn("VIP")
 	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")

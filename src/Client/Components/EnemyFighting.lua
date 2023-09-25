@@ -203,7 +203,7 @@ function EnemyFighting:Attack(): nil
 			self.Attributes.PunchDebounce = false
 		end)
 		punchAnim:Play()
-		punchAnim:AdjustSpeed(2)
+		punchAnim:AdjustSpeed(2.5)
 		return
 	end)
 	
