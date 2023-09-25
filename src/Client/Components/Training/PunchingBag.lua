@@ -96,7 +96,7 @@ function PunchingBag:Punch(): nil
 			self.Attributes.PunchDebounce = false
 		end)
 		punchAnim:Play()
-		punchAnim:AdjustSpeed(1.25)
+		punchAnim:AdjustSpeed(1.5)
 		self._jab1 = not self._jab1
 	end)
 

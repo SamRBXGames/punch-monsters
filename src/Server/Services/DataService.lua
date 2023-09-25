@@ -9,11 +9,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Modules = ServerScriptService.Server.Modules
 local Packages = ReplicatedStorage.Packages
 
-local ProfileService = require(Modules.ProfileService)
 local AssertPlayer = require(Modules.AssertPlayer)
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
 local Knit = require(Packages.Knit)
+local ProfileService = require(Packages.ProfileService)
 local Array = require(Packages.Array)
 
 local PROFILE_TEMPLATE = require(ReplicatedStorage.Templates.ProfileTemplate)

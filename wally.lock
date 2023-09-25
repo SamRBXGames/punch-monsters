@@ -13,19 +13,24 @@ version = "1.15.6"
 dependencies = [["Promise", "evaera/promise@4.0.0"]]
 
 [[package]]
+name = "jakebball/profileservice"
+version = "1.5.0"
+dependencies = []
+
+[[package]]
 name = "r-unic/array"
-version = "0.2.7"
+version = "0.2.8"
 dependencies = []
 
 [[package]]
 name = "r-unic/componentize"
 version = "0.4.9"
-dependencies = [["Array", "r-unic/array@0.2.7"], ["Janitor", "howmanysmall/janitor@1.15.6"]]
+dependencies = [["Array", "r-unic/array@0.2.8"], ["Janitor", "howmanysmall/janitor@1.15.6"]]
 
 [[package]]
 name = "sam-rbx/punch-monsters"
 version = "0.1.0"
-dependencies = [["Array", "r-unic/array@0.2.7"], ["Component", "r-unic/componentize@0.4.9"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["Signal", "sleitnick/signal@1.5.0"]]
+dependencies = [["Array", "r-unic/array@0.2.8"], ["Component", "r-unic/componentize@0.4.9"], ["Input", "sleitnick/input@2.1.1"], ["Janitor", "howmanysmall/janitor@1.15.6"], ["Knit", "sleitnick/knit@1.5.1"], ["ProfileService", "jakebball/profileservice@1.5.0"], ["Signal", "sleitnick/signal@1.5.0"]]
 
 [[package]]
 name = "sleitnick/comm"
