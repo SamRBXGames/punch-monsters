@@ -37,8 +37,8 @@ local InputTypeMap = {
 		forEachComponent("EnemyFighting", "Attack")
 
 		task.spawn(function()
-			local Dumbell = Knit.GetController("DumbellController")
-			Dumbell:Lift()
+			local dumbell = Knit.GetService("DumbellService")
+			dumbell:Lift()
 		end)
 		return
 	end
