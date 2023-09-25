@@ -7,6 +7,7 @@ local Welder = require(ReplicatedStorage.Modules.Welder)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
+local AssertPlayer = require(script.Parent.Parent.Modules.AssertPlayer)
 
 type Dumbell = {
 	Required: number;
@@ -56,6 +57,8 @@ function DumbellService:KnitStart(): nil
 end
 
 function DumbellService:Lift(player: Player): nil
+	AssertPlayer(player)
+
 	local dumbellInfo = self._playerDumbellInfo[player.UserId]
 	if not dumbellInfo.Equipped then return end
 	if dumbellInfo.LiftDebounce then return end
@@ -74,17 +77,23 @@ function DumbellService:Lift(player: Player): nil
 	local hasStrengthBoost = self._boosts:IsBoostActive(player, "2xStrength")
 	local bicepsMultiplier = (if hasDoubleStrength then 2 else 1)
 		* (if hasStrengthBoost then 2 else 1)
-		* self._pets:GetTotalMultiplier()
+		* self._pets:GetTotalMultiplier(player)
 
-	if self.EquippedDumbellTemplate.IsVIP and not hasVIP then
+	if dumbellInfo.EquippedDumbellTemplate.IsVIP and not hasVIP then
 		return self._gamepass:PromptPurchase(player, "VIP")
 	end
 	
-	self._data:IncrementValue(player, "BicepsStrength", self.EquippedDumbellTemplate.Gain * bicepsMultiplier)
+	self._data:IncrementValue(player, "BicepsStrength", dumbellInfo.EquippedDumbellTemplate.Gain * bicepsMultiplier)
 	return
 end
 
 function DumbellService:Equip(player: Player, mapName: string, number: number, dumbell: Dumbell): nil
+	AssertPlayer(player)
+
+	local dumbellInfo = self._playerDumbellInfo[player.UserId]
+	if dumbellInfo.EquippedDumbellTemplate == dumbell then return end
+	if dumbellInfo.Equipped then return end
+
 	local bicepsStrength = self._data:GetValue(player, "BicepsStrength")
 	if dumbell.Required > bicepsStrength then return end
 
@@ -93,14 +102,13 @@ function DumbellService:Equip(player: Player, mapName: string, number: number, d
 		local hand = character.RightHand
 		local mesh = workspace[mapName].DumbellRack[tostring(number)]:Clone()
 		mesh.Name = "Dumbell"
-		mesh.CFrame = CFrame.new(hand.Position, character.PrimaryPart.CFrame.LookVector)
-		Welder.Weld(hand, { mesh })
+		Welder.WeldConstraint(hand, { mesh })
+		mesh.CFrame = CFrame.new(hand.Position, -character.PrimaryPart.CFrame.RightVector)
 		mesh.Anchored = false
 		mesh.CanCollide = false
 		mesh.Parent = character
 	end)
 	
-	local dumbellInfo = self._playerDumbellInfo[player.UserId]
 	dumbellInfo.Equipped = true
 	dumbellInfo.EquippedDumbellTemplate = dumbell
 	self._playerDumbellInfo[player.UserId] = dumbellInfo
@@ -108,7 +116,10 @@ function DumbellService:Equip(player: Player, mapName: string, number: number, d
 end
 
 function DumbellService:Unequip(player: Player): nil
+	AssertPlayer(player)
+
 	local dumbellInfo = self._playerDumbellInfo[player.UserId]
+	if not dumbellInfo.Equipped then return end
 	dumbellInfo.Equipped = false
 	dumbellInfo.EquippedDumbellTemplate = nil
 	self._playerDumbellInfo[player.UserId] = dumbellInfo
@@ -126,8 +137,16 @@ function DumbellService.Client:Lift(player: Player): nil
 	return self.Server:Lift(player)
 end
 
+function DumbellService.Client:Equip(player: Player, mapName: string, number: number, dumbell: Dumbell): nil
+	return self.Server:Equip(player, mapName, number, dumbell)
+end
+
+function DumbellService.Client:Unequip(player: Player): nil
+	return self.Server:Unequip(player)
+end
+
 function DumbellService.Client:IsEquipped(player: Player): boolean
-	return self._playerDumbellInfo[player.UserId].Equipped
+	return self.Server._playerDumbellInfo[player.UserId].Equipped
 end
 
 return DumbellService

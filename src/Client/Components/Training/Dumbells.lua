@@ -24,7 +24,11 @@ function Dumbells:Initialize(): nil
 
   local pad = self.Instance:WaitForChild("Circle")
   local touching = false
-  local db = Debounce.new(4)
+  local db = Debounce.new(3.5)
+
+  db.Deactivated:Connect(function()
+    touching = false
+  end)
 
   self:AddToJanitor(pad.Touched:Connect(function(hit: BasePart)
     if touching then return end

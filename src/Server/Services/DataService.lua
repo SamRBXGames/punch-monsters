@@ -41,11 +41,11 @@ if Test then
 	)
 end
 
-local Profiles = {}
+local PROFILES = {}
 
 local function GetProfile(player: Player)
 	AssertPlayer(player)
-	local profile = Profiles[player]
+	local profile = PROFILES[player]
 	repeat task.wait(0.25) until profile
 	return profile
 end
@@ -100,7 +100,7 @@ function DataService:KnitStart()
 		self:OnPlayerAdded(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		local profile = Profiles[player]
+		local profile = PROFILES[player]
 		if not profile  then return end
 		profile:Release()
 	end)
@@ -120,12 +120,12 @@ function DataService:OnPlayerAdded(player: Player): nil
 		profile:AddUserId(player.UserId)
 		profile:Reconcile()
 		profile:ListenToRelease(function()
-			Profiles[player] = nil
+			PROFILES[player] = nil
 			player:Kick()
 		end)
 	
 		if player:IsDescendantOf(Players) then
-			Profiles[player] = profile
+			PROFILES[player] = profile
 			CreateLeaderstats(player)
 			CreatePetsFolder(player)
 			UpdateLeaderstats(player)
@@ -179,7 +179,7 @@ local function PetDuplicatesWereFound(): boolean
 	local duplicatesFound = false
 	local ids = Array.new("string")
 	
-	for player, profile in Profiles do	
+	for player, profile in pairs(PROFILES) do	
 		local pets = Array.new("table", profile.Data.Pets.OwnedPets)
 		for pet in pets:Values() do
 			if ids:Has(pet.ID) then

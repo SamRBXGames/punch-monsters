@@ -113,13 +113,14 @@ end
 function PetService:Add(player: Player, pet: typeof(PetsTemplate.Dog)): nil
 	AssertPlayer(player)
 	VerifyID(player, pet.ID)
-	task.spawn(function()
+	task.spawn(function(): nil
 		local pets = self._data:GetValue(player, "Pets")
 		local ownedPets = pets.OwnedPets
 		table.insert(ownedPets, pet)
 
 		pets.OwnedPets = ownedPets
 		self._data:SetValue(player, "Pets", pets)
+		return
 	end)
 	return
 end

@@ -15,12 +15,12 @@ local function IsValidID(id: string?): boolean
 	return #id == uuidLength
 		and firstChar == "{"
 		and lastChar == "}"
-		and id:match("[-][0-9A-Z]")
+		and id:match("[-][0-9A-Z]") ~= nil
 		and #idParts == #validFormat
 		and idParts:Reduce(function(isValidFormat, part)
-			local validPartLength = validFormat[idParts:IndexOf(part)]
-			return isValidFormat and #part == validPartLength
-		end, true)
+			local validPartLength = validFormat[idParts:IndexOf(part) :: number]
+			return (isValidFormat and #part == validPartLength) :: any
+		end, true :: any) :: any
 end
 
 local function VerifyID(player: Player, id: string?): nil

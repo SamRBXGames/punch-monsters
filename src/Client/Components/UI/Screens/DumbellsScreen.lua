@@ -67,14 +67,16 @@ function DumbellsScreen:Initialize(): nil
 				local template = mapDumbells[cardNumber]
 				template.IsVIP = cardNumber == 15
 
-				if dumbell.Equipped and dumbell.EquippedDumbellTemplate ~= template then return end
-				if dumbell.Equipped then
-					dumbell:Unequip()
-				else
-					dumbell:Equip(mapName, cardNumber, template)
-				end
-				equipButton.TextLabel.Text = if dumbell.Equipped then "Unequip" else "Equip"
-				equipButton.ImageColor3 = if dumbell.Equipped then Color3.fromRGB(255, 46, 46) else Color3.fromRGB(255, 255, 255)
+				local isEquipped = dumbell:IsEquipped()
+				task.spawn(function()
+					if isEquipped then
+						dumbell:Unequip()
+					else
+						dumbell:Equip(mapName, cardNumber, template)
+					end
+					equipButton.TextLabel.Text = if not isEquipped then "Unequip" else "Equip"
+					equipButton.ImageColor3 = if not isEquipped then Color3.fromRGB(255, 46, 46) else Color3.fromRGB(255, 255, 255)
+				end)
 			end))
 		end)
 	end
