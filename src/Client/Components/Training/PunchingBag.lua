@@ -1,8 +1,10 @@
 --!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
+local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+local Debris = game:GetService("Debris")
 
 local CameraShaker = require(script.Parent.Parent.Parent.Modules.CameraShaker)
 
@@ -110,8 +112,8 @@ function PunchingBag:Punch(): nil
 		cameraShaker:Shake(CameraShaker.Presets.Rock)
 		local vfx = PunchBagsTemplate[mapName].VFX:Clone()
 		vfx.Parent = self.Instance.Cylinder
-		game.Debris:AddItem(vfx, 0.5)
-		game.SoundService.PunchSound:Play()
+		Debris:AddItem(vfx, 0.5)
+		SoundService.Master.PunchSound:Play()
 	end)
 
 	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * punchMultiplier)
