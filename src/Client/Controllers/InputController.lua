@@ -14,12 +14,28 @@ local InputController = Knit.CreateController {
 	Name = "InputController";
 }
 
+local COMPONENT_CLASS_CACHE = {}
+local COMPONENT_INSTANCES_CACHE = {}
+
 local function forEachComponent(componentName: string, actionName: string): nil
 	task.spawn(function(): nil
-		local componentManager = Component.Get(componentName)
-		local components = componentManager.OwnedComponents:Filter(function(component: Component.Component)
-			return component.Name == componentName
-		end)
+		local componentManager
+		if COMPONENT_CLASS_CACHE[componentName] then
+			componentManager = COMPONENT_CLASS_CACHE[componentName]
+		else
+			componentManager = Component.Get(componentName)
+			COMPONENT_CLASS_CACHE[componentName] = componentManager
+		end
+
+		local components
+		if COMPONENT_INSTANCES_CACHE[componentName] then
+			components = COMPONENT_INSTANCES_CACHE[componentName]
+		else
+			components = componentManager.OwnedComponents:Filter(function(component: Component.Component)
+				return component.Name == componentName
+			end)
+			COMPONENT_INSTANCES_CACHE[componentName] = components
+		end
 	
 		for component in components:Values() do
 			local action = component[actionName]
