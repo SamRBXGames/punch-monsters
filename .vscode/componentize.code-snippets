@@ -1,0 +1,29 @@
+{
+  "Componentize Component": {
+		"prefix": [ "componentize" ],
+		"description": "Create a Componentize component",
+    "body": [
+      "--!native",
+      "--!strict",
+      "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
+      "",
+      "local Packages = ReplicatedStorage.Packages",
+      "local Component = require(Packages.Component)",
+      "",
+      "local ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g}: Component.Def = {",
+      "\tName = script.Name;",
+      "\tGuards = {",
+      "\t\tAncestors = { ${2} },",
+      "\t\tClassName = \"${3}\"",
+      "\t};",
+      "}",
+      "",
+      "function ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g}:Initialize(): nil",
+      "${4}",
+      "\treturn",
+      "end",
+      "",
+      "return Component.new(${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g})"
+    ]
+  }
+}

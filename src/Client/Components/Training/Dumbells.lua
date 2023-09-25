@@ -1,10 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+local Debounce = require(ReplicatedStorage.Modules.Debounce)
+
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
-local Debounce = require(ReplicatedStorage.Modules.Debounce)
 
 local Dumbells: Component.Def = {
 	Name = script.Name;

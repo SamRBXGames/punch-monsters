@@ -42,6 +42,12 @@ local RewardsScreen: Component.Def = {
 }
 
 function RewardsScreen:Initialize(): nil
+  local NotificationButton = Component.Get("NotificationButton")
+  repeat task.wait()
+    self._rewardsButton = NotificationButton:Find(self.Instance.Parent.MainUi.PlaytimeRewardButton)
+  until self._rewardsButton
+  self._rewardsButton:ToggleNotification(false)
+
   local data = Knit.GetService("DataService")
 	self._timedRewards = Knit.GetService("TimedRewardService")
 
@@ -70,9 +76,23 @@ function RewardsScreen:Initialize(): nil
 end
 
 function RewardsScreen:Update(dt: number): nil
-  if not self._crateButtons then return end
   if self._updateTime >= 1 then
     self._updateTime = 0
+    
+    task.spawn(function(): nil
+      local hasUnclaimed = self._crateButtons
+        :Filter(function(crateButton: CrateButton): boolean
+          return self:GetRemainingTime(crateButton) == 0
+        end)
+        :Some(function(crateButton: CrateButton): boolean
+          return not self._timedRewards:IsClaimed(crateButton.LayoutOrder)
+        end)
+
+      if self._rewardsButton.Instance.Exclamation.Visible == hasUnclaimed then return end
+      self._rewardsButton:ToggleNotification(hasUnclaimed)
+      return
+    end)
+
     for crateButton: CrateButton in self._crateButtons:Values() do
       task.spawn(function(): nil
         local remainingTime = self:GetRemainingTime(crateButton)
@@ -84,7 +104,6 @@ function RewardsScreen:Update(dt: number): nil
           return
         end)
         task.spawn(function(): nil
-          print(isClaimed)
           local collectText = if isClaimed then "Collected!" else "Collect"
           if crateButton.Icon.TextLabel.Visible and crateButton.Icon.TextLabel.Text ~= collectText then
             crateButton.Icon.TextLabel.Text = collectText

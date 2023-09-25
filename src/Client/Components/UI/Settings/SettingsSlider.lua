@@ -4,7 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
-local Slider = require(script.Parent.Parent.Parent.Modules.Slider)
+local Slider = require(script.Parent.Parent.Parent.Parent.Modules.Slider)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
