@@ -139,8 +139,8 @@ end
 
 function DataService:InitializeClientUpdate(player: Player): nil
 	AssertPlayer(player)
-	local profile = GetProfile(player)
 	task.spawn(function(): nil
+		local profile = GetProfile(player)
 		self:DataUpdate(player, "leaderstats", profile.Data.leaderstats)
 		self:DataUpdate(player, "Pets", profile.Data.Pets)
 		self:DataUpdate(player, "ActiveBoosts", profile.Data.ActiveBoosts)
@@ -151,6 +151,11 @@ function DataService:InitializeClientUpdate(player: Player): nil
 		self:DataUpdate(player, "ProductsLog", profile.Data.ProductsLog)
 		self:DataUpdate(player, "RedeemedCodes", profile.Data.RedeemedCodes)
 		self:DataUpdate(player, "Settings", profile.Data.Settings)
+		self:DataUpdate(player, "Timers", profile.Data.Timers)
+		self:DataUpdate(player, "ClaimedRewardsToday", profile.Data.ClaimedRewardsToday)
+		self:DataUpdate(player, "FirstJoinToday", profile.Data.FirstJoinToday)
+		self:DataUpdate(player, "AutoTrain", profile.Data.AutoTrain)
+		self:DataUpdate(player, "AutoFight", profile.Data.AutoFight)
 		return
 	end)
 	return
@@ -159,6 +164,9 @@ end
 function DataService:DataUpdate<T>(player: Player, key: string, value: T): nil
 	task.spawn(function(): nil
 		self.Client.DataUpdated:Fire(player, key, value)
+		return
+	end)
+	task.spawn(function(): nil
 		self.DataUpdated:Fire(player, key, value)
 		return
 	end)
@@ -167,7 +175,7 @@ end
 
 --// General Functions
 
-local function ArePetDuplicatesFound(): boolean
+local function PetDuplicatesWereFound(): boolean
 	local duplicatesFound = false
 	local ids = Array.new("string")
 	
@@ -191,13 +199,15 @@ function DataService:SetValue<T>(player: Player, name: string, value: T): nil
 	task.spawn(function()
 		local Data = GetProfile(player).Data
 		if name == "Pets" then
-			if ArePetDuplicatesFound() then return end
+			if PetDuplicatesWereFound() then return end
 		end
 
 		if Data[name] ~= nil then
 			Data[name] = value
 		elseif Data.leaderstats[name] ~= nil then
 			Data.leaderstats[name] = value
+		else
+			warn(`Could not find key "{name}" in profile while setting {player.DisplayName}'s data.`)
 		end
 
 		task.spawn(UpdateLeaderstats, player)
@@ -213,10 +223,11 @@ function DataService:IncrementValue(player: Player, name: string, amount: number
 	return
 end
 
-function DataService:GetValue(player: Player, name: string): any
+function DataService:GetValue<T>(player: Player, name: string): T
 	AssertPlayer(player)
 	local Data = GetProfile(player).Data
-	return Data[name] or Data.leaderstats[name] or Data.Pets[name]
+	local value = Data[name]
+	return if value == nil then Data.leaderstats[name] else value
 end
 
 function DataService:SetSetting<T>(player: Player, settingName: string, value: T): nil
@@ -227,7 +238,7 @@ function DataService:SetSetting<T>(player: Player, settingName: string, value: T
 	return
 end
 
-function DataService:GetSetting(player: Player, settingName: string): any
+function DataService:GetSetting<T>(player: Player, settingName: string): T
 	AssertPlayer(player)
 	local Settings = self:GetValue(player, "Settings")
 	return Settings[settingName]

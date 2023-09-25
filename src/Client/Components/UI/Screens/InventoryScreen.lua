@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Tween = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
@@ -91,7 +93,7 @@ function InventoryScreen:SelectPet(pet: Pet): nil
 		lastPetSelected = nil
 		return self:ToggleSelectionFrame(false)
 	end
-	lastPetSelected = pet
+	lastPetSelected = pet :: any
 	
 	local isEquipped = self._pets:IsEquipped(pet)
 	toggleButton(self._petStats.Equip, not isEquipped)
@@ -130,8 +132,9 @@ function InventoryScreen:UpdatePetCards(): nil
 	-- cleanup old cards & their connections
 	self._updateJanitor:Cleanup()
 	
-	local pets: { [string]: Pet } = self._data:GetValue("OwnedPets")
-	for _, pet in pets do
+	local pets = self._data:GetValue("Pets")
+	local ownedPets: { [string]: Pet } = pets.OwnedPets
+	for _, pet in pairs(ownedPets) do
 		task.spawn(function()
 			local card: ImageButton & { Viewport: ViewportFrame; StrengthMultiplier: TextLabel } = Assets.UserInterface.Inventory.PetCard:Clone()
 			card.StrengthMultiplier.Text = `{pet.StrengthMultiplier}x`

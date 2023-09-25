@@ -105,7 +105,8 @@ function SitupBench:Situp(): nil
 		self.Attributes.SitupDebounce = false
 	end)
 	SITUP_ANIM:Play()
-	
+	SITUP_ANIM:AdjustSpeed(1.75)
+
 	local hasVIP = self._gamepass:DoesPlayerOwn("VIP")
 	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")
 	local hasStrengthBoost = self._boosts:IsBoostActive("2xStrength")

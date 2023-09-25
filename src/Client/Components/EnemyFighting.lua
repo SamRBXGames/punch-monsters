@@ -142,7 +142,7 @@ end
 function EnemyFighting:StartFight(): nil
 	self._fighting = true
 	task.spawn(function()
-		repeat task.wait(0.25);
+		repeat task.wait(0.5);
 			(self :: any)._playerHealth -= self._enemyDamage
 			self:UpdateBar()
 		until (self._playerHealth <= 0) or (self._enemyHealth <= 0)
@@ -197,9 +197,10 @@ function EnemyFighting:Attack(): nil
 	
 	local punchAnim = ANIMS[math.random(1, #ANIMS)]
 	punchAnim.Ended:Once(function()
-		self.LiftDebounce = false
+		self.Attributes.PunchDebounce = false
 	end)
 	punchAnim:Play()
+	punchAnim:AdjustSpeed(2)
 	
 	cameraShaker:Shake(CameraShaker.Presets.Rock);
 	(self :: any)._enemyHealth -= self._playerDamage

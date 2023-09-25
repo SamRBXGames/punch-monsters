@@ -95,6 +95,7 @@ function PunchingBag:Punch(): nil
 		self.Attributes.PunchDebounce = false
 	end)
 	punchAnim:Play()
+	punchAnim:AdjustSpeed(1.25)
 	self._jab1 = not self._jab1
 
 	local vip =  self._gamepass:DoesPlayerOwn("VIP")
