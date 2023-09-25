@@ -51,7 +51,7 @@ function PunchingBag:Initialize(): nil
 	self._pets = Knit.GetService("PetService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
-	self._dumbell = Knit.GetController("DumbellController")
+	self._dumbell = Knit.GetService("DumbellService")
 	self._jab1 = false
 	return
 end
@@ -77,7 +77,7 @@ function PunchingBag:IsClosest(): boolean
 end
 
 function PunchingBag:Punch(): nil
-	if self._dumbell.Equipped then return end
+	if self._dumbell:IsEquipped() then return end
 
 	local isClosestBag = self:IsClosest()
 	if not isClosestBag then return end

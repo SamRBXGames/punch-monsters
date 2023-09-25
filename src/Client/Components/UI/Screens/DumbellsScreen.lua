@@ -49,7 +49,7 @@ local DumbellsScreen: Component.Def = {
 }
 
 function DumbellsScreen:Initialize(): nil
-	local Dumbell = Knit.GetController("DumbellController")
+	local dumbell = Knit.GetService("DumbellService")
 	local cards = Array.new("Instance", self.Instance.Map1:GetChildren())
 		:Combine(Array.new("Instance", self.Instance.Map2:GetChildren()))
 		:Combine(Array.new("Instance", self.Instance.Map3:GetChildren()))
@@ -67,14 +67,14 @@ function DumbellsScreen:Initialize(): nil
 				local template = mapDumbells[cardNumber]
 				template.IsVIP = cardNumber == 15
 
-				if Dumbell.Equipped and Dumbell.EquippedDumbellTemplate ~= template then return end
-				if Dumbell.Equipped then
-					Dumbell:Unequip()
+				if dumbell.Equipped and dumbell.EquippedDumbellTemplate ~= template then return end
+				if dumbell.Equipped then
+					dumbell:Unequip()
 				else
-					Dumbell:Equip(mapName, cardNumber, template)
+					dumbell:Equip(mapName, cardNumber, template)
 				end
-				equipButton.TextLabel.Text = if Dumbell.Equipped then "Unequip" else "Equip"
-				equipButton.ImageColor3 = if Dumbell.Equipped then Color3.fromRGB(255, 46, 46) else Color3.fromRGB(255, 255, 255)
+				equipButton.TextLabel.Text = if dumbell.Equipped then "Unequip" else "Equip"
+				equipButton.ImageColor3 = if dumbell.Equipped then Color3.fromRGB(255, 46, 46) else Color3.fromRGB(255, 255, 255)
 			end))
 		end)
 	end

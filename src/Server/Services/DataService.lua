@@ -219,7 +219,7 @@ end
 function DataService:IncrementValue(player: Player, name: string, amount: number): nil
 	AssertPlayer(player)
 	local value = self:GetValue(player, name)
-	self:SetValue(player, name, value + amount)
+	self:SetValue(player, name, value + (amount or 1))
 	return
 end
 

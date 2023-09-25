@@ -14,11 +14,14 @@ type Dumbell = {
 	IsVIP: boolean;
 }
 
+type DumbellInfo = {
+	Equipped: boolean;
+	LiftDebounce: boolean;
+	EquippedDumbellTemplate: Dumbell?;
+}
+
 local DumbellService = Knit.CreateService {
 	Name = "DumbellService";
-	Equipped = false;
-	LiftDebounce = false;
-	EquippedDumbellTemplate = nil;
 }
 
 function DumbellService:KnitStart(): nil
@@ -26,10 +29,20 @@ function DumbellService:KnitStart(): nil
 	self._pets = Knit.GetService("PetService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
+	self._playerDumbellInfo = {}
 
 	self._liftAnimations = {}
 	Players.PlayerAdded:Connect(function(player)
-		player.CharacterAdded:Connect(function(character)
+		if not self._playerDumbellInfo[player.UserId] then
+			self._playerDumbellInfo[player.UserId] = {
+				Equipped = false,
+				LiftDebounce = false,
+				EquippedDumbellTemplate = nil
+			}
+		end
+
+		player.CharacterAppearanceLoaded:Connect(function(character)
+			workspace:WaitForChild(character.Name)
 			local animator = character:WaitForChild("Humanoid"):WaitForChild("Animator") :: Animator
 			local animations = ReplicatedStorage.Assets.Animations
 			self._liftAnimations[player.UserId] = animator:LoadAnimation(animations.Lift)
@@ -43,13 +56,16 @@ function DumbellService:KnitStart(): nil
 end
 
 function DumbellService:Lift(player: Player): nil
-	if not self.Equipped then return end
-	if self.LiftDebounce then return end
-	self.LiftDebounce = true
+	local dumbellInfo = self._playerDumbellInfo[player.UserId]
+	if not dumbellInfo.Equipped then return end
+	if dumbellInfo.LiftDebounce then return end
+	dumbellInfo.LiftDebounce = true
+	self._playerDumbellInfo[player.UserId] = dumbellInfo
 
 	local liftAnim = self._liftAnimations[player.UserId]
 	liftAnim.Ended:Once(function()
-		self.LiftDebounce = false
+		dumbellInfo.LiftDebounce = false
+		self._playerDumbellInfo[player.UserId] = dumbellInfo
 	end)
 	liftAnim:Play()
 
@@ -83,15 +99,19 @@ function DumbellService:Equip(player: Player, mapName: string, number: number, d
 		mesh.CanCollide = false
 		mesh.Parent = character
 	end)
-
-	self.Equipped = true
-	self.EquippedDumbellTemplate = dumbell
+	
+	local dumbellInfo = self._playerDumbellInfo[player.UserId]
+	dumbellInfo.Equipped = true
+	dumbellInfo.EquippedDumbellTemplate = dumbell
+	self._playerDumbellInfo[player.UserId] = dumbellInfo
 	return
 end
 
 function DumbellService:Unequip(player: Player): nil
-	self.Equipped = false
-	self.EquippedDumbellTemplate = nil
+	local dumbellInfo = self._playerDumbellInfo[player.UserId]
+	dumbellInfo.Equipped = false
+	dumbellInfo.EquippedDumbellTemplate = nil
+	self._playerDumbellInfo[player.UserId] = dumbellInfo
 
 	task.spawn(function()
 		local character = player.Character :: any
@@ -104,6 +124,10 @@ end
 
 function DumbellService.Client:Lift(player: Player): nil
 	return self.Server:Lift(player)
+end
+
+function DumbellService.Client:IsEquipped(player: Player): boolean
+	return self._playerDumbellInfo[player.UserId].Equipped
 end
 
 return DumbellService
