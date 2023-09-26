@@ -6,7 +6,6 @@ local Players = game:GetService("Players")
 local CameraShaker = require(script.Parent.Parent.Modules.CameraShaker)
 
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
-
 local EnemyTemplate = require(ReplicatedStorage.Templates.EnemiesTemplate)
 
 local Packages = ReplicatedStorage.Packages
@@ -14,7 +13,6 @@ local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
 
 local camera = workspace.CurrentCamera
-
 local cameraShaker = CameraShaker.new(Enum.RenderPriority.Camera.Value + 1, function(shakeCF)
 	camera.CFrame *= shakeCF
 end)
@@ -27,10 +25,12 @@ local humanoid = character:WaitForChild("Humanoid")
 local animator = humanoid:WaitForChild("Animator") :: Animator
 local animations = ReplicatedStorage.Assets.Animations
 
-local JAB1_ANIM = animator:LoadAnimation(animations.Jab)
-local JAB2_ANIM = animator:LoadAnimation(animations.Jab2)
-local UPPERCUT_ANIM = animator:LoadAnimation(animations.Uppercut)
-local ANIMS = {JAB1_ANIM, JAB2_ANIM, UPPERCUT_ANIM}
+local RAGDOLL_FORCE = 30
+local PLAYER_ANIMS = {
+	animator:LoadAnimation(animations.Jab),
+	animator:LoadAnimation(animations.Jab2),
+	animator:LoadAnimation(animations.Uppercut)
+}
 
 local EnemyFighting: Component.Def = {
 	Name = script.Name;
@@ -63,8 +63,9 @@ function EnemyFighting:Initialize(): nil
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
+	self._ragdoll = Knit.GetService("RagdollService")
 	self._ui = Knit.GetController("UIController")
-	
+
 	self._proxyPart = self.Instance:WaitForChild("ProxyPart")
 	self._proximityPrompt = Instance.new("ProximityPrompt")
 	self._proximityPrompt.HoldDuration = 1
@@ -80,9 +81,18 @@ function EnemyFighting:Initialize(): nil
 	self._enemyMaxHealth = self._enemyStrength * self._strengthToHealthRatio
 	self._enemyHealth = self._enemyMaxHealth
 	self._enemyDamage = self._enemyStrength / self._healthToDamageRatio
+	self._enemyAnims = {
+		(self.Instance :: any).Humanoid:LoadAnimation(animations.Jab),
+		(self.Instance :: any).Humanoid:LoadAnimation(animations.Jab2),
+		(self.Instance :: any).Humanoid:LoadAnimation(animations.Uppercut)
+	}
 	
 	self._fightUi = player.PlayerGui.FightUi
-	self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function(player)
+	self._originalCFrame = (self.Instance.PrimaryPart :: BasePart).CFrame
+	self._originalCountdownColor = self._fightUi.Countdown.TextColor3
+	self._ragdoll:RigModel(self.Instance)
+
+	self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function()
 		self:Enter()
 	end))
 	
@@ -94,8 +104,10 @@ function EnemyFighting:Initialize(): nil
 end
 
 local defaultSpeed = humanoid.WalkSpeed
+local defaultJumpPower = humanoid.JumpPower
 function EnemyFighting:Toggle(on: boolean): nil
 	humanoid.WalkSpeed = if on then 0 else defaultSpeed
+	humanoid.JumpPower = if on then 0 else defaultJumpPower
 	self._proximityPrompt.Enabled = not on
 	self._remoteDispatcher:SetAttribute(self.Instance, "InUse", on)
 	self._remoteDispatcher:SetShiftLockOption(not on)
@@ -116,6 +128,7 @@ function EnemyFighting:Enter(): nil
 	self:Toggle(true)
 	
 	task.spawn(function()
+		self._fightUi.Countdown.TextColor3 = self._originalCountdownColor
 		self._fightUi.Me.ImageLabel.Image = Players:GetUserThumbnailAsync(
 			player.UserId,
 			Enum.ThumbnailType.HeadShot,
@@ -130,7 +143,7 @@ function EnemyFighting:Enter(): nil
 	end)
 	
 	task.spawn(function()
-		for i = 3, 1, -1 do
+		for i = 3, 0, -1 do
 			task.wait(0.8)
 			self._fightUi.Countdown.Text = tostring(i)
 		end
@@ -144,11 +157,17 @@ function EnemyFighting:StartFight(): nil
 	self._fighting = true
 	task.spawn(function()
 		repeat task.wait(0.5);
+			task.spawn(function(): nil
+				local punchAnim = self._enemyAnims[math.random(1, #self._enemyAnims)]
+				punchAnim:Play()
+				punchAnim:AdjustSpeed(2.5)
+				return
+			end);
 			(self :: any)._playerHealth -= self._enemyDamage
 			self:UpdateBars()
 		until (self._playerHealth <= 0) or (self._enemyHealth <= 0)
 		if self._playerHealth <= 0 then
-			self:PlayerKill()
+			self:KillPlayer()
 		end	
 	end)
 	return
@@ -159,6 +178,11 @@ function EnemyFighting:Reset(): nil
 	self._fightUi.Countdown.Text = "3"
 	self._fightUi.Me.HP.Bar.Size = UDim2.new(1, 0, 1, 0)
 	self._fightUi.Enemy.HP.Bar.Size = UDim2.new(1, 0, 1, 0)
+
+	character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	self.Instance.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	self.Instance.PrimaryPart.Anchored = true
+	self.Instance.PrimaryPart.CFrame = self._originalCFrame
 	return
 end
 
@@ -198,7 +222,7 @@ function EnemyFighting:Attack(): nil
 	self.Attributes.PunchDebounce = true
 	
 	task.spawn(function(): nil
-		local punchAnim = ANIMS[math.random(1, #ANIMS)]
+		local punchAnim = PLAYER_ANIMS[math.random(1, #PLAYER_ANIMS)]
 		punchAnim.Ended:Once(function()
 			self.Attributes.PunchDebounce = false
 		end)
@@ -234,10 +258,16 @@ function EnemyFighting:AddWin(): nil
 	return
 end
 
-function EnemyFighting:PlayerKill(): nil
+function EnemyFighting:KillPlayer(): nil
 	self._fighting = false
+	self._fightUi.Countdown.TextColor3 = Color3.fromRGB(248, 80, 80)
 	self._fightUi.Countdown.Text = `{self.Instance.Name} has won!`
-	task.delay(2, function()
+
+	local forwards = characterRoot.CFrame.LookVector :: Vector3
+	local up = characterRoot.CFrame.UpVector :: Vector3
+	character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	characterRoot.AssemblyLinearVelocity = forwards * -RAGDOLL_FORCE + up * (RAGDOLL_FORCE / 3)
+	task.delay(2.5, function()
 		self:Exit()
 	end)
 	return
@@ -246,8 +276,17 @@ end
 function EnemyFighting:Kill(): nil
 	self._fighting = false
 	self._fightUi.Countdown.Text = "You won!"
+	self._fightUi.Countdown.TextColor3 = Color3.fromRGB(108, 248, 80)
 	self:AddWin()
-	
+
+	task.spawn(function()
+		local forwards = self._originalCFrame.LookVector :: Vector3
+		local up = self._originalCFrame.UpVector :: Vector3
+		self.Instance.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+		self.Instance.PrimaryPart.Anchored = false
+		self.Instance.PrimaryPart.AssemblyLinearVelocity = forwards * -RAGDOLL_FORCE + up * (RAGDOLL_FORCE / 3)
+	end)
+
 	if self.Attributes.Boss then
 		self._data:AddDefeatedBoss(script.Parent.Parent.Name) -- map name
 	end

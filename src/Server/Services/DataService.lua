@@ -87,7 +87,7 @@ local function UpdateLeaderstats(player: Player): nil
 		Data.leaderstats.Strength = Data.PunchStrength + Data.BicepsStrength + Data.AbsStrength;
 		(leaderstats :: any).Strength.Value = abbreviate(Data.leaderstats.Strength);
 		(leaderstats :: any).Eggs.Value = abbreviate(Data.leaderstats.Eggs);
-		(leaderstats :: any).Rebirths.Value = abbreviate(Data.leaderstats.Eggs)
+		(leaderstats :: any).Rebirths.Value = abbreviate(Data.leaderstats.Rebirths)
 	end)
 	return
 end

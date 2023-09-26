@@ -38,32 +38,34 @@ local SitupBench: Component.Def = {
 }
 
 function SitupBench:Initialize(): nil	
-	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
-	self._data = Knit.GetService("DataService")
-	self._pets = Knit.GetService("PetService")
-	self._boosts = Knit.GetService("BoostService")
-	self._gamepass = Knit.GetService("GamepassService")
-	self._dumbell = Knit.GetService("DumbellService")
-	self._ui = Knit.GetController("UIController")
-	
-	self._proximityPrompt = Instance.new("ProximityPrompt")
-	self._proximityPrompt.HoldDuration = 1
-	self._proximityPrompt.ObjectText = "Train"
-	self._proximityPrompt.Parent = self.Instance.Cube
-	
-	local MainUi = player.PlayerGui.MainUi
-	self._exitBench = MainUi.ExitBench
-	
-	self._benchTemplate = SitupBenchTemplate[self.Instance.Parent.Parent.Name][self.Instance.Name]
-	self._AbsRequirement = self._benchTemplate.AbsRequirement
-	self._janitor:Add(self._proximityPrompt.Triggered:Connect(function(player)
-		self:Enter()
-	end))
-	
-	self._janitor:Add(self._exitBench.MouseButton1Click:Connect(function()
-		self:Exit()
-	end))
-	
+	task.spawn(function(): nil
+		self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
+		self._data = Knit.GetService("DataService")
+		self._pets = Knit.GetService("PetService")
+		self._boosts = Knit.GetService("BoostService")
+		self._gamepass = Knit.GetService("GamepassService")
+		self._dumbell = Knit.GetService("DumbellService")
+		self._ui = Knit.GetController("UIController")
+		
+		self._proximityPrompt = Instance.new("ProximityPrompt")
+		self._proximityPrompt.HoldDuration = 1
+		self._proximityPrompt.ObjectText = "Train"
+		self._proximityPrompt.Parent = self.Instance.Cube
+		
+		local MainUi = player.PlayerGui.MainUi
+		self._exitBench = MainUi.ExitBench
+		
+		self._benchTemplate = SitupBenchTemplate[self.Instance.Parent.Parent.Name][self.Instance.Name]
+		self._absRequirement = self._benchTemplate.AbsRequirement
+		self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function(player)
+			self:Enter()
+		end))
+		
+		self:AddToJanitor(self._exitBench.MouseButton1Click:Connect(function()
+			self:Exit()
+		end))
+		return
+	end)
 	return
 end
 
@@ -82,7 +84,7 @@ function SitupBench:Enter(): nil
 	if self.Attributes.InUse then return end
 	
 	local absStrength = self._data:GetTotalStrength("Abs")
-	if absStrength < self._AbsRequirement then return end
+	if absStrength < self._absRequirement then return end
 	
 	self:Toggle(true)
 	characterRoot.CFrame = self.Instance.TP.CFrame
