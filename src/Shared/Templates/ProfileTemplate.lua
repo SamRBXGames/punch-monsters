@@ -29,12 +29,17 @@ local PROFILE_TEMPLATE = {
 	
 	AutoFight = false,
 	AutoTrain = false,
+	AutoRebirth = false,
+
+	RebirthBoosts = {
+		Wins = 100,
+		Strength = 100
+	},
 
 	Settings = {
 		Sound = 0, -- 0 to 100
 		ShowOwnPets = true,
 		ShowOtherPets = true,
-		AutoRebirth = false,
 		LowQuality = false
 	}
 }

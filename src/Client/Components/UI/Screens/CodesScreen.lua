@@ -23,6 +23,7 @@ local CodesScreen: Component.Def = {
 	IgnoreAncestors = { StarterGui };
 	Guards = {
 		Ancestors = { player.PlayerGui },
+		Name = "Codes",
 		ClassName = "ScreenGui",
 		Children = {
 			Background = {
@@ -40,7 +41,6 @@ function CodesScreen:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	
 	local background = self.Instance.Background
-	self._close = background.Close
 	self._redeem = background.Redeem
 	self._status = background.Status
 	self._textInput = background.TextBubble.Input

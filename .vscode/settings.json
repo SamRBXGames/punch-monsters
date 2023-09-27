@@ -1,8 +1,0 @@
-{
-  "robloxLsp.diagnostics.disable": [
-    1013
-  ],
-  "robloxLsp.diagnostics.globals": [
-    "Ragdoll"
-  ]
-}
