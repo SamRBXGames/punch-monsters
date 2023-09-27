@@ -13,10 +13,13 @@ local AssertPlayer = require(Modules.AssertPlayer)
 local abbreviate = require(ReplicatedStorage.Assets.Modules.Abbreviate)
 
 local Knit = require(Packages.Knit)
-local ProfileService = require(Packages.ProfileService)
+local Promise = require(Packages.Promise)
 local Array = require(Packages.Array)
+local ProfileService = require(Packages.ProfileService)
 
 local PROFILE_TEMPLATE = require(ReplicatedStorage.Templates.ProfileTemplate)
+
+type Promise = typeof(Promise.new())
 
 local Test = RunService:IsStudio()
 -- local Test = false
@@ -110,11 +113,13 @@ function DataService:KnitStart()
 	end
 end
 
-function DataService:OnPlayerAdded(player: Player): nil
-	task.spawn(function(): nil
-		local profile = ProfileStore:LoadProfileAsync("Player_" .. player.UserId)
+function DataService:OnPlayerAdded(player: Player): Promise
+	AssertPlayer(player)
+	return Promise.new(function(resolve): nil
+		local profile = ProfileStore:LoadProfileAsync(`Player_{player.UserId}`)
 		if not profile then
-			return player:Kick()
+			player:Kick()
+			resolve()
 		end
 	
 		profile:AddUserId(player.UserId)
@@ -129,12 +134,13 @@ function DataService:OnPlayerAdded(player: Player): nil
 			CreateLeaderstats(player)
 			CreatePetsFolder(player)
 			UpdateLeaderstats(player)
-			return self:InitializeClientUpdate(player)
+			self:InitializeClientUpdate(player)
 		else
-			return profile:Release()
+			profile:Release()
 		end
+
+		return resolve()
 	end)
-	return
 end
 
 function DataService:InitializeClientUpdate(player: Player): nil
@@ -194,54 +200,58 @@ local function PetDuplicatesWereFound(): boolean
 	return duplicatesFound
 end
 
-function DataService:SetValue<T>(player: Player, name: string, value: T): nil
+function DataService:SetValue<T>(player: Player, name: string, value: T): Promise
 	AssertPlayer(player)
-	task.spawn(function()
-		local Data = GetProfile(player).Data
+	return Promise.new(function(resolve, reject): nil
+		local data = GetProfile(player).Data
 		if name == "Pets" then
 			if PetDuplicatesWereFound() then return end
 		end
 
-		if Data[name] ~= nil then
-			Data[name] = value
-		elseif Data.leaderstats[name] ~= nil then
-			Data.leaderstats[name] = value
+		if data[name] ~= nil then
+			data[name] = value
+		elseif data.leaderstats[name] ~= nil then
+			data.leaderstats[name] = value
 		else
-			warn(`Could not find key "{name}" in profile while setting {player.DisplayName}'s data.`)
+			return reject(`Could not find key "{name}" in profile while setting {player.DisplayName}'s data.`)
 		end
 
-		task.spawn(UpdateLeaderstats, player)
+		UpdateLeaderstats(player)
 		self:DataUpdate(player, name, value)
+		return resolve()
 	end)
-	return
 end
 
-function DataService:IncrementValue(player: Player, name: string, amount: number): nil
+function DataService:IncrementValue(player: Player, name: string, amount: number): Promise
 	AssertPlayer(player)
-	local value = self:GetValue(player, name)
-	self:SetValue(player, name, value + (amount or 1))
-	return
+	return Promise.new(function(resolve): nil
+		local value = self:GetValue(player, name)
+		self:SetValue(player, name, value + (amount or 1)):await()
+		return resolve()
+	end)
 end
 
 function DataService:GetValue<T>(player: Player, name: string): T
 	AssertPlayer(player)
-	local Data = GetProfile(player).Data
-	local value = Data[name]
-	return if value == nil then Data.leaderstats[name] else value
+	local data = GetProfile(player).Data
+	local value = data[name]
+	return if value == nil then data.leaderstats[name] else value
 end
 
-function DataService:SetSetting<T>(player: Player, settingName: string, value: T): nil
+function DataService:SetSetting<T>(player: Player, settingName: string, value: T): Promise
 	AssertPlayer(player)
-	local Settings = self:GetValue(player, "Settings")
-	Settings[settingName] = value
-	self:SetValue(player, "Settings", Settings)
-	return
+	return Promise.new(function(resolve): nil
+		local settings = self:GetValue(player, "Settings")
+		settings[settingName] = value
+		self:SetValue(player, "Settings", settings)
+		return resolve()
+	end)
 end
 
 function DataService:GetSetting<T>(player: Player, settingName: string): T
 	AssertPlayer(player)
-	local Settings = self:GetValue(player, "Settings")
-	return Settings[settingName]
+	local settings = self:GetValue(player, "Settings")
+	return settings[settingName]
 end
 
 function DataService:GetTotalStrength(player: Player, strengthType: "Punch" | "Abs" | "Biceps"?): number
@@ -263,11 +273,11 @@ function DataService.Client:GetValue(player, name)
 	return self.Server:GetValue(player, name)
 end
 
-function DataService.Client:SetValue(player, name, value)
+function DataService.Client:SetValue(player, name, value): Promise
 	return self.Server:SetValue(player, name, value)
 end
 
-function DataService.Client:IncrementValue(player, name, amount)
+function DataService.Client:IncrementValue(player, name, amount): Promise
 	return self.Server:IncrementValue(player, name, amount)
 end
 
