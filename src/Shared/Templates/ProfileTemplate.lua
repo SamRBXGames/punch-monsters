@@ -26,6 +26,8 @@ local PROFILE_TEMPLATE = {
 
 	ProductsLog = {},
 	RedeemedCodes = {},
+	MegaQuestProgress = {},
+	UpdatedQuestProgress = false,
 	
 	AutoFight = false,
 	AutoTrain = false,

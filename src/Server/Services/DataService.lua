@@ -103,6 +103,7 @@ function DataService:KnitStart()
 	self._rebirths = Knit.GetService("RebirthService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
+	self._quests = Knit.GetService("QuestService")
 		
 	Players.PlayerAdded:Connect(function(player)
 		task.wait(3)
@@ -211,6 +212,15 @@ function DataService:SetValue<T>(player: Player, name: string, value: T): Promis
 		if name == "Pets" then
 			if PetDuplicatesWereFound() then return end
 		end
+
+		task.spawn(function(): nil
+			if name == "Eggs" then
+				self._quests:SetProgress(player, "OpenEggs", value)
+			elseif name == "Strength" then
+				self._quests:SetProgress(player, "GainStrength", value)
+			end
+			return
+		end)
 
 		if data[name] ~= nil then
 			data[name] = value

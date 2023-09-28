@@ -9,6 +9,11 @@ local PlaytimeService = Knit.CreateService {
 	Name = "PlaytimeService";
 }
 
+function PlaytimeService:KnitStart(): nil
+	self._quests = Knit.GetService("QuestService")
+	return
+end
+
 function PlaytimeService:KnitInit(): nil
 	self._playersJoinedAt = {}
 
@@ -30,7 +35,10 @@ function PlaytimeService:Get(player: Player): number
 		joinedAt = tick()
 		self._playersJoinedAt[player.UserId] = joinedAt
 	end
-	return math.round(tick() - joinedAt)
+
+	local playtime = math.round(tick() - joinedAt)
+	self._quests:SetProgress(player, "StayActive", playtime)
+	return playtime
 end
 
 function PlaytimeService.Client:Get(player: Player): number
