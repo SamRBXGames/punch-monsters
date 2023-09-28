@@ -43,8 +43,8 @@ function RebirthService:_AddRebirth(player: Player): nil
   local boosts = self:GetBeforeAndAfter(player)
   self._data:IncrementValue(player, "Rebirths"):await()
   self._data:SetValue(player, "RebirthBoosts", {
-    Wins = boosts.Wins.AfterRebirth * 100,
-    Strength = boosts.Strength.AfterRebirth * 100
+    Wins = boosts.Wins.AfterRebirth,
+    Strength = boosts.Strength.AfterRebirth
   })
 
   return
