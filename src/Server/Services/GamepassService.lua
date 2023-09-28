@@ -56,11 +56,27 @@ local function getPassIDByName(name: string): number?
 	return pass.id
 end
 
+local PLAYER_OWNS_CACHE = {}
+function GamepassService:UpdatePlayerOwnedCache(player: Player, id: number): nil
+	AssertPlayer(player)
+	if not PLAYER_OWNS_CACHE[player.UserId] then
+		PLAYER_OWNS_CACHE[player.UserId] = {}
+	end
+
+	PLAYER_OWNS_CACHE[player.UserId][id] = true
+	return
+end
+
 function GamepassService:DoesPlayerOwn(player: Player, passName: string): boolean
 	AssertPlayer(player)
 	local id = getPassIDByName(passName)
 	assert(id, `Failed to find gamepass ID for {passName}`)
-	return MarketplaceService:UserOwnsGamePassAsync(player.UserId, id)
+
+	if not PLAYER_OWNS_CACHE[player.UserId] then
+		PLAYER_OWNS_CACHE[player.UserId] = {}
+	end
+
+	return PLAYER_OWNS_CACHE[player.UserId][id] or MarketplaceService:UserOwnsGamePassAsync(player.UserId, id)
 end
 
 function GamepassService:PromptPurchase(player: Player, passName: string): nil

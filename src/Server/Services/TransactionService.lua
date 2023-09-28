@@ -20,6 +20,7 @@ local TransactionService = Knit.CreateService {
 
 function TransactionService:KnitStart()
 	local data = Knit.GetService("DataService")
+	local gamepass = Knit.GetService("GamepassService")
 	local boosts = Knit.GetService("BoostService")
 	local rebirths = Knit.GetService("RebirthService")
 	local purchaseLogger = Knit.GetService("PurchaseLogService")
@@ -73,6 +74,7 @@ function TransactionService:KnitStart()
 	
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passID, wasPurchased)
 		if not wasPurchased then return end
+		gamepass:UpdatePlayerOwnedCache(player, passID)
 		purchaseLogger:Log(player, passID, true)
 	end)
 	
