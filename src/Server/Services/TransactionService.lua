@@ -1,3 +1,5 @@
+--!native
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
@@ -17,46 +19,61 @@ local TransactionService = Knit.CreateService {
 }
 
 function TransactionService:KnitStart()
-	local DataService = Knit.GetService("DataService")
-	local BoostService = Knit.GetService("BoostService")
-	local PurchaseLogger = Knit.GetService("PurchaseLogService")
+	local data = Knit.GetService("DataService")
+	local boosts = Knit.GetService("BoostService")
+	local rebirths = Knit.GetService("RebirthService")
+	local purchaseLogger = Knit.GetService("PurchaseLogService")
 	
 	local ProductFunctions = {
-		[1631383839] = function(player: Player) -- win1
-			DataService:IncrementValue(player, "Wins", 2_500)
+		[1631383839] = function(player: Player): nil -- win1
+			data:IncrementValue(player, "Wins", 2_500)
+			return
 		end,
-		[1631383838] = function(player: Player) -- win2
-			DataService:IncrementValue(player, "Wins", 15_000)
+		[1631383838] = function(player: Player): nil -- win2
+			data:IncrementValue(player, "Wins", 15_000)
+			return
 		end,
-		[1631385713] = function(player: Player) -- win3
-			DataService:IncrementValue(player, "Wins", 55_000)
+		[1631385713] = function(player: Player): nil -- win3
+			data:IncrementValue(player, "Wins", 55_000)
+			return
 		end,
-		[1631385717] = function(player: Player) -- win4
-			DataService:IncrementValue(player, "Wins", 200_000)
+		[1631385717] = function(player: Player): nil -- win4
+			data:IncrementValue(player, "Wins", 200_000)
+			return
 		end,
-		[1631385715] = function(player: Player) -- win5
-			DataService:IncrementValue(player, "Wins", 1_000_000)
+		[1631385715] = function(player: Player): nil -- win5
+			data:IncrementValue(player, "Wins", 1_000_000)
+			return
 		end,
-		[1631385718] = function(player: Player) -- win6
-			DataService:IncrementValue(player, "Wins", 5_000_000)
+		[1631385718] = function(player: Player): nil -- win6
+			data:IncrementValue(player, "Wins", 5_000_000)
+			return
 		end,
-		[1631385716] = function(player: Player)
-			BoostService:Activate10xLuckBoost(player)
+		[1631385716] = function(player: Player): nil
+			boosts:Activate10xLuckBoost(player)
+			return
 		end,
-		[1631387042] = function(player: Player)
-			BoostService:Activate100xLuckBoost(player)
+		[1631387042] = function(player: Player): nil
+			boosts:Activate100xLuckBoost(player)
+			return
 		end,
-		[1631387040] = function(player: Player)
-			BoostService:ActivateDoubleWinsBoost(player)
+		[1631387040] = function(player: Player): nil
+			boosts:ActivateDoubleWinsBoost(player)
+			return
 		end,
-		[1631387043] = function(player: Player)
-			BoostService:ActivateDoubleStrengthBoost(player)
+		[1631387043] = function(player: Player): nil
+			boosts:ActivateDoubleStrengthBoost(player)
+			return
+		end,
+		[1654924365] = function(player: Player): nil -- skip rebirth
+			rebirths:_AddRebirth(player)
+			return
 		end
 	}
 	
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passID, wasPurchased)
 		if not wasPurchased then return end
-		PurchaseLogger:Log(player, passID, true)
+		purchaseLogger:Log(player, passID, true)
 	end)
 	
 	function MarketplaceService.ProcessReceipt(receipt)
@@ -100,7 +117,7 @@ function TransactionService:KnitStart()
 							return product.ProductId
 						end)
 
-					PurchaseLogger:Log(player, receipt.ProductId, devProductIDs:Has(receipt.ProductId))
+					purchaseLogger:Log(player, receipt.ProductId, devProductIDs:Has(receipt.ProductId))
 				end)
 				
 				return true

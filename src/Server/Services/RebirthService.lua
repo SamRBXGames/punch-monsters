@@ -35,6 +35,11 @@ function RebirthService:Rebirth(player: Player): nil
   local wins: number = self._data:GetValue(player, "Wins")
   if wins < winRequirement then return end
 
+  self:_AddRebirth(player)
+  return
+end
+
+function RebirthService:_AddRebirth(player: Player): nil
   local boosts = self:GetBeforeAndAfter(player)
   self._data:IncrementValue(player, "Rebirths"):await()
   self._data:SetValue(player, "RebirthBoosts", {
@@ -44,6 +49,8 @@ function RebirthService:Rebirth(player: Player): nil
 
   return
 end
+
+  
 
 function RebirthService:GetBeforeAndAfter(player: Player): BeforeAndAfterBoosts
   local currentBoost = self._data:GetValue(player, "RebirthBoosts")
