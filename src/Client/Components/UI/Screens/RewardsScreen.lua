@@ -48,8 +48,9 @@ function RewardsScreen:Initialize(): nil
   until self._rewardsButton
   self._rewardsButton:ToggleNotification(false)
 
-  local data = Knit.GetService("DataService")
 	self._timedRewards = Knit.GetService("TimedRewardService")
+  local data = Knit.GetService("DataService")
+  local scheduler = Knit.GetController("SchedulerController")
 
   self._updateTime = 0
   self._crateButtons = Array.new("Instance", self.Instance.Background.Crates:GetChildren())
@@ -72,50 +73,49 @@ function RewardsScreen:Initialize(): nil
     self:Update(0)
   end))
 
+  self:AddToJanitor(scheduler:Every("1 second", function(): nil
+    self:UpdateScreen()
+    return
+  end))
+
 	return
 end
 
-function RewardsScreen:Update(dt: number): nil
-  if self._updateTime >= 1 then
-    self._updateTime = 0
-    
-    task.spawn(function(): nil
-      local hasUnclaimed = self._crateButtons
-        :Filter(function(crateButton: CrateButton): boolean
-          return self:GetRemainingTime(crateButton) == 0
-        end)
-        :Some(function(crateButton: CrateButton): boolean
-          return not self._timedRewards:IsClaimed(crateButton.LayoutOrder)
-        end)
+function RewardsScreen:UpdateScreen(): nil
+  task.spawn(function(): nil
+    local hasUnclaimed = self._crateButtons
+      :Filter(function(crateButton: CrateButton): boolean
+        return self:GetRemainingTime(crateButton) == 0
+      end)
+      :Some(function(crateButton: CrateButton): boolean
+        return not self._timedRewards:IsClaimed(crateButton.LayoutOrder)
+      end)
 
-      if self._rewardsButton.Instance.Exclamation.Visible == hasUnclaimed then return end
-      self._rewardsButton:ToggleNotification(hasUnclaimed)
+    if self._rewardsButton.Instance.Exclamation.Visible == hasUnclaimed then return end
+    self._rewardsButton:ToggleNotification(hasUnclaimed)
+    return
+  end)
+
+  for crateButton: CrateButton in self._crateButtons:Values() do
+    task.spawn(function(): nil
+      local isClaimed = self._timedRewards:IsClaimed(crateButton.LayoutOrder)
+      local collectText = if isClaimed then "Collected!" else "Collect"
+      if crateButton.Icon.TextLabel.Visible and crateButton.Icon.TextLabel.Text ~= collectText then
+        crateButton.Icon.TextLabel.Text = collectText
+      end
       return
     end)
+    task.spawn(function(): nil
+      local remainingTime = self:GetRemainingTime(crateButton)
+      local timerFinished = remainingTime == 0
+      crateButton.Icon.TextLabel.Visible = timerFinished
+      crateButton.RemainingTime.Visible = not timerFinished
 
-    for crateButton: CrateButton in self._crateButtons:Values() do
-      task.spawn(function(): nil
-        local isClaimed = self._timedRewards:IsClaimed(crateButton.LayoutOrder)
-        local collectText = if isClaimed then "Collected!" else "Collect"
-        if crateButton.Icon.TextLabel.Visible and crateButton.Icon.TextLabel.Text ~= collectText then
-          crateButton.Icon.TextLabel.Text = collectText
-        end
-        return
-      end)
-      task.spawn(function(): nil
-        local remainingTime = self:GetRemainingTime(crateButton)
-        local timerFinished = remainingTime == 0
-        crateButton.Icon.TextLabel.Visible = timerFinished
-        crateButton.RemainingTime.Visible = not timerFinished
-
-        if timerFinished then return end
-        local timeObject = TFM.Convert(remainingTime)
-        crateButton.RemainingTime.Text = TFM.FormatStr(timeObject, "%02h:%02m:%02S")
-        return
-      end)
-    end
-  else
-    self._updateTime += dt
+      if timerFinished then return end
+      local timeObject = TFM.Convert(remainingTime)
+      crateButton.RemainingTime.Text = TFM.FormatStr(timeObject, "%02h:%02m:%02S")
+      return
+    end)
   end
   return
 end
