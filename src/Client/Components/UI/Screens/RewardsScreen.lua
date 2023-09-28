@@ -52,7 +52,6 @@ function RewardsScreen:Initialize(): nil
   local data = Knit.GetService("DataService")
   local scheduler = Knit.GetController("SchedulerController")
 
-  self._updateTime = 0
   self._crateButtons = Array.new("Instance", self.Instance.Background.Crates:GetChildren())
     :Filter(function(element: Instance): boolean
       return element:IsA("ImageButton")
@@ -69,8 +68,7 @@ function RewardsScreen:Initialize(): nil
 
   self:AddToJanitor(data.DataUpdated:Connect(function(key)
     if key ~= "ClaimedRewardsToday" then return end
-    self._updateTime = 1
-    self:Update(0)
+    self:UpdateScreen()
   end))
 
   self:AddToJanitor(scheduler:Every("1 second", function(): nil

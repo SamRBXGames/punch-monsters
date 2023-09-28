@@ -46,16 +46,18 @@ local function forEachComponent(componentName: string, actionName: string): nil
 	return
 end
 
+local function liftDumbell(): nil
+	local dumbell = Knit.GetService("DumbellService")
+	dumbell:Lift()
+	return
+end
+
 local InputTypeMap = {
 	MouseButton1 = function(): nil
 		forEachComponent("PunchingBag", "Punch")
 		forEachComponent("SitupBench", "Situp")
 		forEachComponent("EnemyFighting", "Attack")
-
-		task.spawn(function()
-			local dumbell = Knit.GetService("DumbellService")
-			dumbell:Lift()
-		end)
+		task.spawn(liftDumbell)
 		return
 	end
 }
@@ -76,12 +78,36 @@ local KeyboardInputMap = {
 }
 
 function InputController:KnitStart(): nil
+	local data = Knit.GetService("DataService")
+	local scheduler = Knit.GetController("SchedulerController")
+	local destroyAutoTrainClicker
+
+	local function startAutoTrain(): nil
+		if destroyAutoTrainClicker then
+			destroyAutoTrainClicker()
+		end
+		destroyAutoTrainClicker = scheduler:Every("0.5 seconds", function()
+			task.spawn(liftDumbell)
+		end)
+		return
+	end
+
+	if data:GetValue("AutoTrain") then
+		startAutoTrain()
+	end
+	
+	data.DataUpdated:Connect(function(key)
+		if key ~= "AutoTrain" then return end
+		startAutoTrain()
+	end)
+
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if processed then return end
 		if not player:GetAttribute("Loaded") then return end
 		self:ExecuteAction(input, "UserInputType")
 		self:ExecuteAction(input, "KeyCode")
 	end)
+
 	return
 end
 

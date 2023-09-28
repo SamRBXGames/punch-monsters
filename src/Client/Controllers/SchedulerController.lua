@@ -11,16 +11,20 @@ local SchedulerController = Knit.CreateController {
 }
 
 function SchedulerController:Every(timeExpression: string, callback: () -> ()): () -> ()
-  local elapsed = 0
-  local interval = parseTime(timeExpression)
   local id = HttpService:GenerateGUID()
+  
+  task.spawn(function(): nil
+    local elapsed = 0
+    local interval = parseTime(timeExpression)
 
-  Runtime:BindToRenderStep(id, Enum.RenderPriority.Camera, function(dt)
-    if elapsed >= interval then
-      callback()
-    else
-      elapsed += dt
-    end
+    Runtime:BindToRenderStep(id, Enum.RenderPriority.Camera.Value, function(dt)
+      if elapsed >= interval then
+        task.spawn(callback)
+      else
+        elapsed += dt
+      end
+    end)
+    return
   end)
 
 	return function(): nil

@@ -38,32 +38,52 @@ local SitupBench: Component.Def = {
 }
 
 function SitupBench:Initialize(): nil	
-	task.spawn(function(): nil
-		self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
-		self._data = Knit.GetService("DataService")
-		self._gamepass = Knit.GetService("GamepassService")
-		self._dumbell = Knit.GetService("DumbellService")
-		self._ui = Knit.GetController("UIController")
-		
-		self._proximityPrompt = Instance.new("ProximityPrompt")
-		self._proximityPrompt.HoldDuration = 1
-		self._proximityPrompt.ObjectText = "Train"
-		self._proximityPrompt.Parent = self.Instance.Cube
-		
-		local MainUi = player.PlayerGui.MainUi
-		self._exitBench = MainUi.ExitBench
-		
-		self._benchTemplate = SitupBenchTemplate[self.Instance.Parent.Parent.Name][self.Instance.Name]
-		self._absRequirement = self._benchTemplate.AbsRequirement
-		self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function(player)
-			self:Enter()
-		end))
-		
-		self:AddToJanitor(self._exitBench.MouseButton1Click:Connect(function()
-			self:Exit()
-		end))
+	self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
+	self._data = Knit.GetService("DataService")
+	self._gamepass = Knit.GetService("GamepassService")
+	self._dumbell = Knit.GetService("DumbellService")
+	self._ui = Knit.GetController("UIController")
+	local scheduler = Knit.GetController("SchedulerController")
+	local destroyAutoTrainClicker
+
+	local function startAutoTrain(): nil
+		if destroyAutoTrainClicker then
+			self._janitor:RemoveNoClean("AutoTrain")
+			destroyAutoTrainClicker()
+		end
+		destroyAutoTrainClicker = scheduler:Every("0.5 seconds", function()
+			self:Situp()
+		end)
+		self:AddToJanitor(destroyAutoTrainClicker, true, "AutoTrain")
 		return
-	end)
+	end
+
+	if self._data:GetValue("AutoTrain") then
+		startAutoTrain()
+	end
+	
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
+		if key ~= "AutoTrain" then return end
+		startAutoTrain()
+	end))
+	
+	self._proximityPrompt = Instance.new("ProximityPrompt")
+	self._proximityPrompt.HoldDuration = 1
+	self._proximityPrompt.ObjectText = "Train"
+	self._proximityPrompt.Parent = self.Instance.Cube
+	
+	local MainUi = player.PlayerGui.MainUi
+	self._exitBench = MainUi.ExitBench
+	
+	self._benchTemplate = SitupBenchTemplate[self.Instance.Parent.Parent.Name][self.Instance.Name]
+	self._absRequirement = self._benchTemplate.AbsRequirement
+	self:AddToJanitor(self._proximityPrompt.Triggered:Connect(function(player)
+		self:Enter()
+	end))
+	self:AddToJanitor(self._exitBench.MouseButton1Click:Connect(function()
+		self:Exit()
+	end))
+
 	return
 end
 

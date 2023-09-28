@@ -65,6 +65,29 @@ function EnemyFighting:Initialize(): nil
 	self._dumbell = Knit.GetService("DumbellService")
 	self._ragdoll = Knit.GetService("RagdollService")
 	self._ui = Knit.GetController("UIController")
+	local scheduler = Knit.GetController("SchedulerController")
+	local destroyAutoFightClicker
+
+	local function startAutoFight(): nil
+		if destroyAutoFightClicker then
+			self._janitor:RemoveNoClean("AutoFight")
+			destroyAutoFightClicker()
+		end
+		destroyAutoFightClicker = scheduler:Every("0.25 seconds", function()
+			self:Attack()
+		end)
+		self:AddToJanitor(destroyAutoFightClicker, true, "AutoFight")
+		return
+	end
+
+	if self._data:GetValue("AutoFight") then
+		startAutoFight()
+	end
+	
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
+		if key ~= "AutoFight" then return end
+		startAutoFight()
+	end))
 
 	self._proxyPart = self.Instance:WaitForChild("ProxyPart")
 	self._proximityPrompt = Instance.new("ProximityPrompt")

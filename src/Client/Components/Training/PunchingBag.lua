@@ -50,6 +50,30 @@ function PunchingBag:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
+	local scheduler = Knit.GetController("SchedulerController")
+	local destroyAutoTrainClicker
+
+	local function startAutoTrain(): nil
+		if destroyAutoTrainClicker then
+			self._janitor:RemoveNoClean("AutoTrain")
+			destroyAutoTrainClicker()
+		end
+		destroyAutoTrainClicker = scheduler:Every("0.5 seconds", function()
+			self:Punch()
+		end)
+		self:AddToJanitor(destroyAutoTrainClicker, true, "AutoTrain")
+		return
+	end
+
+	if self._data:GetValue("AutoTrain") then
+		startAutoTrain()
+	end
+	
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
+		if key ~= "AutoTrain" then return end
+		startAutoTrain()
+	end))
+
 	self._jab1 = false
 	return
 end
