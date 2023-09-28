@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local HttpService = game:GetService("HttpService")
 
 local Modules = ServerScriptService.Server.Modules
 local VerifyID = require(Modules.VerifyID)
@@ -109,10 +110,19 @@ function PetService:Find(player: Player, id: string): typeof(PetsTemplate.Dog)?
 			return pet.ID == id
 		end)
 end
+	
 
-function PetService:Add(player: Player, pet: typeof(PetsTemplate.Dog)): nil
+function PetService:Add(player: Player, petName: string): nil
 	AssertPlayer(player)
-	VerifyID(player, pet.ID)
+
+	local template = PetsTemplate[petName]
+	local pet = {
+		Name = petName,
+		ID = HttpService:GenerateGUID(),
+		Rarity = template.Rarity,
+		StrengthMultiplier = template.StrengthMultiplier
+	}
+
 	task.spawn(function(): nil
 		local pets = self._data:GetValue(player, "Pets")
 		local ownedPets = pets.OwnedPets

@@ -57,17 +57,7 @@ function HatchingStand:Initialize(): nil
 	return
 end
 
-local function createPet(petName: string): typeof(PetsTemplate.Dog)
-	local pet = PetsTemplate[petName]
-	return {
-		Name = petName,
-		ID = HttpService:GenerateGUID(),
-		Rarity = pet.Rarity,
-		StrengthMultiplier = pet.StrengthMultiplier
-	}
-end
-
-function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
+function HatchingStand:ReturnPet(): string?
 	local has2xLuck = self._gamepass:DoesPlayerOwn("2x Luck")
 	local has10xLuck = self._gamepass:DoesPlayerOwn("10x Luck")
 	local has100xLuck = self._gamepass:DoesPlayerOwn("100x Luck")
@@ -101,12 +91,12 @@ function HatchingStand:ReturnPet(): typeof(PetsTemplate.Dog)?
 	local random = Random.new():NextNumber() * totalProbability
 	for petName, cumulativeProbability in cumulativeProbabilities do
 		if random <= cumulativeProbability then
-			return createPet(petName)
+			return petName
 		end
 	end
 	
 	for petName in self._eggTemplate.Chances do
-		return createPet(petName)
+		return petName
 	end
 
 	return
@@ -123,10 +113,10 @@ function HatchingStand:Hatch(): nil
 		return warn("No pet returned from HatchingStand")
 	end
 	
-	local petModel = ReplicatedStorage.Assets.Pets:FindFirstChild(pet.Name)
+	local petModel = ReplicatedStorage.Assets.Pets:FindFirstChild(pet)
 	if not petModel then
 		self._hatching = false
-		return warn(`Could not find pet model "{pet.Model}"`)
+		return warn(`Could not find pet model "{pet}"`)
 	end
 	
 	self._pets:Add(pet)

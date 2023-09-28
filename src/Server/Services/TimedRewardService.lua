@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Array = require(Packages.Array)
+local TimedRewardTemplate = require(ReplicatedStorage.Templates.TimedRewardTemplate)
 
 local TimedRewardService = Knit.CreateService {
   Name = "TimedRewardService";
@@ -14,25 +15,62 @@ local FIRST_JOIN_CACHE = {}
 local CLAIMED_REWARDS_CACHE = {}
 function TimedRewardService:KnitStart()
   self._data = Knit.GetService("DataService")
+  self._pets = Knit.GetService("PetService")
 
   Players.PlayerAdded:Connect(function(player)
     self:_CheckReset(player)
   end)
 end
 
+local function realCount<K, V>(arr: { [K]: V }): number
+  local count = 0
+  for _, _ in pairs(arr) do
+    count += 1
+  end
+  return count
+end
+
+local function randomPair<K, V>(arr: { [K]: V }): (K, V)
+  local randomIndex = math.random(1, realCount(arr))
+  local index = 1
+
+  for k, v in pairs(arr) do
+    if randomIndex == index then
+      return k, v
+    end
+    index += 1
+  end
+end
+
 function TimedRewardService:Claim(player: Player, crateNumber: number): nil
   if self:IsClaimed(player, crateNumber) then return end
 
-  local claimed
-  if CLAIMED_REWARDS_CACHE[player.UserId] then
-    claimed = CLAIMED_REWARDS_CACHE[player.UserId]
-  else
-    claimed = self:_GetClaimedRewardsToday(player)
-    CLAIMED_REWARDS_CACHE[player.UserId] = claimed
-  end
+  task.spawn(function(): nil
+    local claimed
+    if CLAIMED_REWARDS_CACHE[player.UserId] then
+      claimed = CLAIMED_REWARDS_CACHE[player.UserId]
+    else
+      claimed = self:_GetClaimedRewardsToday(player)
+      CLAIMED_REWARDS_CACHE[player.UserId] = claimed
+    end
 
-  table.insert(claimed, crateNumber)
-  self:_SetClaimedRewardsToday(player, claimed)
+    table.insert(claimed, crateNumber)
+    self:_SetClaimedRewardsToday(player, claimed)
+
+    local rewardPool = TimedRewardTemplate[crateNumber]
+    local key, value = randomPair(rewardPool)
+    if key == "Eggs" then
+      local _, randomEgg = randomPair(value)
+      self._pets:Add(randomEgg)
+    elseif key == "Strength" then
+      local strengthType, strength = randomPair(value)
+      self._data:IncrementValue(player, strengthType .. "Strength", strength)
+    else
+      local winsAmount = math.random(1, value)
+      self._data:IncrementValue(player, "Wins", winsAmount)
+    end
+    return
+  end)
   return
 end
 
