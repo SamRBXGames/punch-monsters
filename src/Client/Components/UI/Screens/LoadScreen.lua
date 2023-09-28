@@ -107,6 +107,7 @@ function LoadScreen:Activate(): nil
 	self._finished = true
 	self._mainUI.Enabled = true
 	player:SetAttribute("Loaded", true)
+	Knit.GetService("RemoteDispatcher"):InitializeClientUpdate()
 
 	fadeOut:Play()
 	fadeOut.Completed:Wait()

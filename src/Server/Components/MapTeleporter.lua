@@ -38,20 +38,8 @@ local playerTeleporterDebounces: { [number]: typeof(Debounce.new(0)) } = {}
 local playerBackTeleporterDebounces: { [number]: typeof(Debounce.new(0)) } = {}
 function MapTeleporter:Initialize(): nil
   self._data = Knit.GetService("DataService")
-
   self._mapName = self.Instance.Parent.Name
   local _, mapNumberString = table.unpack(self._mapName:split("Map"))
-  local destinationMapName = `Map{tonumber(mapNumberString) :: number + 1}`
-  local destinationMap = workspace:FindFirstChild(destinationMapName) :: Model
-  local destinationTeleporter = destinationMap:FindFirstChild("Teleporter") :: Model
-  local destinationCFrame = (destinationTeleporter.PrimaryPart :: BasePart).CFrame
-  local destinationOffset = destinationCFrame.LookVector * 5
-
-  local previousMapName = `Map{tonumber(mapNumberString) :: number - 1}`
-  local previousMap = workspace:FindFirstChild(previousMapName) :: Model
-  local previousTeleporter = previousMap:FindFirstChild("Teleporter") :: Model
-  local previousCFrame = (previousTeleporter.PrimaryPart :: BasePart).CFrame
-  local previousOffset = previousCFrame.LookVector * 5
 
   local function getPlayerFromPart(hit: BasePart): Player?
     local character = hit:FindFirstAncestorOfClass("Model")
@@ -61,37 +49,53 @@ function MapTeleporter:Initialize(): nil
     return Players:GetPlayerFromCharacter(character)
   end
 
-  self:AddToJanitor(self.Instance.Portal.Touched:Connect(function(hit: BasePart)
-    if self._mapName == "Map3" then return end
+  if self._mapName ~= "Map3" then
+    local destinationMapName = `Map{tonumber(mapNumberString) :: number + 1}`
+    local destinationMap = workspace:FindFirstChild(destinationMapName) :: Model
+    local destinationTeleporter = destinationMap:FindFirstChild("Teleporter") :: Model
+    local destinationCFrame = (destinationTeleporter.PrimaryPart :: BasePart).CFrame
+    local destinationOffset = destinationCFrame.LookVector * 5
 
-    local player = getPlayerFromPart(hit)
-    if not player then return end
-    if not playerTeleporterDebounces[player.UserId] then
-      local db = Debounce.new(2)
-      playerTeleporterDebounces[player.UserId] = db
-      self:AddToJanitor(db)
-    end
-    
-    local db = playerTeleporterDebounces[player.UserId]
-    if db:IsActive() then return end
-    self:Teleport(player.Character, destinationCFrame + destinationOffset)
-  end))
+    self:AddToJanitor(self.Instance.Portal.Touched:Connect(function(hit: BasePart): nil
+      if self._mapName == "Map3" then return end
+  
+      local player = getPlayerFromPart(hit)
+      if not player then return end
+      if not playerTeleporterDebounces[player.UserId] then
+        local db = Debounce.new(2)
+        playerTeleporterDebounces[player.UserId] = db
+        self:AddToJanitor(db)
+      end
+      
+      local db = playerTeleporterDebounces[player.UserId]
+      if db:IsActive() then return end
+      self:Teleport(player.Character, destinationCFrame + destinationOffset)
+      return
+    end))
+  end
 
-  self:AddToJanitor(self.Instance.Back.Circle.Touched:Connect(function(hit: BasePart)
-    if self._mapName == "Map1" then return end
+  if self._mapName ~= "Map1" then
+    local previousMapName = `Map{tonumber(mapNumberString) :: number - 1}`
+    local previousMap = workspace:FindFirstChild(previousMapName) :: Model
+    local previousTeleporter = previousMap:FindFirstChild("Teleporter") :: Model
+    local previousCFrame = (previousTeleporter.PrimaryPart :: BasePart).CFrame
+    local previousOffset = previousCFrame.LookVector * 5
 
-    local player = getPlayerFromPart(hit)
-    if not player then return end
-    if not playerBackTeleporterDebounces[player.UserId] then
-      local db = Debounce.new(2)
-      playerBackTeleporterDebounces[player.UserId] = db
-      self:AddToJanitor(db)
-    end
-    
-    local db = playerBackTeleporterDebounces[player.UserId]
-    if db:IsActive() then return end
-    self:Teleport(player.Character, previousCFrame + previousOffset)
-  end))
+    self:AddToJanitor(self.Instance.Back.Circle.Touched:Connect(function(hit: BasePart): nil
+      local player = getPlayerFromPart(hit)
+      if not player then return end
+      if not playerBackTeleporterDebounces[player.UserId] then
+        local db = Debounce.new(2)
+        playerBackTeleporterDebounces[player.UserId] = db
+        self:AddToJanitor(db)
+      end
+      
+      local db = playerBackTeleporterDebounces[player.UserId]
+      if db:IsActive() then return end
+      self:Teleport(player.Character, previousCFrame + previousOffset)
+      return
+    end))
+  end
 
   return
 end

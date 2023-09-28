@@ -40,7 +40,7 @@ function SendTradeScreen:Initialize(): nil
 	end))
   self:AddToJanitor(Players.PlayerRemoving:Connect(function(leavingPlayer: Player): nil
     if leavingPlayer == player then return end
-		local playerFrame = Array.new(playerContainer:GetChildren())
+		local playerFrame = Array.new("Instance", playerContainer:GetChildren())
       :Find(function(playerFrame)
         return playerFrame.Name == tostring(leavingPlayer.UserId)
       end)

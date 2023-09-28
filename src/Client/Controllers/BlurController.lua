@@ -14,10 +14,11 @@ function BlurController:KnitInit(): nil
 	return
 end
 
-function BlurController:Toggle(on)
+function BlurController:Toggle(on: boolean): nil
 	Tween:Create(self.blur, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
-		Size = if on then 24 else 0,
+		Size = if on then 24 else 0
 	}):Play()
+	return
 end
 
 return BlurController

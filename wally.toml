@@ -8,7 +8,7 @@ realm = "shared"
 [dependencies]
 Knit = "sleitnick/knit@^1.4"
 Component = "r-unic/componentize@0.5.0"
-Array = "r-unic/array@0.2.9"
+Array = "r-unic/array@0.3.0"
 Promise = "evaera/promise@4.0.0"
 Signal = "sleitnick/signal@^1"
 Input = "sleitnick/input@^2"
