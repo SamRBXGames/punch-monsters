@@ -73,16 +73,23 @@ function RebirthScreen:Initialize(): nil
 end
 
 function RebirthScreen:UpdateStats(): nil
-	task.spawn(function()
+	task.spawn(function(): nil
+		local autoRebirth = self._data:GetValue("AutoRebirth")
+		if not autoRebirth then return end
+		self._rebirths:Rebirth()
+		return
+	end)
+	task.spawn(function(): nil
 		local boosts = self._rebirths:GetBeforeAndAfter()
-		print(boosts)
-		local rebirths = self._rebirths:Get()
 		local wins = self._data:GetValue("Wins")
-		self._background.Wins.Progress.Text = `{abbreviate(wins)}/{abbreviate(RebirthRequirementsTemplate[rebirths + 1 :: number])} Wins`
+		local rebirths = self._rebirths:Get()
+		local rebirthWinRequirement = RebirthRequirementsTemplate[rebirths + 1 :: number]
+		self._background.Wins.Progress.Text = `{abbreviate(wins)}/{abbreviate(rebirthWinRequirement)} Wins`
 		self._background.BeforeRebirthWins.Value.Text = `{abbreviate(boosts.Wins.BeforeRebirth)}%`
 		self._background.AfterRebirthWins.Value.Text = `{abbreviate(boosts.Wins.AfterRebirth)}%`
 		self._background.BeforeRebirthStrength.Value.Text = `{abbreviate(boosts.Strength.BeforeRebirth)}%`
 		self._background.AfterRebirthStrength.Value.Text = `{abbreviate(boosts.Strength.AfterRebirth)}%`
+		return
 	end)
 	return
 end

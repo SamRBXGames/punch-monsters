@@ -27,6 +27,7 @@ local AutoButton: Component.Def = {
 
 function AutoButton:Initialize(): nil
   self._data = Knit.GetService("DataService")
+  self._gamepass = Knit.GetService("GamepassService")
   self._dataKey = self.Attributes.Type:gsub(" ", "")
   
   self:AddToJanitor(self._data.DataUpdated:Connect(function(key): nil
@@ -38,6 +39,9 @@ function AutoButton:Initialize(): nil
 end
 
 function AutoButton:Event_MouseButton1Click(): nil
+  if self.Attributes.Type == "Auto Rebirth" and not self._gamepass:DoesPlayerOwn("Auto Rebirth") then
+		return self._gamepass:PromptPurchase("Auto Rebirth")
+	end
   return self._data:SetValue(self._dataKey, not self._data:GetValue(self._dataKey))
 end
 

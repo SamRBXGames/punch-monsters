@@ -52,12 +52,12 @@ function PurchaseLogService:Log(player: Player, productID: number, isGamepass: b
 	}))
 
 	task.spawn(function()
-		local productLog = self._data:GetValue("ProductsLog")
+		local productLog = self._data:GetValue(player, "ProductsLog")
 		table.insert(productLog, {
 			ID = productID,
 			PurchaseTime = tick()
 		})
-		self._data:SetValue("ProductsLog", productLog)
+		self._data:SetValue(player, "ProductsLog", productLog)
 	end)
 
 	return

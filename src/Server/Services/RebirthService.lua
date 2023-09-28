@@ -30,9 +30,10 @@ function RebirthService:Get(player: Player): number
 end
 
 function RebirthService:Rebirth(player: Player): nil
-  local rebirths: number = self:Get(player)
+  local rebirths = self:Get(player)
+  local winRequirement = RebirthRequirementsTemplate[rebirths + 1 :: number]
   local wins: number = self._data:GetValue(player, "Wins")
-  if RebirthRequirementsTemplate[rebirths + 1] > wins then return end
+  if wins < winRequirement then return end
 
   local boosts = self:GetBeforeAndAfter(player)
   self._data:IncrementValue(player, "Rebirths"):await()

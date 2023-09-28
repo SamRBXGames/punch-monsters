@@ -100,6 +100,7 @@ end
 
 function DataService:KnitStart()
 	self._pets = Knit.GetService("PetService")
+	self._rebirths = Knit.GetService("RebirthService")
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 		
@@ -266,7 +267,7 @@ end
 function DataService:GetTotalStrengthMultiplier(player: Player): number
 	AssertPlayer(player)
 	local petMultiplier = self._pets:GetTotalMultiplier(player)
-	local rebirthMultiplier = self._rebirths:GetBoost(player, "Strength") / 100
+	local rebirthMultiplier = self._rebirths:GetBoost(player, "Strength")
 	local gamepassMultiplier = if self._gamepass:DoesPlayerOwn(player, "2x Strength") then 2 else 1
 	local boostMultiplier = if self._boosts:IsBoostActive(player, "2xStrength") then 2 else 1
 	return petMultiplier * rebirthMultiplier * gamepassMultiplier * boostMultiplier
