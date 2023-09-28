@@ -34,7 +34,7 @@ function AutoButton:Initialize(): nil
     return self:UpdateText()
   end))
 
-  return
+  return self:UpdateText()
 end
 
 function AutoButton:Event_MouseButton1Click(): nil

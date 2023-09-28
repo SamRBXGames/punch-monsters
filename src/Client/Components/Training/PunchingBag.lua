@@ -48,8 +48,6 @@ local PunchingBag: Component.Def = {
 
 function PunchingBag:Initialize(): nil	
 	self._data = Knit.GetService("DataService")
-	self._pets = Knit.GetService("PetService")
-	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
 	self._jab1 = false
@@ -100,14 +98,9 @@ function PunchingBag:Punch(): nil
 		self._jab1 = not self._jab1
 	end)
 
-	local vip =  self._gamepass:DoesPlayerOwn("VIP")
-	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")
-	local hasStrengthBoost = self._boosts:IsBoostActive("2xStrength")
-	local punchMultiplier = (if hasDoubleStrength then 2 else 1)
-		* (if hasStrengthBoost then 2 else 1)
-		* self._pets:GetTotalMultiplier()
-
-	if bagTemplate.Vip and not vip then
+	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
+	local hasVIP =  self._gamepass:DoesPlayerOwn("VIP")
+	if bagTemplate.Vip and not hasVIP then
 		return self._gamepass:PromptPurchase("VIP")
 	end
 	
@@ -119,7 +112,7 @@ function PunchingBag:Punch(): nil
 		SoundService.Master.PunchSound:Play()
 	end)
 
-	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * punchMultiplier)
+	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * strengthMultiplier)
 	return
 end
 

@@ -41,8 +41,6 @@ function SitupBench:Initialize(): nil
 	task.spawn(function(): nil
 		self._remoteDispatcher = Knit.GetService("RemoteDispatcher")
 		self._data = Knit.GetService("DataService")
-		self._pets = Knit.GetService("PetService")
-		self._boosts = Knit.GetService("BoostService")
 		self._gamepass = Knit.GetService("GamepassService")
 		self._dumbell = Knit.GetService("DumbellService")
 		self._ui = Knit.GetController("UIController")
@@ -111,18 +109,13 @@ function SitupBench:Situp(): nil
 		SITUP_ANIM:AdjustSpeed(1.75)
 	end)
 
-	local hasVIP = self._gamepass:DoesPlayerOwn("VIP")
-	local hasDoubleStrength = self._gamepass:DoesPlayerOwn("2x Strength")
-	local hasStrengthBoost = self._boosts:IsBoostActive("2xStrength")
-	local absMultiplier = (if hasDoubleStrength then 2 else 1)
-		* (if hasStrengthBoost then 2 else 1)
-		* self._pets:GetTotalMultiplier()
-
+	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
+	local hasVIP =  self._gamepass:DoesPlayerOwn("VIP")
 	if self._benchTemplate.Vip and not hasVIP then
 		return self._gamepass:PromptPurchase("VIP")
 	end
 	
-	self._data:IncrementValue("AbsStrength", self._benchTemplate.Hit * absMultiplier)
+	self._data:IncrementValue("AbsStrength", self._benchTemplate.Hit * strengthMultiplier)
 	return
 end
 

@@ -44,11 +44,14 @@ if Test then
 	)
 end
 
-local PROFILES = {}
+local PROFILE_CACHE = {}
 
 local function GetProfile(player: Player)
 	AssertPlayer(player)
-	local profile = PROFILES[player]
+	local profile = PROFILE_CACHE[player]
+	if not profile then
+		warn(`Waiting for {player}'s profile...`)
+	end
 	repeat task.wait(0.25) until profile
 	return profile
 end
@@ -97,50 +100,50 @@ end
 
 function DataService:KnitStart()
 	self._pets = Knit.GetService("PetService")
+	self._boosts = Knit.GetService("BoostService")
+	self._gamepass = Knit.GetService("GamepassService")
 		
 	Players.PlayerAdded:Connect(function(player)
 		task.wait(3)
 		self:OnPlayerAdded(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		local profile = PROFILES[player]
+		local profile = PROFILE_CACHE[player]
 		if not profile  then return end
 		profile:Release()
 	end)
 
 	for _, player in Players:GetPlayers() do
-		self:OnPlayerAdded(player)
+		self:OnPlayerAdded(player):await()
 	end
 end
 
-function DataService:OnPlayerAdded(player: Player): Promise
+function DataService:OnPlayerAdded(player: Player): nil
 	AssertPlayer(player)
-	return Promise.new(function(resolve): nil
-		local profile = ProfileStore:LoadProfileAsync(`Player_{player.UserId}`)
-		if not profile then
-			player:Kick()
-			resolve()
-		end
 	
-		profile:AddUserId(player.UserId)
-		profile:Reconcile()
-		profile:ListenToRelease(function()
-			PROFILES[player] = nil
-			player:Kick()
-		end)
-	
-		if player:IsDescendantOf(Players) then
-			PROFILES[player] = profile
-			CreateLeaderstats(player)
-			CreatePetsFolder(player)
-			UpdateLeaderstats(player)
-			self:InitializeClientUpdate(player)
-		else
-			profile:Release()
-		end
+	local profile = ProfileStore:LoadProfileAsync(`Player_{player.UserId}`)
+	if not profile then
+		return player:Kick()
+	end
 
-		return resolve()
+	profile:AddUserId(player.UserId)
+	profile:Reconcile()
+	profile:ListenToRelease(function()
+		PROFILE_CACHE[player] = nil
+		player:Kick()
 	end)
+
+	if player:IsDescendantOf(Players) then
+		PROFILE_CACHE[player] = profile
+		CreateLeaderstats(player)
+		CreatePetsFolder(player)
+		UpdateLeaderstats(player)
+		self:InitializeClientUpdate(player)
+	else
+		profile:Release()
+	end
+
+	return
 end
 
 function DataService:InitializeClientUpdate(player: Player): nil
@@ -185,7 +188,7 @@ local function PetDuplicatesWereFound(): boolean
 	local duplicatesFound = false
 	local ids = Array.new("string")
 	
-	for player, profile in pairs(PROFILES) do	
+	for player, profile in pairs(PROFILE_CACHE) do	
 		local pets = Array.new("table", profile.Data.Pets.OwnedPets)
 		for pet in pets:Values() do
 			if ids:Has(pet.ID) then
@@ -257,8 +260,16 @@ end
 function DataService:GetTotalStrength(player: Player, strengthType: "Punch" | "Abs" | "Biceps"?): number
 	AssertPlayer(player)
 	local initialStrength = self:GetValue(player, (strengthType or "") .. "Strength")
+	return math.round(initialStrength * self:GetTotalStrengthMultiplier(player))
+end
+
+function DataService:GetTotalStrengthMultiplier(player: Player): number
+	AssertPlayer(player)
 	local petMultiplier = self._pets:GetTotalMultiplier(player)
-	return math.round(initialStrength * petMultiplier)
+	local rebirthMultiplier = self._rebirths:GetBoost(player, "Strength") / 100
+	local gamepassMultiplier = if self._gamepass:DoesPlayerOwn(player, "2x Strength") then 2 else 1
+	local boostMultiplier = if self._boosts:IsBoostActive(player, "2xStrength") then 2 else 1
+	return petMultiplier * rebirthMultiplier * gamepassMultiplier * boostMultiplier
 end
 
 function DataService:AddDefeatedBoss(player: Player, bossMap: string): nil
@@ -291,6 +302,10 @@ end
 
 function DataService.Client:GetTotalStrength(player, strengthType: "Punch" | "Abs" | "Biceps"?)
 	return self.Server:GetTotalStrength(player, strengthType)
+end
+
+function DataService.Client:GetTotalStrengthMultiplier(player)
+	return self.Server:GetTotalStrengthMultiplier(player)
 end
 
 function DataService.Client:AddDefeatedBoss(player: Player, bossMap: string): nil

@@ -1,5 +1,6 @@
 --!native
 --!strict
 return function(player)
-	assert(player ~= nil and typeof(player) == "Instance" and player:IsA("Player"), "Invalid player parameter passed")
+	if player ~= nil and typeof(player) == "Instance" and player:IsA("Player") then return end
+	error("Invalid player parameter passed", 2)
 end

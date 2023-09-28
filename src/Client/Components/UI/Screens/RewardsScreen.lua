@@ -95,27 +95,22 @@ function RewardsScreen:Update(dt: number): nil
 
     for crateButton: CrateButton in self._crateButtons:Values() do
       task.spawn(function(): nil
-        local remainingTime = self:GetRemainingTime(crateButton)
         local isClaimed = self._timedRewards:IsClaimed(crateButton.LayoutOrder)
+        local collectText = if isClaimed then "Collected!" else "Collect"
+        if crateButton.Icon.TextLabel.Visible and crateButton.Icon.TextLabel.Text ~= collectText then
+          crateButton.Icon.TextLabel.Text = collectText
+        end
+        return
+      end)
+      task.spawn(function(): nil
+        local remainingTime = self:GetRemainingTime(crateButton)
         local timerFinished = remainingTime == 0
-        task.spawn(function(): nil
-          crateButton.Icon.TextLabel.Visible = timerFinished
-          crateButton.RemainingTime.Visible = not timerFinished
-          return
-        end)
-        task.spawn(function(): nil
-          local collectText = if isClaimed then "Collected!" else "Collect"
-          if crateButton.Icon.TextLabel.Visible and crateButton.Icon.TextLabel.Text ~= collectText then
-            crateButton.Icon.TextLabel.Text = collectText
-          end
-          return
-        end)
-        task.spawn(function(): nil
-          if timerFinished then return end
-          local timeObject = TFM.Convert(remainingTime)
-          crateButton.RemainingTime.Text = TFM.FormatStr(timeObject, "%02h:%02m:%02S")
-          return
-        end)
+        crateButton.Icon.TextLabel.Visible = timerFinished
+        crateButton.RemainingTime.Visible = not timerFinished
+
+        if timerFinished then return end
+        local timeObject = TFM.Convert(remainingTime)
+        crateButton.RemainingTime.Text = TFM.FormatStr(timeObject, "%02h:%02m:%02S")
         return
       end)
     end

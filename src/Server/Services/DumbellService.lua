@@ -27,8 +27,6 @@ local DumbellService = Knit.CreateService {
 
 function DumbellService:KnitStart(): nil
 	self._data = Knit.GetService("DataService")
-	self._pets = Knit.GetService("PetService")
-	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._playerDumbellInfo = {}
 
@@ -72,18 +70,14 @@ function DumbellService:Lift(player: Player): nil
 	end)
 	liftAnim:Play()
 
+	
+	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
 	local hasVIP = self._gamepass:DoesPlayerOwn(player, "VIP")
-	local hasDoubleStrength = self._gamepass:DoesPlayerOwn(player, "2x Strength")
-	local hasStrengthBoost = self._boosts:IsBoostActive(player, "2xStrength")
-	local bicepsMultiplier = (if hasDoubleStrength then 2 else 1)
-		* (if hasStrengthBoost then 2 else 1)
-		* self._pets:GetTotalMultiplier(player)
-
 	if dumbellInfo.EquippedDumbellTemplate.IsVIP and not hasVIP then
 		return self._gamepass:PromptPurchase(player, "VIP")
 	end
 	
-	self._data:IncrementValue(player, "BicepsStrength", dumbellInfo.EquippedDumbellTemplate.Gain * bicepsMultiplier)
+	self._data:IncrementValue(player, "BicepsStrength", dumbellInfo.EquippedDumbellTemplate.Gain * strengthMultiplier)
 	return
 end
 
