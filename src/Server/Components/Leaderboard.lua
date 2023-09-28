@@ -30,19 +30,12 @@ function Leaderboard:Initialize(): nil
 
   self._leaderboardEntry = ReplicatedStorage.Assets.UserInterface.Leaderboard.Entry
   self._updateTime = 0
-  
-  self:AddToJanitor(Players.PlayerAdded:Connect(function(): nil
-		self:UpdateEntries()
-		return
-	end))
-  self:AddToJanitor(Players.PlayerRemoving:Connect(function(): nil
-		self:UpdateEntries()
-		return
-	end))
+  self._dataInitialized = false
 
   if self.Attributes.Type == "Strength" then
     self:AddToJanitor(self._data.DataUpdated.Event:Connect(function(_, key): nil
       if key ~= "PunchStrength" and key ~= "AbsStrength" and key ~= "BicepsStrength" then return end
+      self._dataInitialized = true
       return self:UpdateEntries()
     end))
   end
@@ -50,6 +43,7 @@ end
 
 function Leaderboard:Update(dt: number): nil
   if self.Attributes.Type ~= "Playtime" then return end
+  if not self._dataInitialized then return end
   if self._updateTime >= 1 then
     self._updateTime = 0
     self:UpdateEntries()

@@ -92,10 +92,6 @@ function InputController:KnitStart(): nil
 			end)
 			return
 		end
-	
-		if data:GetValue("AutoTrain") then
-			startAutoTrain()
-		end
 		
 		data.DataUpdated:Connect(function(key, on: boolean): nil
 			if key ~= "AutoTrain" then return end

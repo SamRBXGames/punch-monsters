@@ -22,7 +22,8 @@ function TimedRewardService:KnitStart()
   self._data = Knit.GetService("DataService")
   self._pets = Knit.GetService("PetService")
 
-  Players.PlayerAdded:Connect(function(player)
+  self._data.DataUpdated.Event:Connect(function(player, key)
+    if key ~= "FirstJoinToday" then return end
     self:_CheckReset(player)
   end)
 end

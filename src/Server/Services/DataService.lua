@@ -45,15 +45,33 @@ if Test then
 end
 
 local PROFILE_CACHE = {}
+local gameClosed = false
 
-local function GetProfile(player: Player)
+game:BindToClose(function(): nil
+	gameClosed = true
+	return
+end)
+
+local function GetProfile(player: Player): Promise
 	AssertPlayer(player)
-	local profile = PROFILE_CACHE[player]
-	if not profile then
-		warn(`Waiting for {player}'s profile...`)
-	end
-	repeat task.wait(0.25) until profile
-	return profile
+	return Promise.new(function(resolve, reject)
+		local profile = PROFILE_CACHE[player]
+		local elapsed = 0
+
+		if gameClosed then
+			return resolve()
+		end
+
+		repeat 
+			local dt = task.wait(0.25)
+			if elapsed >= 10 then
+				reject(`Waited more than 10 seconds for {player}'s profile.`)
+			end
+			elapsed += dt
+		until profile
+
+		return resolve(profile)
+	end)
 end
 
 local function CreateLeaderstats(player: Player): nil
@@ -87,13 +105,16 @@ end
 local function UpdateLeaderstats(player: Player): nil
 	AssertPlayer(player)
 	task.spawn(function()
-		local Data = GetProfile(player).Data
+		local success, profile = GetProfile(player):await()
+		if not success then return error(profile) end
+
+		local data = profile.Data
 		local leaderstats = player:WaitForChild("leaderstats")
 	
-		Data.leaderstats.Strength = Data.PunchStrength + Data.BicepsStrength + Data.AbsStrength;
-		(leaderstats :: any).Strength.Value = abbreviate(Data.leaderstats.Strength);
-		(leaderstats :: any).Eggs.Value = abbreviate(Data.leaderstats.Eggs);
-		(leaderstats :: any).Rebirths.Value = abbreviate(Data.leaderstats.Rebirths)
+		data.leaderstats.Strength = data.PunchStrength + data.BicepsStrength + data.AbsStrength;
+		(leaderstats :: any).Strength.Value = abbreviate(data.leaderstats.Strength);
+		(leaderstats :: any).Eggs.Value = abbreviate(data.leaderstats.Eggs);
+		(leaderstats :: any).Rebirths.Value = abbreviate(data.leaderstats.Rebirths)
 	end)
 	return
 end
@@ -106,12 +127,11 @@ function DataService:KnitStart()
 	self._quests = Knit.GetService("QuestService")
 		
 	Players.PlayerAdded:Connect(function(player)
-		task.wait(3)
 		self:OnPlayerAdded(player)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local profile = PROFILE_CACHE[player]
-		if not profile  then return end
+		if not profile then return end
 		profile:Release()
 	end)
 
@@ -151,7 +171,9 @@ end
 function DataService:InitializeClientUpdate(player: Player): nil
 	AssertPlayer(player)
 	task.spawn(function(): nil
-		local profile = GetProfile(player)
+		local success, profile = GetProfile(player):await()
+		if not success then return error(profile) end
+
 		self:DataUpdate(player, "leaderstats", profile.Data.leaderstats)
 		self:DataUpdate(player, "Pets", profile.Data.Pets)
 		self:DataUpdate(player, "ActiveBoosts", profile.Data.ActiveBoosts)
@@ -208,11 +230,13 @@ end
 function DataService:SetValue<T>(player: Player, name: string, value: T): Promise
 	AssertPlayer(player)
 	return Promise.new(function(resolve, reject): nil
-		local data = GetProfile(player).Data
+		local success, profile = GetProfile(player):await()
+		if not success then return error(profile) end
+
 		if name == "Pets" then
 			if PetDuplicatesWereFound() then return end
 		end
-
+		
 		task.spawn(function(): nil
 			if name == "Eggs" then
 				self._quests:SetProgress(player, "OpenEggs", value)
@@ -221,7 +245,8 @@ function DataService:SetValue<T>(player: Player, name: string, value: T): Promis
 			end
 			return
 		end)
-
+		
+		local data = profile.Data
 		if data[name] ~= nil then
 			data[name] = value
 		elseif data.leaderstats[name] ~= nil then
@@ -247,7 +272,10 @@ end
 
 function DataService:GetValue<T>(player: Player, name: string): T
 	AssertPlayer(player)
-	local data = GetProfile(player).Data
+	local success, profile = GetProfile(player):await()
+	if not success then return error(profile) end
+
+	local data = profile.Data
 	local value = data[name]
 	return if value == nil then data.leaderstats[name] else value
 end

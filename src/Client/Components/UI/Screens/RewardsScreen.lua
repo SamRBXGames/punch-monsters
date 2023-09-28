@@ -60,8 +60,8 @@ function RewardsScreen:Initialize(): nil
   for crateButton: CrateButton in self._crateButtons:Values() do
     local db = Debounce.new(0.5)
     self:AddToJanitor(crateButton.MouseButton1Click:Connect(function()
-      if self:GetRemainingTime(crateButton) ~= 0 then return end
       if db:IsActive() then return end
+      if self:GetRemainingTime(crateButton) ~= 0 then return end
       self._timedRewards:Claim(crateButton.LayoutOrder)
     end))
   end

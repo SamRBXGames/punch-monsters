@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
 local Packages = ReplicatedStorage.Packages
-local Component = require(Packages.Knit)
+local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
