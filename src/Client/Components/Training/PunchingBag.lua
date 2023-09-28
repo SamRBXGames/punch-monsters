@@ -69,9 +69,17 @@ function PunchingBag:Initialize(): nil
 		startAutoTrain()
 	end
 	
-	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key, on: boolean): nil
 		if key ~= "AutoTrain" then return end
+		if not on then
+			if destroyAutoTrainClicker then
+				self._janitor:RemoveNoClean("AutoTrain")
+				destroyAutoTrainClicker()
+			end
+			return
+		end
 		startAutoTrain()
+		return
 	end))
 
 	self._jab1 = false

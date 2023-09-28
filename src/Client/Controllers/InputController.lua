@@ -96,9 +96,16 @@ function InputController:KnitStart(): nil
 		startAutoTrain()
 	end
 	
-	data.DataUpdated:Connect(function(key)
+	data.DataUpdated:Connect(function(key, on: boolean): nil
 		if key ~= "AutoTrain" then return end
+		if not on then
+			if destroyAutoTrainClicker then
+				destroyAutoTrainClicker()
+			end
+			return
+		end
 		startAutoTrain()
+		return
 	end)
 
 	UserInputService.InputBegan:Connect(function(input, processed)

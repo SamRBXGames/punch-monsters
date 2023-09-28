@@ -84,9 +84,17 @@ function EnemyFighting:Initialize(): nil
 		startAutoFight()
 	end
 	
-	self:AddToJanitor(self._data.DataUpdated:Connect(function(key)
+	self:AddToJanitor(self._data.DataUpdated:Connect(function(key, on: boolean): nil
 		if key ~= "AutoFight" then return end
+		if not on then
+			if destroyAutoFightClicker then
+				self._janitor:RemoveNoClean("AutoFight")
+				destroyAutoFightClicker()
+			end
+			return
+		end
 		startAutoFight()
+		return
 	end))
 
 	self._proxyPart = self.Instance:WaitForChild("ProxyPart")
