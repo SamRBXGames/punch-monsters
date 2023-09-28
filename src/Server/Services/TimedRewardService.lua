@@ -48,6 +48,8 @@ function TimedRewardService:Claim(player: Player, crateNumber: number): nil
   if self:IsClaimed(player, crateNumber) then return end
 
   task.spawn(function(): nil
+    local rebirthMultiplier = 1.25 ^ self._data:GetValue("Rebirths")
+
     local claimed
     if CLAIMED_REWARDS_CACHE[player.UserId] then
       claimed = CLAIMED_REWARDS_CACHE[player.UserId]
@@ -66,10 +68,10 @@ function TimedRewardService:Claim(player: Player, crateNumber: number): nil
       self._pets:Add(randomEgg)
     elseif key == "Strength" then
       local strengthType, strength = randomPair(value)
-      self._data:IncrementValue(player, strengthType .. "Strength", strength)
+      self._data:IncrementValue(player, strengthType .. "Strength", strength * rebirthMultiplier)
     else
       local winsAmount = math.random(1, value)
-      self._data:IncrementValue(player, "Wins", winsAmount)
+      self._data:IncrementValue(player, "Wins", winsAmount * rebirthMultiplier)
     end
     return
   end)
