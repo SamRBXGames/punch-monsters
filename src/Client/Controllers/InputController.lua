@@ -80,31 +80,34 @@ local KeyboardInputMap = {
 function InputController:KnitStart(): nil
 	local data = Knit.GetService("DataService")
 	local scheduler = Knit.GetController("SchedulerController")
-	local destroyAutoTrainClicker
-
-	local function startAutoTrain(): nil
-		if destroyAutoTrainClicker then
-			destroyAutoTrainClicker()
-		end
-		destroyAutoTrainClicker = scheduler:Every("0.5 seconds", function()
-			task.spawn(liftDumbell)
-		end)
-		return
-	end
-
-	if data:GetValue("AutoTrain") then
-		startAutoTrain()
-	end
 	
-	data.DataUpdated:Connect(function(key, on: boolean): nil
-		if key ~= "AutoTrain" then return end
-		if not on then
+	task.spawn(function(): nil
+		local destroyAutoTrainClicker
+		local function startAutoTrain(): nil
 			if destroyAutoTrainClicker then
 				destroyAutoTrainClicker()
 			end
+			destroyAutoTrainClicker = scheduler:Every("0.5 seconds", function()
+				task.spawn(liftDumbell)
+			end)
 			return
 		end
-		startAutoTrain()
+	
+		if data:GetValue("AutoTrain") then
+			startAutoTrain()
+		end
+		
+		data.DataUpdated:Connect(function(key, on: boolean): nil
+			if key ~= "AutoTrain" then return end
+			if not on then
+				if destroyAutoTrainClicker then
+					destroyAutoTrainClicker()
+				end
+				return
+			end
+			startAutoTrain()
+			return
+		end)
 		return
 	end)
 

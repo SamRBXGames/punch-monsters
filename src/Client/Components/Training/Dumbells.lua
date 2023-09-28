@@ -23,8 +23,8 @@ function Dumbells:Initialize(): nil
   local ui = Knit.GetController("UIController")
 
   local pad = self.Instance:WaitForChild("Circle")
-  local touching = false
   local db = Debounce.new(3.5)
+  local touching = false
 
   db.Deactivated:Connect(function()
     touching = false

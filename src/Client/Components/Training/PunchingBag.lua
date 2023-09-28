@@ -107,8 +107,9 @@ function PunchingBag:IsClosest(): boolean
 end
 
 function PunchingBag:Punch(): nil
+	if self.Attributes.PunchDebounce then return end
 	if self._dumbell:IsEquipped() then return end
-
+	
 	local isClosestBag = self:IsClosest()
 	if not isClosestBag then return end
 	
@@ -116,9 +117,8 @@ function PunchingBag:Punch(): nil
 	local bagTemplate = PunchBagsTemplate[mapName][self.Instance.Name]
 	local punchStrength = self._data:GetTotalStrength("Punch")
 	if punchStrength < bagTemplate.PunchRequirement then return end
-	
-	if self.Attributes.PunchDebounce then return end
 	self.Attributes.PunchDebounce = true
+	
 
 	task.spawn(function()
 		local punchAnim = if self._jab1 then JAB1_ANIM else JAB2_ANIM

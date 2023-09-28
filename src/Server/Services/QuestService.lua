@@ -27,24 +27,28 @@ function QuestService:KnitStart(): nil
   self._playtime = Knit.GetService("DataService")
 
   local elapsed = 0
+  local questsWereReset = GameData:GetAsync("QuestsResetThisWeek")
   Runtime.Heartbeat:Connect(function(dt: number): nil
     if elapsed >= 1 then
+      elapsed = 0
       local date = os.date("!*t")
-      local questsWereReset = GameData:GetAsync("QuestsResetThisWeek")
       if date.wday == 1 then
-        if not questsWereReset then
-          GameData:SetAsync("GoalsThisWeek", nil)
-          GameData:SetAsync("QuestsResetThisWeek", true)
-          for _, player in pairs(Players:GetPlayers()) do
-            task.spawn(function(): nil
-              self._data:SetValue(player, "UpdatedQuestProgress", false):await()
-              self:_Reset(player)
-              return
-            end)
-          end
+        if questsWereReset then return end
+
+        GameData:SetAsync("GoalsThisWeek", nil)
+        GameData:SetAsync("QuestsResetThisWeek", true):await()
+        questsWereReset = GameData:GetAsync("QuestsResetThisWeek")
+        for _, player in pairs(Players:GetPlayers()) do
+          task.spawn(function(): nil
+            self._data:SetValue(player, "UpdatedQuestProgress", false):await()
+            self:_Reset(player)
+            return
+          end)
         end
       else
-        GameData:SetAsync("QuestsResetThisWeek", false)
+        if not questsWereReset then return end
+        GameData:SetAsync("QuestsResetThisWeek", false):await()
+        questsWereReset = GameData:GetAsync("QuestsResetThisWeek")
       end
     else
       elapsed += dt
