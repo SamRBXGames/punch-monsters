@@ -38,9 +38,12 @@ function TradeRequestScreen:Initialize(): nil
     self._fromPlayer = sender
     return
   end))
-  self:AddToJanitor(self._trades.TradeAccepted:Connect(function(sender: Player): nil
+  self:AddToJanitor(self._trades.TradeAccepted:Connect(function(sender: Player, tradeID: string): nil
     if player == sender then return end
-    self._ui:SetScreen("Trading", true)
+    local tradeScreen = self._ui:SetScreen("Trading", true)
+    tradeScreen:SetAttribute("ID", tradeID)
+    tradeScreen:SetAttribute("RecipientName", self._fromPlayer.Name)
+    self._fromPlayer = nil
     return
   end))
   self:AddToJanitor(self.Instance.Accept.MouseButton1Click:Connect(function(): nil

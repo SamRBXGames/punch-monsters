@@ -6,11 +6,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local HttpService = game:GetService("HttpService")
 
 local Modules = ServerScriptService.Server.Modules
-local VerifyID = require(Modules.VerifyID)
 local AssertPlayer = require(Modules.AssertPlayer)
 
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
 local Welder = require(ReplicatedStorage.Modules.Welder)
+local VerifyID = require(ReplicatedStorage.Modules.VerifyID)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
