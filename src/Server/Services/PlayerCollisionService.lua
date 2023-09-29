@@ -24,13 +24,16 @@ local function assignPlayerCollisionGroup(char: Model): nil
   return
 end
 
-function PlayerCollisionService:KnitInit()
+function PlayerCollisionService:KnitInit(): nil
 	Physics:RegisterCollisionGroup("Player")
 	Physics:CollisionGroupSetCollidable("Player", "Player", false)
 	
-  Players.PlayerAdded:Connect(function(plr)
+  Players.PlayerAdded:Connect(function(plr): nil
     plr.CharacterAppearanceLoaded:Connect(assignPlayerCollisionGroup)
+		return
   end)
+
+	return
 end
 
 return PlayerCollisionService

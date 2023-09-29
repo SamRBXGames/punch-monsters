@@ -52,6 +52,13 @@ function UIController:SetScreen(name: string, blur: boolean?): ScreenGui?
 	return setScreen
 end
 
+function UIController:SetFrameEnabled(screenName: string, frameName: string, on: boolean): nil
+	local screen = player:WaitForChild("PlayerGui"):WaitForChild(screenName)
+	local frame = screen:WaitForChild(frameName) :: GuiObject
+	frame.Visible = on
+	return
+end
+
 --local PlayerModule = player.PlayerScripts:WaitForChild("PlayerModule")
 --local Cameras = require(PlayerModule):GetCameras()
 --local CameraController = Cameras.activeCameraController

@@ -32,11 +32,13 @@ local SendTradeScreen: Component.Def = {
 
 function SendTradeScreen:Initialize(): nil
 	self._data = Knit.GetService("DataService")
+	self._trades = Knit.GetService("TradeService")
 	
-  self._playerFrameTemplate = ReplicatedStorage.Assets.UserInterface.Trading.Player
   local playerContainer = self.Instance.Background.Players
+  self._playerFrameTemplate = ReplicatedStorage.Assets.UserInterface.Trading.Player
 	self:AddToJanitor(Players.PlayerAdded:Connect(function(newPlayer: Player): nil
     self:AddPlayerCard(newPlayer)
+		return
 	end))
   self:AddToJanitor(Players.PlayerRemoving:Connect(function(leavingPlayer: Player): nil
     if leavingPlayer == player then return end
@@ -65,7 +67,7 @@ function SendTradeScreen:AddPlayerCard(newPlayer: Player): nil
 	playerFrame.Name = tostring(newPlayer.UserId)
 	playerFrame.NameLabel.Text = newPlayer.DisplayName
 	playerFrame.Send.MouseButton1Click:Connect(function(): nil
-		-- send a trade to `player`
+		self._trades:Send(player)
 		return
 	end)
 	return
