@@ -65,10 +65,6 @@ function PunchingBag:Initialize(): nil
 		return
 	end
 
-	if self._data:GetValue("AutoTrain") then
-		startAutoTrain()
-	end
-	
 	self:AddToJanitor(self._data.DataUpdated:Connect(function(key, on: boolean): nil
 		if key ~= "AutoTrain" then return end
 		if not on then

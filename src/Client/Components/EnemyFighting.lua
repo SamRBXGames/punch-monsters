@@ -79,10 +79,6 @@ function EnemyFighting:Initialize(): nil
 		self:AddToJanitor(destroyAutoFightClicker, true, "AutoFight")
 		return
 	end
-
-	if self._data:GetValue("AutoFight") then
-		startAutoFight()
-	end
 	
 	self:AddToJanitor(self._data.DataUpdated:Connect(function(key, on: boolean): nil
 		if key ~= "AutoFight" then return end

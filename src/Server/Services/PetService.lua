@@ -82,7 +82,7 @@ end
 
 function PetService:ToggleVisibility(player: Player, on: boolean): nil
 	task.spawn(function()
-		local char = player.Character :: Model
+		local char = player.Character or player.CharacterAdded:Wait()
 		local petsFolder = char:FindFirstChild("Pets")
 		if not petsFolder then return end
 

@@ -5,7 +5,7 @@ local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
 local Component = require(Packages.Component)
 
-Knit.AddServicesDeep(script.Services)
+Knit.AddServices(script.Services)
 Component.LoadFolder(script.Components)
 Knit.Start({ServicePromises  = false}):andThen(function()
 	Component.StartComponents()

@@ -6,7 +6,6 @@ local Players = game:GetService("Players")
 
 local Debounce = require(ReplicatedStorage.Modules.Debounce)
 local abbreviate = require(ReplicatedStorage.Modules.Abbreviate)
-local randomPair = require(ReplicatedStorage.Modules.RandomPair)
 
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
@@ -70,6 +69,7 @@ function MegaQuestScreen:Initialize(): nil
     if not self._quests:IsComplete() then return end
 		if db:IsActive() then return end
 		self._quests:Claim()
+		return
 	end))
 
 	self:AddToJanitor(self._data.DataUpdated:Connect(function(key): nil
@@ -83,21 +83,18 @@ end
 function MegaQuestScreen:UpdateProgress(): nil
 	task.spawn(function(): nil
 		local progressData = self._data:GetValue("MegaQuestProgress")
-    local colorValue = if self._quests:IsComplete() then Color3.new(1, 1, 1) else Color3.new(0.74, 0.74, 0.74)
-		self._background.Claim.ImageColor3 = colorValue
-    self._background.Claim.Title.TextColor3 = colorValue
-
     local index = 1
+
     for name, currentValue in pairs(progressData) do
       task.spawn(function(): nil
         local barContainer = self._background[`Goal{index}Progress`]
         local title = self._background[`Goal{index}Title`]
-        local goalValue = self._questGoals[name]
-        local progress = currentValue / goalValue
+        local goalValue: number = self._questGoals[name]
+        local progress = currentValue :: number / goalValue
         barContainer.Bar.Size = UDim2.fromScale(progress, 1)
         
         if name == "StayActive" then
-          barContainer.Value.Text = `{currentValue / 60}/{goalValue / 60}`
+          barContainer.Value.Text = `{currentValue :: number / 60}/{goalValue / 60}`
         else
           barContainer.Value.Text = `{currentValue}/{goalValue}`
         end
@@ -113,8 +110,16 @@ function MegaQuestScreen:UpdateProgress(): nil
       end)
       index += 1
     end
+
+		if index > 1 then
+			local colorValue = if self._quests:IsComplete() then Color3.new(1, 1, 1) else Color3.new(0.74, 0.74, 0.74)
+			self._background.Claim.ImageColor3 = colorValue
+			self._background.Claim.Title.TextColor3 = colorValue
+		end
+
 		return
 	end)
+
 	return
 end
 

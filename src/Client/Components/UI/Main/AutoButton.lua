@@ -34,8 +34,8 @@ function AutoButton:Initialize(): nil
     if key ~= self._dataKey then return end
     return self:UpdateText()
   end))
-
-  return self:UpdateText()
+  
+  return
 end
 
 function AutoButton:Event_MouseButton1Click(): nil

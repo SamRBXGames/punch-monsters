@@ -104,9 +104,10 @@ end
 
 local function UpdateLeaderstats(player: Player): nil
 	AssertPlayer(player)
-	task.spawn(function()
+	task.spawn(function(): nil
 		local success, profile = GetProfile(player):await()
 		if not success then return error(profile) end
+		if not profile then return end
 
 		local data = profile.Data
 		local leaderstats = player:WaitForChild("leaderstats")
@@ -115,6 +116,7 @@ local function UpdateLeaderstats(player: Player): nil
 		(leaderstats :: any).Strength.Value = abbreviate(data.leaderstats.Strength);
 		(leaderstats :: any).Eggs.Value = abbreviate(data.leaderstats.Eggs);
 		(leaderstats :: any).Rebirths.Value = abbreviate(data.leaderstats.Rebirths)
+		return
 	end)
 	return
 end
@@ -232,6 +234,7 @@ function DataService:SetValue<T>(player: Player, name: string, value: T): Promis
 	return Promise.new(function(resolve, reject): nil
 		local success, profile = GetProfile(player):await()
 		if not success then return error(profile) end
+		if not profile then return end
 
 		if name == "Pets" then
 			if PetDuplicatesWereFound() then return end
@@ -274,6 +277,7 @@ function DataService:GetValue<T>(player: Player, name: string): T
 	AssertPlayer(player)
 	local success, profile = GetProfile(player):await()
 	if not success then return error(profile) end
+	if not profile then return nil :: any end
 
 	local data = profile.Data
 	local value = data[name]

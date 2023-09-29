@@ -45,8 +45,8 @@ function RewardsScreen:Initialize(): nil
   local NotificationButton = Component.Get("NotificationButton")
   repeat task.wait()
     self._rewardsButton = NotificationButton:Find(self.Instance.Parent.MainUi.PlaytimeRewardButton)
-  until self._rewardsButton
-  self._rewardsButton:ToggleNotification(false)
+  until self._rewardsButton;
+  (self._rewardsButton :: any):ToggleNotification(false)
 
 	self._timedRewards = Knit.GetService("TimedRewardService")
   local data = Knit.GetService("DataService")
