@@ -30,15 +30,22 @@ function TradeRequestScreen:Initialize(): nil
 	self._trades = Knit.GetService("TradeService")
   self._ui = Knit.GetController("UIController")
 	
-  self:AddToJanitor(self._trades.TradeReceived:Connect(function(fromPlayer: Player): nil
-    if player == fromPlayer then return end
-    self.Instance.Description.Text = `{fromPlayer.DisplayName} sent you a trade request!`
+  self._fromPlayer = nil :: Player?
+  self:AddToJanitor(self._trades.TradeReceived:Connect(function(sender: Player): nil
+    if player == sender then return end
+    self.Instance.Description.Text = `{sender.DisplayName} sent you a trade request!`
     self.Instance.Visible = true
+    self._fromPlayer = sender
+    return
+  end))
+  self:AddToJanitor(self._trades.TradeAccepted:Connect(function(): nil
+    self._ui:SetScreen("Trading", true)
     return
   end))
   self:AddToJanitor(self.Instance.Accept:Connect(function()
     self.Instance.Visible = false
     self._ui:SetScreen("Trading", true)
+    self._trades:Accept(self._fromPlayer)
   end))
   self:AddToJanitor(self.Instance.Decline:Connect(function()
     self.Instance.Visible = false

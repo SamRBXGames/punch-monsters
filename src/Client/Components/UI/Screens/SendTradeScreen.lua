@@ -4,10 +4,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
+local Debounce = require(ReplicatedStorage.Modules.Debounce)
+
 local Packages = ReplicatedStorage.Packages
 local Knit = require(Packages.Knit)
-local Component = require(Packages.Component)
 local Array = require(Packages.Array)
+local Component = require(Packages.Component)
 
 local player = Players.LocalPlayer
 
@@ -63,10 +65,12 @@ end
 function SendTradeScreen:AddPlayerCard(newPlayer: Player): nil
 	if newPlayer == player then return end
 
+	local db = Debounce.new(5)
 	local playerFrame = self._playerFrameTemplate:Clone()
 	playerFrame.Name = tostring(newPlayer.UserId)
 	playerFrame.NameLabel.Text = newPlayer.DisplayName
 	playerFrame.Send.MouseButton1Click:Connect(function(): nil
+		if db:IsActive() then return end
 		self._trades:Send(player)
 		return
 	end)
