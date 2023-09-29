@@ -42,12 +42,12 @@ function TradeRequestScreen:Initialize(): nil
     self._ui:SetScreen("Trading", true)
     return
   end))
-  self:AddToJanitor(self.Instance.Accept:Connect(function()
+  self:AddToJanitor(self.Instance.Accept.MouseButton1Click:Connect(function()
     self.Instance.Visible = false
     self._ui:SetScreen("Trading", true)
     self._trades:Accept(self._fromPlayer)
   end))
-  self:AddToJanitor(self.Instance.Decline:Connect(function()
+  self:AddToJanitor(self.Instance.Decline.MouseButton1Click:Connect(function()
     self.Instance.Visible = false
   end))
 

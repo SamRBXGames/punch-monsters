@@ -36,7 +36,7 @@ function SendTradeScreen:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._trades = Knit.GetService("TradeService")
 	
-  local playerContainer = self.Instance.Background.Players
+  self._playerContainer = self.Instance.Background.Players
   self._playerFrameTemplate = ReplicatedStorage.Assets.UserInterface.Trading.Player
 	self:AddToJanitor(Players.PlayerAdded:Connect(function(newPlayer: Player): nil
     self:AddPlayerCard(newPlayer)
@@ -44,7 +44,7 @@ function SendTradeScreen:Initialize(): nil
 	end))
   self:AddToJanitor(Players.PlayerRemoving:Connect(function(leavingPlayer: Player): nil
     if leavingPlayer == player then return end
-		local playerFrame = Array.new("Instance", playerContainer:GetChildren())
+		local playerFrame = Array.new("Instance", self._playerContainer:GetChildren())
       :Find(function(playerFrame)
         return playerFrame.Name == tostring(leavingPlayer.UserId)
       end)
@@ -66,7 +66,7 @@ function SendTradeScreen:AddPlayerCard(newPlayer: Player): nil
 	if newPlayer == player then return end
 
 	local db = Debounce.new(5)
-	local playerFrame = self._playerFrameTemplate:Clone()
+	local playerFrame: ImageLabel & { NameLabel: TextLabel; Send: ImageButton } = self._playerFrameTemplate:Clone()
 	playerFrame.Name = tostring(newPlayer.UserId)
 	playerFrame.NameLabel.Text = newPlayer.DisplayName
 	playerFrame.Send.MouseButton1Click:Connect(function(): nil
@@ -74,6 +74,8 @@ function SendTradeScreen:AddPlayerCard(newPlayer: Player): nil
 		self._trades:Send(player)
 		return
 	end)
+	playerFrame.Parent = self._playerContainer
+
 	return
 end
 
