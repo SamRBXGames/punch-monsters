@@ -71,7 +71,7 @@ function SendTradeScreen:AddPlayerCard(newPlayer: Player): nil
 	playerFrame.NameLabel.Text = newPlayer.DisplayName
 	playerFrame.Send.MouseButton1Click:Connect(function(): nil
 		if db:IsActive() then return end
-		self._trades:Send(player)
+		self._trades:Send(newPlayer)
 		return
 	end)
 	playerFrame.Parent = self._playerContainer
