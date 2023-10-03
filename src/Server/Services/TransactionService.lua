@@ -23,6 +23,7 @@ function TransactionService:KnitStart()
 	local gamepass = Knit.GetService("GamepassService")
 	local boosts = Knit.GetService("BoostService")
 	local rebirths = Knit.GetService("RebirthService")
+	local hatching = Knit.GetService("HatchingService")
 	local purchaseLogger = Knit.GetService("PurchaseLogService")
 	
 	local ProductFunctions = {
@@ -69,6 +70,18 @@ function TransactionService:KnitStart()
 		[1654924365] = function(player: Player): nil -- skip rebirth
 			rebirths:_AddRebirth(player)
 			return
+		end,
+		[1631383150] = function(player: Player): nil -- skip rebirth
+			hatching:Hatch(player, 1)
+			return
+		end,
+		[1631383146] = function(player: Player): nil -- skip rebirth
+			hatching:Hatch(player, 3)
+			return
+		end,
+		[1631383837] = function(player: Player): nil -- skip rebirth
+			hatching:Hatch(player, 8)
+			return
 		end
 	}
 	
@@ -93,7 +106,7 @@ function TransactionService:KnitStart()
 		end
 
 		local success, isPurchaseRecorded = pcall(function()
-			return PurchaseHistory:UpdateAsync(playerProductKey, function(alreadyPurchased)
+			return PurchaseHistory:UpdateAsync(playerProductKey, function(alreadyPurchased): boolean?
 				if alreadyPurchased then return true end
 				
 				local player = Players:GetPlayerByUserId(receipt.PlayerId)

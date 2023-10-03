@@ -44,6 +44,7 @@ function HatchingStand:Initialize(): nil
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
+	self._hatching = Knit.GetService("HatchingService")
 	self._ui = Knit.GetController("UIController")
 	self._hatching = false
 	
@@ -52,6 +53,13 @@ function HatchingStand:Initialize(): nil
 	self._egg = self.Instance.Egg
 	self._map = self.Instance.Parent.Parent.Name
 	self._eggTemplate = EggTemplate[self._map][self.Instance.Name]
+
+	self:AddToJanitor(self._hatching.Hatched:Connect(function(times: number): nil
+		for _ = 1, times do
+			self:Hatch()
+		end
+		return
+	end))
 	
 	self:AddPetCards()
 	return
@@ -162,9 +170,7 @@ function HatchingStand:BuyThree(): nil
 	if not self:IsClosest() then return end
 	
 	for _ = 1, 3 do
-		task.spawn(function()
-			self:Hatch()
-		end)
+		self:Hatch()
 	end
 	return
 end
