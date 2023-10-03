@@ -3,8 +3,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local Sound = game:GetService("SoundService")
 local StarterGui = game:GetService("StarterGui")
 local EggTemplate = require(ReplicatedStorage.Templates.EggTemplate)
 local PetsTemplate = require(ReplicatedStorage.Templates.PetsTemplate)
@@ -119,6 +119,11 @@ function HatchingStand:Hatch(): nil
 		return warn(`Could not find pet model "{pet}"`)
 	end
 	
+	local petTemplate = PetsTemplate[pet]
+	if petTemplate.Rarity == "Legendary" then
+		Sound.Master.LegendaryHatch:Play()
+	end
+
 	self._pets:Add(pet)
 	self._eggViewport:SetAttribute("FitModel", false)
 	self._eggViewport:SetAttribute("FOV", nil :: any)

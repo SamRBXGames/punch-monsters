@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Sound = game:GetService("SoundService")
 local Players = game:GetService("Players")
 
 local SitupBenchTemplate = require(ReplicatedStorage.Templates.SitupBenchTemplate)
@@ -133,6 +134,7 @@ function SitupBench:Situp(): nil
 		SITUP_ANIM:AdjustSpeed(1.75)
 	end)
 
+	Sound.Master.Train:Play()
 	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
 	local hasVIP =  self._gamepass:DoesPlayerOwn("VIP")
 	if self._benchTemplate.Vip and not hasVIP then

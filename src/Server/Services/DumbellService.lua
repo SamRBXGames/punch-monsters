@@ -28,6 +28,7 @@ local DumbellService = Knit.CreateService {
 function DumbellService:KnitStart(): nil
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
+	self._sound = Knit.GetService("SoundService")
 	self._playerDumbellInfo = {}
 
 	self._liftAnimations = {}
@@ -57,19 +58,22 @@ end
 function DumbellService:Lift(player: Player): nil
 	AssertPlayer(player)
 
+	self._sound:PlayFor(player, "Train")
 	local dumbellInfo = self._playerDumbellInfo[player.UserId]
 	if not dumbellInfo.Equipped then return end
 	if dumbellInfo.LiftDebounce then return end
 	dumbellInfo.LiftDebounce = true
 	self._playerDumbellInfo[player.UserId] = dumbellInfo
 
-	local liftAnim = self._liftAnimations[player.UserId]
-	liftAnim.Ended:Once(function()
-		dumbellInfo.LiftDebounce = false
-		self._playerDumbellInfo[player.UserId] = dumbellInfo
+	task.spawn(function(): nil
+		local liftAnim = self._liftAnimations[player.UserId]
+		liftAnim.Ended:Once(function()
+			dumbellInfo.LiftDebounce = false
+			self._playerDumbellInfo[player.UserId] = dumbellInfo
+		end)
+		liftAnim:Play()
+		return
 	end)
-	liftAnim:Play()
-
 	
 	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
 	local hasVIP = self._gamepass:DoesPlayerOwn(player, "VIP")

@@ -1,6 +1,7 @@
 --!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Sound = game:GetService("SoundService")
 local Players = game:GetService("Players")
 
 local CameraShaker = require(script.Parent.Parent.Modules.CameraShaker)
@@ -275,6 +276,7 @@ end
 
 function EnemyFighting:AddWin(): nil
 	task.spawn(function()
+		Sound.Master.Win:Play()
 		local hasDoubleWins = self._gamepass:DoesPlayerOwn("2x Wins")
 		local hasWinsBoost = self._boosts:IsBoostActive("2xWins")
 		local multiplier = (if hasDoubleWins then 2 else 1)

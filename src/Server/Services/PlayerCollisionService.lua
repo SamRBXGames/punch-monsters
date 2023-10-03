@@ -7,7 +7,7 @@ local Players = game:GetService("Players")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 
 local PlayerCollisionService = Knit.CreateService {
-  Name = "PlayerCollisionService"
+  Name = "PlayerCollisionService";
 }
 
 local function assignPlayerCollisionGroup(char: Model): nil

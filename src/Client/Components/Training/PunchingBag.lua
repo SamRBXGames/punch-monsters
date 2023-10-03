@@ -2,7 +2,7 @@
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local SoundService = game:GetService("SoundService")
+local Sound = game:GetService("SoundService")
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
@@ -132,12 +132,12 @@ function PunchingBag:Punch(): nil
 		return self._gamepass:PromptPurchase("VIP")
 	end
 	
+	Sound.Master.Punch:Play()
 	task.spawn(function()
 		cameraShaker:Shake(CameraShaker.Presets.Rock)
 		local vfx = PunchBagsTemplate[mapName].VFX:Clone()
 		vfx.Parent = self.Instance.Cylinder
 		Debris:AddItem(vfx, 0.5)
-		SoundService.Master.PunchSound:Play()
 	end)
 
 	self._data:IncrementValue("PunchStrength", bagTemplate.Hit * strengthMultiplier)
