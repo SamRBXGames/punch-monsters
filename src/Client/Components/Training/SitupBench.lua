@@ -12,10 +12,8 @@ local player = Players.LocalPlayer
 local defaultCameraMinZoom = player.CameraMinZoomDistance
 local character = player.Character or player.CharacterAdded:Wait()
 local characterRoot = character:WaitForChild("HumanoidRootPart")
-local animator = character.Humanoid:WaitForChild("Animator") :: Animator
-local animations = ReplicatedStorage.Assets.Animations
 
-local SITUP_ANIM = animator:LoadAnimation(animations.Situp)
+local COOLDOWN = 0.5
 
 local SitupBench: Component.Def = {
 	Name = script.Name;
@@ -43,6 +41,7 @@ function SitupBench:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
+	self._animation = Knit.GetService("AnimationService")
 	self._ui = Knit.GetController("UIController")
 	local scheduler = Knit.GetController("SchedulerController")
 	local destroyAutoTrainClicker
@@ -125,15 +124,11 @@ function SitupBench:Situp(): nil
 	if not self.Attributes.InUse then return end
 	if self.Attributes.SitupDebounce then return end
 	self.Attributes.SitupDebounce = true
-
-	task.spawn(function()
-		SITUP_ANIM.Ended:Once(function()
-			self.Attributes.SitupDebounce = false
-		end)
-		SITUP_ANIM:Play()
-		SITUP_ANIM:AdjustSpeed(1.75)
+	task.delay(COOLDOWN, function()
+		self.Attributes.SitupDebounce = false
 	end)
 
+	self._animation:Play("Situp", 1.75)
 	Sound.Master.Train:Play()
 	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)
 	local hasVIP =  self._gamepass:DoesPlayerOwn("VIP")

@@ -25,12 +25,9 @@ cameraShaker:Start()
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local characterRoot = character:WaitForChild("HumanoidRootPart")
-local animator = character.Humanoid:WaitForChild("Animator") :: Animator
-local animations = ReplicatedStorage.Assets.Animations
 
-local JAB1_ANIM = animator:LoadAnimation(animations.Jab)
-local JAB2_ANIM = animator:LoadAnimation(animations.Jab2)
 local MAX_BAG_DISTANCE = 6
+local COOLDOWN = 0.7
 
 local PunchingBag: Component.Def = {
 	Name = script.Name;
@@ -50,6 +47,7 @@ function PunchingBag:Initialize(): nil
 	self._data = Knit.GetService("DataService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
+	self._animation = Knit.GetService("AnimationService")
 	local scheduler = Knit.GetController("SchedulerController")
 	local destroyAutoTrainClicker
 
@@ -115,15 +113,11 @@ function PunchingBag:Punch(): nil
 	if punchStrength < bagTemplate.PunchRequirement then return end
 	self.Attributes.PunchDebounce = true
 	
-
-	task.spawn(function()
-		local punchAnim = if self._jab1 then JAB1_ANIM else JAB2_ANIM
-		punchAnim.Ended:Once(function()
-			self.Attributes.PunchDebounce = false
-		end)
-		punchAnim:Play()
-		punchAnim:AdjustSpeed(1.5)
-		self._jab1 = not self._jab1
+	local punchAnim = if self._jab1 then "Jab" else "Jab2"
+	self._animation:Play(punchAnim, 1.5)
+	self._jab1 = not self._jab1
+	task.delay(COOLDOWN, function()
+		self.Attributes.PunchDebounce = false
 	end)
 
 	local strengthMultiplier = self._data:GetTotalStrengthMultiplier(player)

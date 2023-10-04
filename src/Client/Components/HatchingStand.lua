@@ -44,7 +44,7 @@ function HatchingStand:Initialize(): nil
 	self._boosts = Knit.GetService("BoostService")
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
-	self._hatching = Knit.GetService("HatchingService")
+	self._hatchingService = Knit.GetService("HatchingService")
 	self._ui = Knit.GetController("UIController")
 	self._hatching = false
 	
@@ -54,7 +54,7 @@ function HatchingStand:Initialize(): nil
 	self._map = self.Instance.Parent.Parent.Name
 	self._eggTemplate = EggTemplate[self._map][self.Instance.Name]
 
-	self:AddToJanitor(self._hatching.Hatched:Connect(function(times: number): nil
+	self:AddToJanitor(self._hatchingService.Hatched:Connect(function(times: number): nil
 		for _ = 1, times do
 			self:Hatch()
 		end
@@ -62,6 +62,7 @@ function HatchingStand:Initialize(): nil
 	end))
 	
 	self:AddPetCards()
+	self._chancesUI.Enabled = true
 	return
 end
 

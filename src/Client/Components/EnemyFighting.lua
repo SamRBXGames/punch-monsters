@@ -23,14 +23,14 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local characterRoot = character:WaitForChild("HumanoidRootPart")
 local humanoid = character:WaitForChild("Humanoid")
-local animator = humanoid:WaitForChild("Animator") :: Animator
 local animations = ReplicatedStorage.Assets.Animations
 
 local RAGDOLL_FORCE = 30
+local COOLDOWN = 0.25
 local PLAYER_ANIMS = {
-	animator:LoadAnimation(animations.Jab),
-	animator:LoadAnimation(animations.Jab2),
-	animator:LoadAnimation(animations.Uppercut)
+	"Jab",
+	"Jab2",
+	"Uppercut"
 }
 
 local EnemyFighting: Component.Def = {
@@ -65,6 +65,7 @@ function EnemyFighting:Initialize(): nil
 	self._gamepass = Knit.GetService("GamepassService")
 	self._dumbell = Knit.GetService("DumbellService")
 	self._ragdoll = Knit.GetService("RagdollService")
+	self._animation = Knit.GetService("AnimationService")
 	self._ui = Knit.GetController("UIController")
 	local scheduler = Knit.GetController("SchedulerController")
 	local destroyAutoFightClicker
@@ -194,6 +195,8 @@ function EnemyFighting:StartFight(): nil
 			(self :: any)._playerHealth -= self._enemyDamage
 			self:UpdateBars()
 		until (self._playerHealth <= 0) or (self._enemyHealth <= 0)
+		
+		self:UpdateBars()
 		if self._playerHealth <= 0 then
 			self:KillPlayer()
 		end	
@@ -248,17 +251,12 @@ function EnemyFighting:Attack(): nil
 	if not self.Attributes.InUse then return end
 	if self.Attributes.PunchDebounce then return end
 	self.Attributes.PunchDebounce = true
-	
-	task.spawn(function(): nil
-		local punchAnim = PLAYER_ANIMS[math.random(1, #PLAYER_ANIMS)]
-		punchAnim.Ended:Once(function()
-			self.Attributes.PunchDebounce = false
-		end)
-		punchAnim:Play()
-		punchAnim:AdjustSpeed(2.5)
-		return
+	task.delay(COOLDOWN, function()
+		self.Attributes.PunchDebounce = false
 	end)
-	
+
+	local punchAnim = PLAYER_ANIMS[math.random(1, #PLAYER_ANIMS)]
+	self._animation:Play(punchAnim, 2.5)
 	task.spawn(function()
 		cameraShaker:Shake(CameraShaker.Presets.Rock);
 	end);

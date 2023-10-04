@@ -39,12 +39,13 @@ function Leaderboard:Initialize(): nil
       return self:UpdateEntries()
     end))
   end
+  return
 end
 
 function Leaderboard:Update(dt: number): nil
   if self.Attributes.Type ~= "Playtime" then return end
   if not self._dataInitialized then return end
-  if self._updateTime >= 1 then
+  if self._updateTime >= 5 then
     self._updateTime = 0
     self:UpdateEntries()
   else
